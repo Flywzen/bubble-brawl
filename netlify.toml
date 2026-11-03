@@ -1,3 +1,0 @@
-# Frontend statis saja. Backend realtime (1-backend) TIDAK jalan di Netlify; deploy di Render.
-[build]
-  publish = "2-frontend"
