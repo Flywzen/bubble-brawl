@@ -325,8 +325,8 @@ const midi=n=>440*Math.pow(2,(n-69)/12),CH=[[48,[60,64,67]],[46,[58,62,65]],[41,
  M3=[[0,83],[2,83],[3,79],[6,83],[8,86],[10,83],[12,79],[13,81],[14,83],[15,86]],MEL=[M0,M1,M2,M3],
  BASS={0:0,3:0,6:12,8:0,10:7,11:0,14:12};
 function tone(t,f,d,type,v,f2){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02)}
-function syn(t,f,d,type,v,cut){const o=ac.createOscillator(),fl=ac.createBiquadFilter(),g=ac.createGain();o.type=type;o.frequency.value=f;fl.type='lowpass';fl.frequency.setValueAtTime(cut,t);fl.frequency.exponentialRampToValueAtTime(Math.max(200,cut*.25),t+d);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(fl);fl.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02)}
-function nz(t,d,v,type,fr){const n=Math.floor(ac.sampleRate*d),b=ac.createBuffer(1,n,ac.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=Math.random()*2-1;const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=b;f.type=type;f.frequency.value=fr;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(mg);s.start(t)}
+function syn(t,f,d,type,v,cut){const fl=ac.createBiquadFilter(),g=ac.createGain();fl.type='lowpass';fl.frequency.setValueAtTime(cut,t);fl.frequency.exponentialRampToValueAtTime(Math.max(200,cut*.25),t+d);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.exponentialRampToValueAtTime(.001,t+d);fl.connect(g);g.connect(mg);[].concat(f).forEach(q=>{const o=ac.createOscillator();o.type=type;o.frequency.value=q;o.connect(fl);o.start(t);o.stop(t+d+.02)})}
+let NB;function nz(t,d,v,type,fr){if(!NB){NB=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const a=NB.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=NB;f.type=type;f.frequency.value=fr;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(mg);s.start(t,Math.random()*.8,d+.02)}
 function kick(t){tone(t,170,.14,'sine',.5,45)}
 function clap(t,v){nz(t,.09,v,'bandpass',1600);nz(t+.012,.07,v*.7,'bandpass',1900)}
 function hat(t,d,v){nz(t,d,v,'highpass',7500)}
@@ -335,7 +335,7 @@ function musicStep(t){const bar=(step>>4)&3,s=step&15,root=CH[bar][0],ch=CH[bar]
   if(s===4||s===12||(I&&bar===3&&s>12))clap(t,.13);
   if(s%4===2)hat(t,.06,.05);else if(I)hat(t,.025,.025);
   if(s in BASS)syn(t,midi(root+BASS[s]),.13,'sawtooth',.2,900);
-  if(s===2||s===6||s===10||s===14)ch.forEach(n=>syn(t,midi(n),.1,'sawtooth',.03,2200));
+  if(s===2||s===6||s===10||s===14)syn(t,ch.map(midi),.1,'sawtooth',.09,2200);
   const m=MEL[bar].find(n=>n[0]===s);
   if(m){syn(t,midi(m[1]),.13,'square',.06,3000);if(I)syn(t,midi(m[1]+12),.1,'triangle',.04,4000)}}
 setInterval(()=>{if(!ac||!mg||!music||!sound||!room||!['count','play','end'].includes(room.st)){nextT=0;return}
@@ -463,10 +463,10 @@ function predictMe(f){
   if(pendDash){if(Date.now()-pendDash.t>700||r[6]>2.4)pendDash=null;else{vx+=Math.cos(pendDash.fa)*380;vy+=Math.sin(pendDash.fa)*380}}
   const stp=dt=>{vx=(vx+ix*600*dt)*(1-.05*dt/DTc);vy=(vy+iy*600*dt)*(1-.05*dt/DTc);const s=Math.hypot(vx,vy);if(s>700){vx*=700/s;vy*=700/s}X+=vx*dt;Y+=vy*dt};
   let left=lead;while(left>DTc){stp(DTc);left-=DTc}if(left>0)stp(left);
-  for(const id in f.pl){if(id===me.id)continue;const o=f.pl[id];if(o.alive&&Math.hypot(o.x-X,o.y-Y)<62){X=e.x;Y=e.y;break}} // in a scrum: trust the server, who is shown at the same moment
+  let w=0;for(const id in f.pl){if(id===me.id)continue;const o=f.pl[id];if(!o.alive)continue;w=Math.max(w,Math.min(1,(100-Math.hypot(o.x-X,o.y-Y))/40))}if(w>0){X+=(e.x-X)*w;Y+=(e.y-Y)*w} // near others: fade smoothly toward the server position (shown at the same moment as them), no sudden jump
   const now=performance.now(),dt=Math.min(.05,(now-(pme?pme.t:now))/1000);
-  if(!pme||Math.hypot(pme.x-X,pme.y-Y)>90)pme={x:X,y:Y,t:now};
-  else{const q=1-Math.exp(-dt*18);pme.x+=(X-pme.x)*q;pme.y+=(Y-pme.y)*q;pme.t=now}
+  if(!pme||Math.hypot(pme.x-X,pme.y-Y)>220)pme={x:X,y:Y,t:now};
+  else{const q=1-Math.exp(-dt*(18-9*w));pme.x+=(X-pme.x)*q;pme.y+=(Y-pme.y)*q;pme.t=now}
   e.x=pme.x;e.y=pme.y
 }
 function rr(w,h,r){x.beginPath();x.moveTo(-w/2+r,-h/2);x.arcTo(w/2,-h/2,w/2,h/2,r);x.arcTo(w/2,h/2,-w/2,h/2,r);x.arcTo(-w/2,h/2,-w/2,-h/2,r);x.arcTo(-w/2,-h/2,w/2,-h/2,r);x.closePath()}
