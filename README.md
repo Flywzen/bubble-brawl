@@ -16,5 +16,8 @@ Open two windows (normal + incognito), create a room in one and join with the co
 ## Deploy (backend only; the game page is hosted separately)
 This folder is the realtime server. It needs a Node host with WebSocket support (not static hosting). On Render: New Web Service -> pick this GitHub repo -> Root Directory `1-backend`, Build `npm ci`, Start `npm start`, Health Check `/health`, plan Free, region Singapore. The service URL (`https://<name>.onrender.com`) goes into `../2-frontend/config.js`. If `public/index.html` is placed next to `server.js`, the server also serves the game page itself (single-service mode, leave `BRAWL_SERVER` empty then).
 
+## Deploy frontend ke Vercel
+Backend realtime (WebSocket) tidak bisa jalan di Vercel, jadi backend tetap di Render. Vercel hanya untuk halaman game statis (`2-frontend`). Di Vercel: Add New Project -> pilih repo ini -> Framework Preset `Other`, Root Directory dikosongkan (root repo). `vercel.json` sudah mengatur Output Directory ke `2-frontend`, tanpa build/install command. Pastikan `2-frontend/config.js` berisi URL Render kamu.
+
 ## Limitations
 No client-side prediction yet (only ~100 ms interpolation), so movement feels slightly delayed at high ping. Room state is in memory: a server restart drops all rooms. Not yet tested on real devices.

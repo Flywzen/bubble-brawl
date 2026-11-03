@@ -2,6 +2,11 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BUBBLE BRAWL</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#ffe9b8">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -265,7 +270,7 @@ document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=ico(e.dataset.i,+e.
 
 const COL=['#ff9ec7','#8fd3ff','#ffd36e','#b4ec86','#c4a3ff','#ffae85','#78e0cc','#f3a0f3'];
 const R0=300,CDMAX=3,BCDMAX=6,TOUCH=matchMedia('(pointer:coarse)').matches,CTL=TOUCH?'Drag the left side to move · DASH / BURST buttons':'WASD move · Space dash · E burst';
-let scr='home',dW=[],minD=0,jit=0,dly=100,rtt=80,curIn={x:0,y:0},lastFa=null,pendDash=null,pme=null,lastMine=null,music=true,mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;
+const Q=new URLSearchParams(location.search),DBG={l:0,g:0};let scr='home',dW=[],minD=0,jit=0,dly=100,rtt=80,curIn={x:0,y:0},lastFa=null,pendDash=null,pme=null,lastMine=null,music=!Q.has('nomusic'),mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;
 try{sess=JSON.parse(sessionStorage.ss||'null')}catch{}
 const send=m=>{if(ws&&ws.readyState===1){ws.send(JSON.stringify(m));return true}return false};
 // Server address: window.BRAWL_SERVER (config.js). Empty = same host as this page (single-service deploy).
@@ -295,7 +300,7 @@ function onMsg(m){
     if(!sess||!room||!me)return;
     if(m.r!==lastRound){lastRound=m.r;snaps=[];hitUntil={};dizzy={}}
     const d=Date.now()-m.ts;dW.push(d);if(dW.length>90)dW.shift();minD=Math.min(...dW);jit=Math.max(d-minD,jit*.985); // server-clock timestamps: jitter-free playback
-    snaps.push({rt:m.ts+minD,s:m});if(snaps.length>14)snaps.shift();
+    {const _n=performance.now();if(DBG.l)DBG.g=Math.max(DBG.g,_n-DBG.l);DBG.l=_n}snaps.push({rt:m.ts+minD,s:m});if(snaps.length>14)snaps.shift();
     for(const e of m.ev)onEv(e);hud(m);
   }
 }
@@ -440,7 +445,7 @@ setInterval(()=>{
 
 // ---------- Render ----------
 const cv=$('#c');let x=cv.getContext('2d');let dpr=1;
-function rs(){dpr=Math.min(2,devicePixelRatio||1);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr}addEventListener('resize',rs);rs();
+function rs(){dpr=Q.has('lowres')?1:Math.min(2,devicePixelRatio||1);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr}addEventListener('resize',rs);rs();
 function getF(){
   if(!snaps.length)return null;
   dly+=(Math.min(260,Math.max(75,75+jit))-dly)*.03; // playback delay follows measured jitter
@@ -463,10 +468,10 @@ function predictMe(f){
   if(pendDash){if(Date.now()-pendDash.t>700||r[6]>2.4)pendDash=null;else{vx+=Math.cos(pendDash.fa)*380;vy+=Math.sin(pendDash.fa)*380}}
   const stp=dt=>{vx=(vx+ix*600*dt)*(1-.05*dt/DTc);vy=(vy+iy*600*dt)*(1-.05*dt/DTc);const s=Math.hypot(vx,vy);if(s>700){vx*=700/s;vy*=700/s}X+=vx*dt;Y+=vy*dt};
   let left=lead;while(left>DTc){stp(DTc);left-=DTc}if(left>0)stp(left);
-  let w=0;for(const id in f.pl){if(id===me.id)continue;const o=f.pl[id];if(!o.alive)continue;w=Math.max(w,Math.min(1,(100-Math.hypot(o.x-X,o.y-Y))/40))}if(w>0){X+=(e.x-X)*w;Y+=(e.y-Y)*w} // near others: fade smoothly toward the server position (shown at the same moment as them), no sudden jump
+  for(const id in f.pl){if(id===me.id)continue;const o=f.pl[id];if(o.alive&&Math.hypot(o.x-X,o.y-Y)<62){X=e.x;Y=e.y;break}} // in a scrum: trust the server, who is shown at the same moment
   const now=performance.now(),dt=Math.min(.05,(now-(pme?pme.t:now))/1000);
-  if(!pme||Math.hypot(pme.x-X,pme.y-Y)>220)pme={x:X,y:Y,t:now};
-  else{const q=1-Math.exp(-dt*(18-9*w));pme.x+=(X-pme.x)*q;pme.y+=(Y-pme.y)*q;pme.t=now}
+  if(!pme||Math.hypot(pme.x-X,pme.y-Y)>90)pme={x:X,y:Y,t:now};
+  else{const q=1-Math.exp(-dt*18);pme.x+=(X-pme.x)*q;pme.y+=(Y-pme.y)*q;pme.t=now}
   e.x=pme.x;e.y=pme.y
 }
 function rr(w,h,r){x.beginPath();x.moveTo(-w/2+r,-h/2);x.arcTo(w/2,-h/2,w/2,h/2,r);x.arcTo(w/2,h/2,-w/2,h/2,r);x.arcTo(-w/2,h/2,-w/2,-h/2,r);x.arcTo(-w/2,-h/2,w/2,-h/2,r);x.closePath()}
@@ -559,5 +564,6 @@ function draw(now){
   for(let i=pops.length-1;i>=0;i--){const p=pops[i];p.l-=dt;if(p.l<=0){pops.splice(i,1);continue}const k=1-p.l/p.m,sc=p.s*(k<.2?.4+k*3:1+(k-.2)*.15);x.save();x.translate(p.x,p.y-k*30);x.rotate(p.r);x.scale(sc,sc);x.globalAlpha=Math.min(1,p.l/p.m*2.2);x.font='800 26px "Baloo 2",sans-serif';x.textAlign='center';x.lineJoin='round';x.lineWidth=7;x.strokeStyle='#fffaf0';x.strokeText(p.t,0,0);x.fillStyle=p.c;x.fillText(p.t,0,0);x.restore()}
   x.globalAlpha=1;x.restore();
 }
+if(Q.has('debug')){const d=document.createElement('div');d.style.cssText='position:fixed;left:6px;top:6px;z-index:99;font:700 11px monospace;background:#000a;color:#0f0;padding:4px 6px;border-radius:6px;pointer-events:none;white-space:pre';document.body.appendChild(d);let fr=0;(function f(){fr++;requestAnimationFrame(f)})();setInterval(()=>{d.textContent='fps '+fr*2+'\nping '+Math.round(rtt)+'ms\njitter '+Math.round(jit)+'ms\ndelay '+Math.round(dly)+'ms\nsnapgap '+Math.round(DBG.g)+'ms';fr=0;DBG.g=0},500)}
 requestAnimationFrame(draw);connect();
 </script></body></html>
