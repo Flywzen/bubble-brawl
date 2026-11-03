@@ -1,1 +1,1 @@
-{"name":"bubble-brawl","version":"1.0.0","private":true,"scripts":{"start":"node server.js","build":"node --check server.js && echo build-ok","test":"node test.js && node test-faucet.js"},"engines":{"node":">=18"},"dependencies":{"ws":"^8.18.0"}}
+{"name":"bubble-brawl","version":"1.0.0","private":true,"scripts":{"start":"node server.js","build":"node --check server.js && echo build-ok","test":"node test.js && node test-faucet.js && node test-bots.js","bench:bots":"node bench-bots.js"},"engines":{"node":">=18"},"dependencies":{"ws":"^8.18.0"}}
