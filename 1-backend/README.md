@@ -5,6 +5,9 @@ Spectators: everyone sits in ONE small stand ("SOAP FANS"), to the right of the 
 
 Sink faucet gush: starting at 8 s, then every ~10 s, the faucet aims a water jet at a random player. A white dashed stripe warns for 1.2 s, then the jet pushes everything inside the stripe for 1.5 s (dodge sideways). Server-side in `step()`, sent in snapshots as `g:[angle,phase,timeLeft]` plus `warn`/`gush` events. `GFIRST=<seconds>` env var changes the first gush time (testing only).
 
+## Bots and Quick Play
+A bot is a normal player object (`bot:true`, no socket) driven by `botThink()` inside `step()` with the same inputs as a human (move, dash, burst). Messages: `create` with `quick:1,bots:3` (Quick Play: bots fill the room and the match starts at once, room is `solo`, "again" restarts immediately), `addbot` / `rmbot` (host, lobby only, max 8 players in total), `leave` (Back button: removes the player from a lobby, counts as falling out mid-round, hands the host role to another human, deletes the room when no human is left). Bots never become host and never keep a room alive. A human joining a full lobby takes a bot's seat. Bots look ahead at their own momentum to avoid the edge, aim to hit foes from the centre side so they get pushed outwards, dodge the faucet stripe, and have reaction delay and some randomness so they stay beatable.
+
 ## Run locally
     npm ci && npm start        # http://localhost:3000
     npm test                   # automated test with 2+ WebSocket clients (FAST=10 speeds up rounds)
