@@ -21,14 +21,76 @@ const wss = new WebSocketServer({ server: srv });
 const rid = () => Math.random().toString(36).slice(2, 10);
 const newCode = () => { let c; do { c = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join(''); } while (rooms.has(c)); return c; };
 const send = (ws, o) => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); };
-const all = (r, o) => { const s = JSON.stringify(o); for (const p of r.players) if (p.connected && p.ws.readyState === 1) p.ws.send(s); };
-const info = r => ({ t: 'room', code: r.code, host: r.host, st: r.st, round: r.round, log: r.log, res: r.res,
-  players: r.players.map(p => ({ id: p.id, name: p.name, ci: p.ci, score: p.score, on: p.connected, wait: p.wait, in: p.in })) });
+const all = (r, o) => { const s = JSON.stringify(o); for (const p of r.players) if (p.connected && p.ws && p.ws.readyState === 1) p.ws.send(s); };
+const info = r => ({ t: 'room', code: r.code, host: r.host, st: r.st, round: r.round, log: r.log, res: r.res, solo: r.solo ? 1 : 0,
+  players: r.players.map(p => ({ id: p.id, name: p.name, ci: p.ci, score: p.score, on: p.connected, wait: p.wait, in: p.in, bot: p.bot ? 1 : 0 })) });
 
 function mkp(room, name, ws) {
   const used = new Set(room.players.map(p => p.ci)); let ci = 0; while (used.has(ci)) ci++;
   return { id: rid(), token: rid() + rid(), name: String(name || '').trim().slice(0, 12) || 'Sabun', ci, ws, connected: true,
     score: 0, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, bcd: 0 };
+}
+// ---------- bots ----------
+// A bot is a normal player object with bot:true and no socket. It is driven by botThink() inside step(), using the same inputs (ix/iy, dash, burst) as a human.
+const BOTN = ['Foamy', 'Suds', 'Squeaky', 'Slippy', 'Lather', 'Scrubby', 'Bubbly', 'Pumice'];
+function addBot(r) {
+  const used = new Set(r.players.map(p => p.name)), free = BOTN.filter(n => !used.has(n + ' (bot)'));
+  const p = mkp(r, 'bot', null); p.bot = true; p.token = ''; p.name = (free[Math.random() * free.length | 0] || 'Bot') + ' (bot)';
+  p.skill = .8 + Math.random() * .2; p.think = Math.random() * .3; r.players.push(p); return p;
+}
+// 0 = arena centre, 1 = on the edge (measured along the ray from the centre; every arena is convex)
+function edgeU(r, x, y) {
+  const l = Math.hypot(x, y); if (l < 1) return 0;
+  const k = r.R / R0, dx = x / l, dy = y / l; let lo = 0, hi = R0 * 1.3;
+  for (let i = 0; i < 12; i++) { const m = (lo + hi) / 2; if (OUT[r.a](dx * m / k, dy * m / k)) hi = m; else lo = m; }
+  return l / Math.max(1, lo);
+}
+function doDash(r, p) { p.vx += Math.cos(p.fa) * DASHV; p.vy += Math.sin(p.fa) * DASHV; p.cd = CD; r.ev.push(['dash', p.id, Math.round(p.x), Math.round(p.y)]); }
+function doBurst(r, p) {
+  p.bcd = BCD;
+  for (const o of r.players) if (o !== p && o.in && o.alive) {
+    const dx = o.x - p.x, dy = o.y - p.y, d = Math.hypot(dx, dy) || 1;
+    if (d < BR) { const f = BIMP * (1 - d / (BR * 1.3)); o.vx += dx / d * f; o.vy += dy / d * f; }
+  }
+  r.ev.push(['burst', p.id, Math.round(p.x), Math.round(p.y)]);
+}
+function botThink(r, b, ps) {
+  b.think -= DT; if (b.think > 0) return; b.think = .14 + Math.random() * .12; // reaction time
+  const foes = ps.filter(o => o !== b); if (!foes.length) { b.ix = b.iy = 0; return; }
+  const u = edgeU(r, b.x, b.y), pu = edgeU(r, b.x + b.vx * .55, b.y + b.vy * .55), danger = Math.max(u, pu);
+  const cl = Math.hypot(b.x, b.y) || 1, cx = -b.x / cl, cy = -b.y / cl; // unit vector to the centre
+  // target: nearest foe, preferring ones already close to the edge
+  let tgt = null, best = 1e9;
+  for (const o of foes) { const d = Math.hypot(o.x - b.x, o.y - b.y) * (1.25 - Math.min(1, edgeU(r, o.x, o.y)) * .5); if (d < best) { best = d; tgt = o; } }
+  // approach from the centre side of the target so the hit shoves it outwards
+  const tl = Math.hypot(tgt.x, tgt.y) || 1, ax = tgt.x + tgt.x / tl * 26, ay = tgt.y + tgt.y / tl * 26;
+  let dx = ax - b.x, dy = ay - b.y; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
+  const late = r.t > SHRINK_AT - 2 ? .25 : 0; // the arena is about to shrink: drift inwards
+  const w = Math.min(1, Math.max(0, (danger - .7) / .25)); // 0 = safe, 1 = about to fall
+  dx = dx * (1 - w) + cx * (1.3 * w + late); dy = dy * (1 - w) + cy * (1.3 * w + late);
+  if (r.a === 0 && r.g) { // dodge the faucet stripe
+    const gx = Math.sin(r.g.ang), gy = Math.cos(r.g.ang), rx = b.x, ry = b.y - GOY, cr = rx * gy - ry * gx;
+    if (rx * gx + ry * gy > 0 && Math.abs(cr) < GHW + 32) {
+      let sx = gy, sy = -gx; if (sx * cx + sy * cy < 0 !== cr < 0) { sx = -sx; sy = -sy; } // leave the stripe on the side that is closer to the centre
+      dx = sx + cx * .3; dy = sy + cy * .3;
+    }
+  }
+  const j = (Math.random() - .5) * .5, c = Math.cos(j), s = Math.sin(j), l = Math.hypot(dx, dy) || 1;
+  b.ix = (dx * c - dy * s) / l * b.skill; b.iy = (dx * s + dy * c) / l * b.skill;
+  if (Math.random() < .04) { b.ix = Math.random() * 2 - 1; b.iy = Math.random() * 2 - 1; } // sometimes just wanders
+  b.fa = Math.atan2(b.iy, b.ix);
+  if (r.st !== 'play') return;
+  const d = Math.hypot(tgt.x - b.x, tgt.y - b.y), ta = Math.atan2(tgt.y - b.y, tgt.x - b.x);
+  if (b.cd <= 0 && d > 55 && d < 230 && Math.cos(ta - b.fa) > .8 && u < .7 && edgeU(r, b.x + (b.vx + Math.cos(b.fa) * DASHV) * .6, b.y + (b.vy + Math.sin(b.fa) * DASHV) * .6) < .88 && Math.random() < .75) doDash(r, b);
+  if (b.bcd <= 0) for (const o of foes) {
+    const od = Math.hypot(o.x - b.x, o.y - b.y);
+    if (od < BR * .8 && (edgeU(r, o.x, o.y) > u + .05 || (u > .75 && od < BR * .6) || Math.random() < .12) && Math.random() < .7) { doBurst(r, b); break; }
+  }
+}
+function startMatch(r) {
+  r.players = r.players.filter(p => p.connected); r.players.forEach(p => { p.in = true; p.wait = false; p.score = 0; });
+  r.ord = [0, 1, 2].sort(() => Math.random() - .5);
+  r.round = 0; r.log = []; r.res = null; startRound(r);
 }
 function startRound(r) {
   r.round++; r.a = r.ord[(r.round - 1) % 3]; r.R = R0; r.g = null; r.gn = +process.env.GFIRST || 8; r.st = 'count'; r.tmr = 3; r.t = 0; r.ev = [];
@@ -53,6 +115,7 @@ function step(r) {
     if (!r.g) { if (r.t >= r.gn) { const t = ps[Math.random() * ps.length | 0], ang = Math.max(-1.1, Math.min(1.1, Math.atan2(t.x, t.y - GOY) + (Math.random() - .5) * .3)); r.g = { ang, ph: 0, tm: GW }; r.ev.push(['warn', +ang.toFixed(2)]); } }
     else if ((r.g.tm -= DT) <= 0) { if (r.g.ph === 0) { r.g.ph = 1; r.g.tm = GD; r.ev.push(['gush', +r.g.ang.toFixed(2)]); } else { r.g = null; r.gn = r.t + GI; } }
   } else if (r.g) r.g = null; // shrinking started (or nobody left): cancel any warning/gush in progress
+  for (const p of ps) if (p.bot) botThink(r, p, ps);
   for (const p of ps) {
     p.cd = Math.max(0, p.cd - DT); p.bcd = Math.max(0, p.bcd - DT);
     const ix = p.connected ? p.ix : 0, iy = p.connected ? p.iy : 0; // disconnected: input zeroed, body can still be pushed
@@ -94,7 +157,7 @@ function finish(r) {
 }
 function tick() {
   for (const [c, r] of rooms) {
-    if (!r.players.some(p => p.connected)) { r.empty = r.empty || Date.now(); if (Date.now() - r.empty > 60000) rooms.delete(c); continue; }
+    if (!r.players.some(p => p.connected && !p.bot)) { r.empty = r.empty || Date.now(); if (Date.now() - r.empty > 60000) rooms.delete(c); continue; }
     r.empty = 0;
     if (r.st === 'count') { r.tmr -= DT; if (r.tmr <= 0) { r.st = 'play'; r.t = 0; all(r, info(r)); } }
     else if (r.st === 'play') step(r);
@@ -110,44 +173,52 @@ wss.on('connection', ws => {
   let room = null, pl = null;
   const attach = (r, p) => {
     room = r; pl = p; p.ws = ws; p.connected = true;
-    if (!r.players.some(x => x.id === r.host && x.connected)) r.host = p.id;
+    if (!r.players.some(x => x.id === r.host && x.connected && !x.bot)) r.host = p.id;
     send(ws, { t: 'you', id: p.id, token: p.token, code: r.code }); all(r, info(r));
   };
   ws.on('message', d => {
     let m; try { m = JSON.parse(d); } catch { return; }
     if (m.t === 'create' && !room) {
-      const r = { code: newCode(), players: [], host: null, st: 'lobby', round: 0, log: [], res: null, tmr: 0, t: 0, ev: [], k: 0, R: R0, a: 0, ord: [0, 1, 2] };
+      const r = { code: newCode(), players: [], host: null, st: 'lobby', round: 0, log: [], res: null, tmr: 0, t: 0, ev: [], k: 0, R: R0, a: 0, ord: [0, 1, 2], solo: false };
       rooms.set(r.code, r); const p = mkp(r, m.name, ws); r.players.push(p); attach(r, p);
+      if (m.quick) { r.solo = true; for (let i = Math.min(MAXP - 1, Math.max(1, +m.bots || 3)); i > 0; i--) addBot(r); startMatch(r); } // Quick Play: bots fill the room and the match starts right away
     } else if (m.t === 'join' && !room) {
       const r = rooms.get(String(m.code || '').toUpperCase().trim());
       if (!r) return send(ws, { t: 'err', m: 'Room not found', fatal: 1 });
       let p = m.token && r.players.find(x => x.token === m.token);
       if (p) { if (p.ws && p.ws !== ws && p.ws.readyState === 1) p.ws.close(); }
-      else { if (r.players.length >= MAXP) return send(ws, { t: 'err', m: 'Room is full', fatal: 1 }); p = mkp(r, m.name, ws); r.players.push(p); }
+      else {
+        if (r.players.length >= MAXP && r.st === 'lobby') { const b = r.players.filter(x => x.bot).pop(); if (b) r.players = r.players.filter(x => x !== b); } // a human takes a bot's seat
+        if (r.players.length >= MAXP) return send(ws, { t: 'err', m: 'Room is full', fatal: 1 }); p = mkp(r, m.name, ws); r.players.push(p); }
       attach(r, p);
     } else if (!room) return;
     else if (m.t === 'start') {
       if (pl.id !== room.host || room.st !== 'lobby') return;
       const on = room.players.filter(p => p.connected);
       if (on.length < 2) return send(ws, { t: 'err', m: 'Need at least 2 players' });
-      room.players = on; room.players.forEach(p => { p.in = true; p.wait = false; p.score = 0; });
-      room.ord = [0, 1, 2].sort(() => Math.random() - .5);
-      room.round = 0; room.log = []; room.res = null; startRound(room);
+      startMatch(room);
+    } else if (m.t === 'addbot') {
+      if (pl.id !== room.host || room.st !== 'lobby') return;
+      if (room.players.length >= MAXP) return send(ws, { t: 'err', m: 'Room is full' });
+      addBot(room); all(room, info(room));
+    } else if (m.t === 'rmbot') {
+      if (pl.id !== room.host || room.st !== 'lobby') return;
+      const b = room.players.filter(x => x.bot).pop(); if (b) { room.players = room.players.filter(x => x !== b); all(room, info(room)); }
+    } else if (m.t === 'leave') { // Back button: leave the room for good (the client forgets its token)
+      const r = room, p = pl; room = pl = null; p.connected = false; p.ws = null;
+      if (r.st === 'lobby') r.players = r.players.filter(x => x !== p);
+      else if (p.in && p.alive) { p.alive = false; r.ev.push(['out', p.id, Math.round(p.x), Math.round(p.y)]); } // leaving mid-round counts as falling out
+      if (r.host === p.id) { const n = r.players.find(x => x.connected && !x.bot); if (n) r.host = n.id; }
+      if (!r.players.some(x => x.connected && !x.bot)) rooms.delete(r.code); else all(r, info(r));
     } else if (m.t === 'in') {
       let x = +m.x || 0, y = +m.y || 0; const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; }
       pl.ix = x; pl.iy = y; if (l > 0.2) pl.fa = Math.atan2(y, x);
     } else if (m.t === 'dash') {
       if (room.st !== 'play' || !pl.in || !pl.alive || pl.cd > 0) return;
-      pl.vx += Math.cos(pl.fa) * DASHV; pl.vy += Math.sin(pl.fa) * DASHV; pl.cd = CD;
-      room.ev.push(['dash', pl.id, Math.round(pl.x), Math.round(pl.y)]);
+      doDash(room, pl);
     } else if (m.t === 'burst') {
       if (room.st !== 'play' || !pl.in || !pl.alive || pl.bcd > 0) return;
-      pl.bcd = BCD;
-      for (const o of room.players) if (o !== pl && o.in && o.alive) {
-        const dx = o.x - pl.x, dy = o.y - pl.y, d = Math.hypot(dx, dy) || 1;
-        if (d < BR) { const f = BIMP * (1 - d / (BR * 1.3)); o.vx += dx / d * f; o.vy += dy / d * f; }
-      }
-      room.ev.push(['burst', pl.id, Math.round(pl.x), Math.round(pl.y)]);
+      doBurst(room, pl);
     } else if (m.t === 'cheer') { // spectators (eliminated / waiting players) cheer; living players cannot
       const n = Date.now();
       if (!['play', 'end'].includes(room.st) || (pl.in && pl.alive && room.st === 'play') || n - (pl.cheerAt || 0) < 700) return;
@@ -156,13 +227,14 @@ wss.on('connection', ws => {
       if (room.st !== 'final') return;
       room.players = room.players.filter(p => p.connected);
       room.players.forEach(p => { p.wait = false; p.in = false; p.score = 0; });
-      room.st = 'lobby'; room.round = 0; room.log = []; room.res = null; all(room, info(room));
+      room.st = 'lobby'; room.round = 0; room.log = []; room.res = null;
+      if (room.solo) startMatch(room); else all(room, info(room)); // Quick Play: straight into the next match
     }
   });
   ws.on('close', () => {
     if (!room || pl.ws !== ws) return;
     const r = room, p = pl; p.connected = false;
-    if (r.host === p.id) { const n = r.players.find(x => x.connected); if (n) r.host = n.id; }
+    if (r.host === p.id) { const n = r.players.find(x => x.connected && !x.bot); if (n) r.host = n.id; }
     if (r.st === 'lobby') setTimeout(() => {
       if (!p.connected && r.st === 'lobby' && r.players.includes(p)) { r.players = r.players.filter(x => x !== p); all(r, info(r)); }
     }, 8000);
