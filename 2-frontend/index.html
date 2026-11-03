@@ -317,21 +317,30 @@ function burst(x,y,n,c,sp){for(let i=0;i<n;i++){const a=Math.random()*7,v=sp*(.3
 function au(){if(!ac)try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch{}if(ac&&!mg){mg=ac.createGain();mg.gain.value=.45;mg.connect(ac.destination)}if(ac&&ac.state==='suspended')ac.resume()}
 function beep(f1,f2,d,v,type='sine'){if(!sound||!ac)return;const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(Math.max(.001,v),t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(t+d)}
 
-// ---------- Music (procedural chiptune) ----------
-const midi=n=>440*Math.pow(2,(n-69)/12),CH=[[48,[60,64,67,72]],[45,[57,60,64,69]],[41,[53,57,60,65]],[43,[55,59,62,67]]],MEL=[0,2,1,3,2,1,3,2,0,1,2,3];
-function tone(t,f,d,type,v,f2){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02)}
-function kick(t){tone(t,160,.16,'sine',.55,40)}
-function hat(t,v){const b=ac.createBuffer(1,800,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<800;i++)d[i]=Math.random()*2-1;const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=b;f.type='highpass';f.frequency.value=7000;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);s.connect(f);f.connect(g);g.connect(mg);s.start(t)}
+// ---------- Music (procedural: funky party synth, Stumble-Guys vibe) ----------
+const midi=n=>440*Math.pow(2,(n-69)/12),CH=[[48,[60,64,67]],[46,[58,62,65]],[41,[57,60,65]],[43,[59,62,67]]],
+ M0=[[0,79],[2,79],[3,76],[6,79],[8,84],[10,79],[12,76],[14,72]],
+ M1=[[0,77],[2,77],[3,74],[6,77],[8,82],[10,77],[12,74],[14,70]],
+ M2=[[0,81],[2,81],[3,77],[6,81],[8,84],[10,81],[12,77],[14,72]],
+ M3=[[0,83],[2,83],[3,79],[6,83],[8,86],[10,83],[12,79],[13,81],[14,83],[15,86]],MEL=[M0,M1,M2,M3],
+ BASS={0:0,3:0,6:12,8:0,10:7,11:0,14:12};
+function tone(t,f,d,type,v,f2){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02)}
+function syn(t,f,d,type,v,cut){const o=ac.createOscillator(),fl=ac.createBiquadFilter(),g=ac.createGain();o.type=type;o.frequency.value=f;fl.type='lowpass';fl.frequency.setValueAtTime(cut,t);fl.frequency.exponentialRampToValueAtTime(Math.max(200,cut*.25),t+d);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(v,t+.004);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(fl);fl.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.02)}
+function nz(t,d,v,type,fr){const n=Math.floor(ac.sampleRate*d),b=ac.createBuffer(1,n,ac.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=Math.random()*2-1;const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=b;f.type=type;f.frequency.value=fr;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(mg);s.start(t)}
+function kick(t){tone(t,170,.14,'sine',.5,45)}
+function clap(t,v){nz(t,.09,v,'bandpass',1600);nz(t+.012,.07,v*.7,'bandpass',1900)}
+function hat(t,d,v){nz(t,d,v,'highpass',7500)}
 function musicStep(t){const bar=(step>>4)&3,s=step&15,root=CH[bar][0],ch=CH[bar][1],I=intense;
   if(s%4===0||(I&&s===10))kick(t);
-  if(I||s%4===2)hat(t,I?(s%2?.05:.09):.1);
-  if([0,3,6,8,11,14].includes(s))tone(t,midi(root+(s===8||s===14?12:0)),.11,'triangle',.5);
-  const L=I?[0,2,3,5,6,8,10,11,13,14,15]:[0,3,6,8,11,14],li=L.indexOf(s);
-  if(li>=0){const n=ch[MEL[(li+bar*3)%MEL.length]]+(I&&s>=14?12:0);tone(t,midi(n),.12,'square',.07);if(I&&s%2)tone(t,midi(n+12),.07,'sine',.05)}
-  if(bar===3&&s===15)tone(t,500,.12,'sine',.12,1200)}
+  if(s===4||s===12||(I&&bar===3&&s>12))clap(t,.13);
+  if(s%4===2)hat(t,.06,.05);else if(I)hat(t,.025,.025);
+  if(s in BASS)syn(t,midi(root+BASS[s]),.13,'sawtooth',.2,900);
+  if(s===2||s===6||s===10||s===14)ch.forEach(n=>syn(t,midi(n),.1,'sawtooth',.03,2200));
+  const m=MEL[bar].find(n=>n[0]===s);
+  if(m){syn(t,midi(m[1]),.13,'square',.06,3000);if(I)syn(t,midi(m[1]+12),.1,'triangle',.04,4000)}}
 setInterval(()=>{if(!ac||!mg||!music||!sound||!room||!['count','play','end'].includes(room.st)){nextT=0;return}
   const now=ac.currentTime;if(!nextT||nextT<now-.1)nextT=now+.05;
-  while(nextT<now+.15){musicStep(nextT);step++;nextT+=intense?.088:.1}},30);
+  while(nextT<now+.15){musicStep(nextT);step++;nextT+=intense?.098:.115}},30);
 
 // ---------- UI ----------
 const pname=id=>{const p=room&&room.players.find(p=>p.id===id);return p?p.name:'?'};
