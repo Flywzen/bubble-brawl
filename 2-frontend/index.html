@@ -9,7 +9,7 @@
 html,body{margin:0;height:100%;overflow:hidden;background:#ffe9b8;font-family:"Baloo 2","Trebuchet MS",system-ui,sans-serif;font-weight:800;color:#5a3d2b;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas{position:fixed;inset:0;width:100%;height:100%}
 .scr{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
-.card{background:#fffaf0;border-radius:30px;padding:20px;box-shadow:0 8px 0 #e8c98a,0 18px 40px #0003;max-width:420px;width:100%;text-align:center}
+.card{position:relative;background:#fffaf0;border-radius:30px;padding:20px;box-shadow:0 8px 0 #e8c98a,0 18px 40px #0003;max-width:420px;width:100%;text-align:center}
 h1{font-size:clamp(26px,8.4vw,40px);white-space:nowrap;line-height:1;margin:0 0 4px;color:#19b3ae;text-shadow:0 3px 0 #fff,0 6px 0 #c9a96a}
 .tag{font-size:18px;color:#e0733f;margin-bottom:14px}
 input{width:100%;font:inherit;font-size:20px;padding:10px 14px;border-radius:18px;border:3px solid #e8c98a;background:#fff;color:#5a3d2b;text-align:center;margin:5px 0;outline:none;touch-action:auto;user-select:text}
@@ -18,6 +18,13 @@ input:focus{border-color:#25c7c0}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 #14958f}
 .btn.o{background:#ff9a5c;box-shadow:0 5px 0 #d9733a}.btn.g{background:#f3e3bd;color:#7a5a3a;box-shadow:0 5px 0 #d6bd88;font-size:16px;padding:8px}
 .btn:disabled{opacity:.5}
+.btn .sub{display:block;font-size:13px;font-weight:600;opacity:.92;line-height:1.2;margin-top:1px}
+.bk{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:4px;font:inherit;font-size:15px;color:#7a5a3a;background:#f3e3bd;border:0;border-radius:999px;padding:5px 12px 5px 8px;box-shadow:0 3px 0 #d6bd88;cursor:pointer;z-index:2}
+.bk:active{transform:translateY(2px);box-shadow:0 1px 0 #d6bd88}
+.brow{display:flex;gap:8px}.brow .btn{margin:4px 0;font-size:15px;padding:8px}
+.sub-h{font-size:24px;color:#19b3ae;margin:26px 0 4px}
+.pad-bk{height:22px}
+#lnote{margin:8px 0}
 .err{color:#d6443a;min-height:22px;font-size:16px}
 .code{font-size:58px;letter-spacing:8px;color:#19b3ae;line-height:1}
 .pl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
@@ -63,7 +70,7 @@ input:focus{border-color:#25c7c0}
 #help p{margin:6px 0;font-weight:600;font-size:15px}
 @media (max-aspect-ratio:108/100){#sc{flex-direction:row;flex-wrap:wrap;top:52px;left:8px;right:8px;max-width:none;gap:4px}#sc{gap:3px}#sc div{padding:1px 6px;font-size:12px}#sc .mk{width:12px;height:12px}#sc .nm{display:none}}
 @media (max-height:500px){#sc div{padding:1px 8px}#sc .nm{display:none}#sc{gap:2px}}
-@media (max-width:520px){#top{left:8px;transform:none;font-size:14px;padding:3px 12px;max-width:calc(100vw - 186px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#tools{gap:4px;right:8px}#tools button{width:34px;height:34px;font-size:16px}}
+@media (max-width:520px){#top{left:8px;transform:none;font-size:14px;padding:3px 12px;max-width:calc(100vw - 226px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#tools{gap:4px;right:8px}#tools button{width:34px;height:34px;font-size:16px}}
 #conn{position:fixed;top:0;left:0;right:0;background:#d6443a;color:#fff;text-align:center;padding:4px;z-index:9}
 </style></head><body>
 <canvas id="c"></canvas>
@@ -71,19 +78,31 @@ input:focus{border-color:#25c7c0}
 
 <div id="home" class="scr"><div class="card">
   <h1>BUBBLE BRAWL</h1><div class="tag">Slide. Bonk. Don't fall.</div>
-  <input id="name" maxlength="12" placeholder="Your name" autocomplete="off">
-  <button class="btn o" id="bCreate">Create Room</button>
-  <div class="small">or join with a code</div>
-  <input id="code" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off">
-  <button class="btn" id="bJoin">Join</button>
+  <input id="name" class="nmi" maxlength="12" placeholder="Your name" autocomplete="off">
+  <button class="btn o" id="bQuick">Quick Play<span class="sub">Jump in now against bots, no invite needed</span></button>
+  <button class="btn" id="bFriends">Play with Friends<span class="sub">Room code or invite link, 2–8 players</span></button>
   <div class="err" id="err"></div>
   <button class="btn g" onclick="showHelp()">How to play &amp; scoring</button>
 </div></div>
 
+<div id="friends" class="scr" hidden><div class="card">
+  <button class="bk" id="bBackHome"><i data-i="back" data-z="16"></i> Back</button>
+  <div class="sub-h">Play with Friends</div>
+  <div class="small">Create a room and share the code. Short on friends? Fill empty seats with bots in the lobby.</div>
+  <input id="name2" class="nmi" maxlength="12" placeholder="Your name" autocomplete="off">
+  <button class="btn o" id="bCreate">Create Room</button>
+  <div class="small">or join with a code</div>
+  <input id="code" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off">
+  <button class="btn" id="bJoin">Join</button>
+  <div class="err" id="err2"></div>
+</div></div>
+
 <div id="lobby" class="scr" hidden><div class="card">
+  <button class="bk" id="bLeave"><i data-i="back" data-z="16"></i> Back</button><div class="pad-bk"></div>
   <div class="small">ROOM CODE</div><div class="code" id="lcode"></div>
   <button class="btn g" id="bCopy">Copy invite link</button>
   <div class="pl" id="lpl"></div>
+  <div class="brow" id="lbots"><button class="btn g" id="bAddBot">+ Add bot</button><button class="btn g" id="bRmBot">− Remove bot</button></div>
   <div class="small" id="lnote"></div>
   <button class="btn o" id="bStart">Start!</button>
   <div class="err" id="lerr"></div>
@@ -93,7 +112,7 @@ input:focus{border-color:#25c7c0}
 
 <div id="hud" hidden>
   <div id="top"></div><div id="sc"></div>
-  <div id="tools"><button onclick="showHelp()">?</button><button id="bMusic" title="Music"><i data-i="music"></i></button><button id="bMute" title="Sound"><i data-i="sound"></i></button><button id="bShake" title="Screen shake"><i data-i="shake"></i></button></div>
+  <div id="tools"><button id="bExit" title="Leave match"><i data-i="exit"></i></button><button onclick="showHelp()">?</button><button id="bMusic" title="Music"><i data-i="music"></i></button><button id="bMute" title="Sound"><i data-i="sound"></i></button><button id="bShake" title="Screen shake"><i data-i="shake"></i></button></div>
   <div id="cnt"></div><div id="out" hidden><div class="o1"></div><div class="o2"></div></div>
   <div id="kh"><span class="k">W</span><span class="k">A</span><span class="k">S</span><span class="k">D</span>&nbsp;or arrows = move &nbsp;·&nbsp;<span class="k">SPACE</span> = dash / cheer &nbsp;·&nbsp;<span class="k">E</span> = burst</div><div id="jg"><i></i><b>MOVE</b></div><div id="jz"></div><div id="jb"><div id="jk"></div></div>
   <button id="db">DASH</button><button id="bb"><i data-i="bubble" data-z="22"></i><span>BURST</span></button>
@@ -109,6 +128,8 @@ input:focus{border-color:#25c7c0}
   <p><i data-i="clock"></i> The arena starts shrinking after 15 seconds. Every round begins with a 3-second countdown. In the sink, watch the faucet: a white stripe on the water warns where the next water jet will shove you. The faucet shuts off for good once the arena starts shrinking.</p>
   <p><i data-i="trophy"></i> <b>Scoring:</b> last soap standing = <b>3 points</b>. If the 45 seconds run out with several survivors = <b>1 point</b> each. Everyone falls at once = draw, 0 points. Eliminated? You join the cheering crowd: press CHEER (Space) to cheer the rest on, then you're back next round.</p>
   <p>After 3 rounds the highest score wins. A tie means a shared victory.</p>
+  <p><i data-i="bot"></i> <b>Bots:</b> <b>Quick Play</b> starts straight away against 3 bots. In <b>Play with Friends</b> the host can add bots to empty seats (up to 8 players in total). Bots follow the same rules and scoring as everyone else, and a friend joining a full lobby takes a bot's seat.</p>
+  <p><i data-i="back"></i> Use <b>Back</b> (or the exit button during a match) to leave a room at any time.</p>
   <button class="btn" onclick="$('#help').hidden=true">Got it!</button>
 </div></div>
 
@@ -116,6 +137,9 @@ input:focus{border-color:#25c7c0}
 <script>
 const $=s=>document.querySelector(s);
 const IC={
+back:'<path d="M15 5l-7 7 7 7"/>',
+exit:'<path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/>',
+bot:'<rect x="4" y="8.5" width="16" height="11" rx="3.5"/><path d="M12 8.5V5M9.5 13h.01M14.5 13h.01M9.5 16.5h5"/><circle cx="12" cy="4" r="1.2" fill="currentColor"/>',
 crown:'<path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z" fill="currentColor" stroke-width="1.6"/>',
 hourglass:'<path d="M6 3h12M6 21h12M7 3c0 6 5 6 5 9s-5 3-5 9M17 3c0 6-5 6-5 9s5 3 5 9"/>',
 drop:'<path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z" fill="currentColor" stroke-width="1.5"/>',
@@ -241,7 +265,7 @@ document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=ico(e.dataset.i,+e.
 
 const COL=['#ff9ec7','#8fd3ff','#ffd36e','#b4ec86','#c4a3ff','#ffae85','#78e0cc','#f3a0f3'];
 const R0=300,CDMAX=3,BCDMAX=6,TOUCH=matchMedia('(pointer:coarse)').matches,CTL=TOUCH?'Drag the left side to move · DASH / BURST buttons':'WASD move · Space dash · E burst';
-let music=true,mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;
+let scr='home',music=true,mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;
 try{sess=JSON.parse(sessionStorage.ss||'null')}catch{}
 const send=m=>{if(ws&&ws.readyState===1){ws.send(JSON.stringify(m));return true}return false};
 // Server address: window.BRAWL_SERVER (config.js). Empty = same host as this page (single-service deploy).
@@ -255,17 +279,19 @@ function wsUrl(){
 let everOpen=false,fails=0;
 function connect(){
   ws=new WebSocket(wsUrl());
-  ws.onopen=()=>{everOpen=true;fails=0;$('#conn').hidden=true;if($('#err').textContent.startsWith('Connecting'))$('#err').textContent='';if(pending){send(pending);pending=null}else if(sess&&!room)send({t:'join',code:sess.code,name:sess.name,token:sess.token})};
+  ws.onopen=()=>{everOpen=true;fails=0;$('#conn').hidden=true;for(const e of['#err','#err2'])if($(e).textContent.startsWith('Connecting'))$(e).textContent='';if(pending){send(pending);pending=null}else if(sess&&!room)send({t:'join',code:sess.code,name:sess.name,token:sess.token})};
   ws.onmessage=e=>onMsg(JSON.parse(e.data));
-  ws.onclose=()=>{if(sess||room)$('#conn').hidden=false;if(!everOpen&&++fails>=2)$('#err').textContent='Connecting to server… (can take ~1 min if it was asleep)';me=me;setTimeout(connect,1500)};
+  ws.onclose=()=>{if(sess||room)$('#conn').hidden=false;if(!everOpen&&++fails>=2)E('Connecting to server… (can take ~1 min if it was asleep)');me=me;setTimeout(connect,1500)};
 }
+const E=t=>{$('#err').textContent=t;$('#err2').textContent=t};
 function act(m){if(!send(m))pending=m}
 function clearSess(){sess=null;me=null;room=null;sessionStorage.removeItem('ss');history.replaceState(null,'','/');}
 function onMsg(m){
   if(m.t==='you'){me=m;sess={code:m.code,token:m.token,name:sess&&sess.name||$('#name').value};sessionStorage.ss=JSON.stringify(sess);history.replaceState(null,'','?room='+m.code)}
-  else if(m.t==='err'){ if(m.fatal){clearSess();ui();$('#err').textContent=m.m}else $('#lerr').textContent=m.m; setTimeout(()=>$('#lerr').textContent='',2500)}
-  else if(m.t==='room'){room=m;ui()}
+  else if(m.t==='err'){ if(m.fatal){clearSess();if(scr==='home'&&q)scr='friends';ui();E(m.m)}else $('#lerr').textContent=m.m; setTimeout(()=>$('#lerr').textContent='',2500)}
+  else if(m.t==='room'){if(!sess)return;room=m;ui()} // no sess = we already pressed Back; ignore late messages
   else if(m.t==='s'){
+    if(!sess||!room||!me)return;
     if(m.r!==lastRound){lastRound=m.r;snaps=[];hitUntil={};dizzy={}}
     snaps.push({rt:performance.now(),s:m});if(snaps.length>8)snaps.shift();
     for(const e of m.ev)onEv(e);hud(m);
@@ -307,18 +333,20 @@ setInterval(()=>{if(!ac||!mg||!music||!sound||!room||!['count','play','end'].inc
 
 // ---------- UI ----------
 const pname=id=>{const p=room&&room.players.find(p=>p.id===id);return p?p.name:'?'};
-const chip=p=>`<span class="chip ${p.on?'':'off'}" style="background:${COL[p.ci]}">${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' · YOU':''}${room.host===p.id?ico('crown',15):''}${p.wait?ico('hourglass',15):''}${p.on?'':' (offline)'}</span>`;
+const chip=p=>`<span class="chip ${p.on?'':'off'}" style="background:${COL[p.ci]}">${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' · YOU':''}${room.host===p.id?ico('crown',15):''}${p.bot?ico('bot',15):''}${p.wait?ico('hourglass',15):''}${p.on?'':' (offline)'}</span>`;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function ui(){
   const st=room&&room.st;
-  $('#home').hidden=!!room;$('#lobby').hidden=!(room&&st==='lobby');$('#hud').hidden=!(room&&st!=='lobby');
+  $('#home').hidden=!!room||scr!=='home';$('#friends').hidden=!!room||scr!=='friends';$('#lobby').hidden=!(room&&st==='lobby');$('#hud').hidden=!(room&&st!=='lobby');
   $('#ov').hidden=!(room&&(st==='end'||st==='final'));
   if(!room)return;
   if(st==='lobby'){
     $('#lcode').textContent=room.code;$('#lpl').innerHTML=room.players.map(chip).join('');
     const host=me&&room.host===me.id,n=room.players.filter(p=>p.on).length;
+    const nb=room.players.filter(p=>p.bot).length;
     $('#bStart').hidden=!host;$('#bStart').disabled=n<2;
-    $('#lnote').textContent=host?(n<2?'Share the code or link with a friend. You need at least 2 players.':`${n} players ready. Hit Start!`):'Waiting for the host to start…';
+    $('#lbots').hidden=!host;$('#bAddBot').disabled=room.players.length>=8;$('#bRmBot').disabled=!nb;
+    $('#lnote').textContent=host?(n<2?'Share the code or link with a friend, or add a bot. You need at least 2 players.':`${n} players ready${nb?` (${nb} bot${nb>1?'s':''})`:''}. Hit Start!`):'Waiting for the host to start…';
   }
   if(st==='end'){
     const L=room.log[room.log.length-1];let h;
@@ -329,8 +357,8 @@ function ui(){
   }
   if(st==='final'){
     const w=room.res.winners.map(pname).map(esc).join(' & ');
-    $('#ovc').innerHTML=`<h2 style="margin:0">${ico('trophy',28)} ${room.res.winners.length>1?'Co-winners':'Winner'}: ${w}</h2>`+board()+`<button class="btn o" id="bAgain">Play Again (same room)</button>`;
-    $('#bAgain').onclick=()=>send({t:'again'});
+    $('#ovc').innerHTML=`<h2 style="margin:0">${ico('trophy',28)} ${room.res.winners.length>1?'Co-winners':'Winner'}: ${w}</h2>`+board()+`<button class="btn o" id="bAgain">${room.solo?'Play Again':'Play Again (same room)'}</button><button class="btn g" id="bMenu">Back to menu</button>`;
+    $('#bAgain').onclick=()=>send({t:'again'});$('#bMenu').onclick=()=>leave('home');
   }
 }
 function board(){return '<div style="margin:8px 0">'+[...room.players.filter(p=>p.in)].sort((a,b)=>b.score-a.score).map(p=>`<div class="row" style="background:${COL[p.ci]}"><span>${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' (YOU)':''}</span><span>${p.score}</span></div>`).join('')+'</div>'}
@@ -348,20 +376,33 @@ function hud(s){intense=s.st==='play'&&(s.R<299||s.tm<12);
   $('#db').classList.remove('off');$('#bb').classList.toggle('off',!!ost);cv.style.filter=ost?'saturate(.7)':'';
 }
 function showHelp(){$('#help').hidden=false}
-$('#bCreate').onclick=()=>{au();const n=$('#name').value.trim();if(!n)return $('#err').textContent='Enter your name first';sess={name:n};act({t:'create',name:n})};
-$('#bJoin').onclick=()=>{au();const n=$('#name').value.trim(),c=$('#code').value.trim();if(!n)return $('#err').textContent='Enter your name first';if(c.length<4)return $('#err').textContent='Enter the 4-letter code';sess={name:n};act({t:'join',code:c,name:n})};
+const nm=()=>($('#name').value||$('#name2').value).trim();
+function leave(to){send({t:'leave'});clearSess();snaps=[];lastRound=-1;outState='';scr=to||'home';ui()}
+function needName(){const n=nm();if(!n){E('Enter your name first');return null}E('');return n}
+$('#bQuick').onclick=()=>{au();const n=needName();if(!n)return;sess={name:n};if(!ws||ws.readyState!==1)E('Connecting to server… (can take ~1 min if it was asleep)');act({t:'create',name:n,quick:1,bots:3})};
+$('#bFriends').onclick=()=>{au();E('');scr='friends';ui()};
+$('#bBackHome').onclick=()=>{E('');scr='home';ui()};
+$('#bCreate').onclick=()=>{au();const n=needName();if(!n)return;sess={name:n};act({t:'create',name:n})};
+$('#bJoin').onclick=()=>{au();const n=needName();if(!n)return;const c=$('#code').value.trim();if(c.length<4)return E('Enter the 4-letter code');sess={name:n};act({t:'join',code:c,name:n})};
+$('#bLeave').onclick=()=>leave('friends');
+$('#bExit').onclick=()=>{if(confirm('Leave this match and go back to the menu?'))leave('home')};
+$('#bAddBot').onclick=()=>send({t:'addbot'});
+$('#bRmBot').onclick=()=>send({t:'rmbot'});
+document.querySelectorAll('.nmi').forEach(i=>{i.oninput=()=>{document.querySelectorAll('.nmi').forEach(o=>{if(o!==i)o.value=i.value});try{localStorage.bbName=i.value}catch{}}});
+try{const sn=localStorage.bbName;if(sn)document.querySelectorAll('.nmi').forEach(o=>o.value=sn)}catch{}
 $('#bStart').onclick=()=>send({t:'start'});
-$('#bCopy').onclick=async()=>{const u=location.origin+'/?room='+room.code;try{if(navigator.share)await navigator.share({title:'BUBBLE BRAWL',url:u});else await navigator.clipboard.writeText(u);$('#bCopy').textContent='Link copied'}catch{prompt('Copy link:',u)}};
+$('#bCopy').onclick=async()=>{const u=location.origin+'/?room='+room.code;try{if(navigator.share)await navigator.share({title:'BUBBLE BRAWL',url:u});else await navigator.clipboard.writeText(u);$('#bCopy').textContent='Link copied';setTimeout(()=>$('#bCopy').textContent='Copy invite link',2500)}catch{prompt('Copy link:',u)}};
 $('#bMusic').onclick=()=>{music=!music;$('#bMusic').style.opacity=music?1:.45};
 $('#bMute').onclick=()=>{sound=!sound;$('#bMute').innerHTML=ico(sound?'sound':'mute',20)};
 $('#bShake').onclick=()=>{shakeOn=!shakeOn;$('#bShake').style.opacity=shakeOn?1:.45};
 $('#lctl').textContent='Controls: '+(TOUCH?'joystick on the left, DASH and BURST buttons on the right.':'WASD or arrows to move, Space to dash, E for Bubble Burst.');
-const q=new URLSearchParams(location.search).get('room');if(q)$('#code').value=q.toUpperCase();
+const q=new URLSearchParams(location.search).get('room');if(q){$('#code').value=q.toUpperCase();scr='friends'}
 if(sess&&sess.token&&q&&sess.code!==q.toUpperCase())clearSess();
+ui();
 
 // ---------- Input ----------
 const keys={};let inp={x:0,y:0},sentX=9,sentY=9,sentAt=0;
-addEventListener('keydown',e=>{au();if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();
+addEventListener('keydown',e=>{au();if(e.key==='Escape'&&!$('#help').hidden){$('#help').hidden=true;return}if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();
   if(' '===e.key){e.preventDefault();if(!e.repeat)send({t:outState?'cheer':'dash'})}
   else if((k==='e'||k==='shift')&&!e.repeat)send({t:outState?'cheer':'burst'});
   else if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){e.preventDefault();keys[k]=1}});
