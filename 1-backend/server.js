@@ -8,6 +8,7 @@ const OUT = [(x, y) => Math.hypot(x, y) > R0, (x, y) => Math.hypot(x / 270, y / 
 // sink faucet gush (only before the arena starts shrinking): aimed jet. GW warn time, GD active time, GI gap between gushes, GA push accel, GHW half width, GO nozzle position
 const GW = 1.2, GD = 1.5, GI = 10, GA = 700, GHW = 38, GOY = -290;
 const rooms = new Map();
+let TICKN = 0; // simulation clock: snapshots carry ts = TICKN*DT (ms). Clients use it to smooth out network jitter.
 
 const srv = http.createServer((q, r) => {
   if (q.url === '/health') return r.end('ok');
@@ -103,7 +104,7 @@ function startRound(r) {
   all(r, info(r));
 }
 function snap(r) {
-  all(r, { t: 's', a: r.a, st: r.st, r: r.round, tm: Math.round((r.st === 'play' ? Math.max(0, ROUND - r.t) : r.tmr) * 10) / 10, R: Math.round(r.R * 10) / 10, g: r.g ? [+r.g.ang.toFixed(2), r.g.ph, +r.g.tm.toFixed(1)] : 0,
+  all(r, { t: 's', ts: Math.round(TICKN * DT * 1000), a: r.a, st: r.st, r: r.round, tm: Math.round((r.st === 'play' ? Math.max(0, ROUND - r.t) : r.tmr) * 10) / 10, R: Math.round(r.R * 10) / 10, g: r.g ? [+r.g.ang.toFixed(2), r.g.ph, +r.g.tm.toFixed(1)] : 0,
     p: r.players.filter(p => p.in).map(p => [p.id, +p.x.toFixed(1), +p.y.toFixed(1), Math.round(p.vx), Math.round(p.vy), p.alive ? 1 : 0, +p.cd.toFixed(1), +p.fa.toFixed(2), +p.bcd.toFixed(1)]), ev: r.ev });
   r.ev = [];
 }
@@ -156,13 +157,14 @@ function finish(r) {
   r.res = { winners: ps.filter(p => p.score === m).map(p => p.id) }; r.st = 'final'; all(r, info(r));
 }
 function tick() {
+  TICKN++;
   for (const [c, r] of rooms) {
     if (!r.players.some(p => p.connected && !p.bot)) { r.empty = r.empty || Date.now(); if (Date.now() - r.empty > 60000) rooms.delete(c); continue; }
     r.empty = 0;
     if (r.st === 'count') { r.tmr -= DT; if (r.tmr <= 0) { r.st = 'play'; r.t = 0; all(r, info(r)); } }
     else if (r.st === 'play') step(r);
     else if (r.st === 'end') { r.tmr -= DT; if (r.tmr <= 0) { if (r.round >= ROUNDS) finish(r); else startRound(r); } }
-    if (['count', 'play', 'end'].includes(r.st) && ++r.k % 2 === 0) snap(r);
+    if (['count', 'play', 'end'].includes(r.st)) snap(r); // 30 Hz: every physics tick
   }
 }
 let last = Date.now(), acc = 0;
@@ -178,6 +180,7 @@ wss.on('connection', ws => {
   };
   ws.on('message', d => {
     let m; try { m = JSON.parse(d); } catch { return; }
+    if (m.t === 'ping') return send(ws, { t: 'pong', c: m.c }); // client measures round-trip time for its movement prediction
     if (m.t === 'create' && !room) {
       const r = { code: newCode(), players: [], host: null, st: 'lobby', round: 0, log: [], res: null, tmr: 0, t: 0, ev: [], k: 0, R: R0, a: 0, ord: [0, 1, 2], solo: false };
       rooms.set(r.code, r); const p = mkp(r, m.name, ws); r.players.push(p); attach(r, p);
