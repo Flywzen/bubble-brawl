@@ -14,6 +14,7 @@ let TICKN = 0; // simulation clock: snapshots carry ts = TICKN*DT (ms). Clients 
 
 const srv = http.createServer((q, r) => {
   if (q.url === '/health') return r.end('ok');
+  if (q.url === '/version') return r.end(JSON.stringify({ build: 'parry-soap-bots-1', features: ['bots', 'quick', 'parry', 'soap', 'ts-snapshots'] }));
   const page = path.join(__dirname, 'public', 'index.html'); // optional: only exists when frontend is bundled with the server
   if (!fs.existsSync(page)) { r.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }); return r.end('BUBBLE BRAWL game server is running. The game page is hosted separately.'); }
   if (q.url.split('?')[0] === '/config.js') { r.writeHead(200, { 'Content-Type': 'text/javascript' }); return r.end('window.BRAWL_SERVER = "";'); } // single-service mode: same host
@@ -256,4 +257,4 @@ wss.on('connection', ws => {
   });
 });
 setInterval(() => wss.clients.forEach(c => { if (c.live === false) return c.terminate(); c.live = false; c.ping(); }), 25000);
-srv.listen(PORT, '0.0.0.0', () => console.log('BUBBLE BRAWL di port ' + PORT));
+srv.listen(PORT, '0.0.0.0', () => console.log('BUBBLE BRAWL (build parry-soap-bots-1) di port ' + PORT));
