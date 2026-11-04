@@ -1,23 +1,83 @@
-# BUBBLE BRAWL
-Online multiplayer game for 2-8 players: soap bars bump each other off a sink, toilet or bathtub (the arena is shuffled each round; each arena has its own collision shape: circle, oval, rounded rectangle). Every player colour has its own cute soap-bar shape: one with a hole in the middle, fish, duck, frog, star, cat, whale and heart. Node server is authoritative (physics at 30 Hz, snapshots at 30 Hz) over WebSocket (`ws`). One service serves both frontend and backend.
+# Bubble Brawl
 
-Spectators: everyone sits in ONE small stand ("SOAP FANS"), to the right of the arena in landscape or above it in portrait, so players are not distracted. The fans are soap-bar characters with eyes and waving arms. Players who are out (or waiting for the next round) take a front-row seat as their own soap and can press CHEER (Space/E/button), sent through the server with a 0.7 s cooldown. The rest of the background is intentionally plain.
+Online multiplayer party game for 2–8 players. Slide your soap bar around a sink, toilet or bathtub and bonk rivals off the edge. Last soap standing wins!
 
-Sink faucet gush: starting at 8 s, then every ~10 s, the faucet aims a water jet at a random player. A white dashed stripe warns for 1.2 s, then the jet pushes everything inside the stripe for 1.5 s (dodge sideways). Server-side in `step()`, sent in snapshots as `g:[angle,phase,timeLeft]` plus `warn`/`gush` events. `GFIRST=<seconds>` env var changes the first gush time (testing only).
+## Features
 
-## Bots and Quick Play
-A bot is a normal player object (`bot:true`, no socket) driven by `botThink()` inside `step()` with the same inputs as a human (move, dash, burst). Messages: `create` with `quick:1,bots:3` (Quick Play: bots fill the room and the match starts at once, room is `solo`, "again" restarts immediately), `addbot` / `rmbot` (host, lobby only, max 8 players in total), `leave` (Back button: removes the player from a lobby, counts as falling out mid-round, hands the host role to another human, deletes the room when no human is left). Bots never become host and never keep a room alive. A human joining a full lobby takes a bot's seat. Bots look ahead at their own momentum to avoid the edge, aim to hit foes from the centre side so they get pushed outwards, dodge the faucet stripe, and have reaction delay and some randomness so they stay beatable.
+- **3 arenas** — Sink (circle), Toilet (oval), Bathtub (rounded rectangle) — shuffled each round
+- **8 soap shapes** — cosmetic only; each player picks their own
+- **Dash & Parry** — dash to ram, parry to reflect incoming hits
+- **Bots** — Quick Play starts instantly against bots; add bots to private rooms too
+- **Spectator stand** — eliminated players cheer from the "SOAP FANS" stand
+- **Faucet gush** — water jet hazard on the sink arena
+- **Procedural music** — funky party synth, no audio files needed
 
-## Run locally
-    npm ci && npm start        # http://localhost:3000
-    npm test                   # automated test with 2+ WebSocket clients (FAST=10 speeds up rounds)
-Open two windows (normal + incognito), create a room in one and join with the code in the other.
+## Folder Structure
 
-## Deploy (backend only; the game page is hosted separately)
-This folder is the realtime server. It needs a Node host with WebSocket support (not static hosting). On Render: New Web Service -> pick this GitHub repo -> Root Directory `1-backend`, Build `npm ci`, Start `npm start`, Health Check `/health`, plan Free, region Singapore. The service URL (`https://<name>.onrender.com`) goes into `../2-frontend/config.js`. If `public/index.html` is placed next to `server.js`, the server also serves the game page itself (single-service mode, leave `BRAWL_SERVER` empty then).
+```
+bubble-brawl/
+├── server/              # Node.js game server (authoritative)
+│   ├── server.js        # Game logic, physics, WebSocket handling
+│   ├── package.json
+│   └── tests/           # Automated tests & benchmarks
+├── client/              # Static frontend (single HTML page)
+│   ├── index.html       # Game UI, rendering, controls, audio
+│   ├── config.js        # Server URL configuration
+│   └── *.png/ico/svg    # Favicons and icons
+├── docs/                # Documentation
+│   ├── CHANGELOG.md
+│   └── DECISIONS.md
+├── vercel.json          # Vercel deployment config
+└── README.md
+```
 
-## Deploy frontend ke Vercel
-Backend realtime (WebSocket) tidak bisa jalan di Vercel, jadi backend tetap di Render. Vercel hanya untuk halaman game statis (`2-frontend`). Di Vercel: Add New Project -> pilih repo ini -> Framework Preset `Other`, Root Directory dikosongkan (root repo). `vercel.json` sudah mengatur Output Directory ke `2-frontend`, tanpa build/install command. Pastikan `2-frontend/config.js` berisi URL Render kamu.
+## Run Locally
+
+```bash
+cd server
+npm ci
+npm start          # http://localhost:3000
+```
+
+Open two browser windows (normal + incognito), create a room in one and join with the code in the other.
+
+For single-service mode (server serves the frontend too), copy `client/index.html` into `server/public/index.html` and leave `BRAWL_SERVER` empty in `config.js`.
+
+### Tests
+
+```bash
+cd server
+npm test                     # runs all test suites
+npm run bench:bots           # bot performance benchmark (~2.5 min)
+```
+
+## Deploy
+
+### Backend → Render
+
+The server needs a Node.js host with WebSocket support.
+
+1. New Web Service on [Render](https://render.com)
+2. Pick this repo → Root Directory: `server`
+3. Build Command: `npm ci`
+4. Start Command: `npm start`
+5. Health Check Path: `/health`
+
+Copy the service URL (e.g. `https://bubble-brawl.onrender.com`).
+
+### Frontend → Vercel
+
+1. Add New Project on [Vercel](https://vercel.com)
+2. Pick this repo → Framework Preset: `Other`
+3. Root Directory: leave empty (repo root)
+4. `vercel.json` is already configured to output `client/`
+5. Set the Render URL in `client/config.js`:
+   ```js
+   window.BRAWL_SERVER = "https://bubble-brawl.onrender.com";
+   ```
 
 ## Limitations
-No client-side prediction yet (only ~100 ms interpolation), so movement feels slightly delayed at high ping. Room state is in memory: a server restart drops all rooms. Not yet tested on real devices.
+
+- **No full client-side prediction** — only ~100 ms interpolation + own-soap prediction. Movement feels slightly delayed at high ping.
+- **Room state is in memory** — a server restart drops all active rooms.
+- **Free-tier cold starts** — Render free tier sleeps after inactivity; first connection can take ~1 minute.

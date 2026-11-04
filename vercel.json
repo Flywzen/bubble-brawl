@@ -3,5 +3,5 @@
   "framework": null,
   "buildCommand": null,
   "installCommand": null,
-  "outputDirectory": "2-frontend"
+  "outputDirectory": "client"
 }
