@@ -238,7 +238,7 @@ const mul=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.i
 // ---------- layout: arena + ONE small stand ----------
 // landscape: stand sits to the right of the arena; portrait / near-square: stand sits above it. All spectators sit here, none scattered around the arena.
 const NPL=()=>room&&room.players?room.players.filter(p=>p.in).length:0;
-function mkStand(sr){let u=18,rows=2,cols=4;const cc=sr.side?4:5;
+function mkStand(sr){let u=18,rows=2,cols=4;const cc=sr.side?5:5;
  for(;u>=9;u--){rows=Math.max(1,Math.min(2,Math.floor((sr.h-5.1*u-4)/(3.3*u))+1));cols=Math.min(rows<2?8:cc,Math.floor((sr.w-24)/(3.2*u)));if(cols>=3&&rows*cols>=8)break}
  cols=Math.max(3,cols);
  const w=Math.min(sr.w,cols*3.2*u+24),h=5.1*u+(rows-1)*3.3*u+4;
@@ -246,11 +246,11 @@ function mkStand(sr){let u=18,rows=2,cols=4;const cc=sr.side?4:5;
 function layout(W,H,A){
  const b=A.b,bw=b[2]-b[0]+2,bh=b[3]-b[1]+2,side=W>=H*1.08,B=TOUCH?(W>=H*1.08?150:190):24;let S,cx,cy,sr;
  if(side){
-  const T=A.tm??54;S=Math.min(W/bw,(H-T-10)/bh);cx=W/2;cy=(T+H-10)/2;
-  const want=Math.min(240,Math.max(190,W*.16));
-  if(W/2-bw*S/2<want+30){const aw=W-want-34;S=Math.min(S,aw/bw);cx=aw/2+6}
-  const ax1=cx+bw*S/2,sw=Math.max(120,Math.min(260,W-ax1-22));
-  sr={x:W-10-sw,y:54,w:sw,h:Math.max(100,H-54-B),side:1}}
+   const T=A.tm??54,gap=20,swant=Math.min(360,Math.max(220,W*.2));
+   const avail=W-swant-gap-20;S=Math.min(avail/bw,(H-T-10)/bh);cy=(T+H-10)/2;
+   const arW=bw*S,groupW=arW+gap+swant,x0=Math.max(8,(W-groupW)/2);
+   cx=x0+arW/2;
+   sr={x:x0+arW+gap,y:T,w:swant,h:Math.max(100,H-T-B),side:1}}
  else{
   const T=NPL()?98:30,sh=Math.max(72,Math.min(80,H*.1));
   S=Math.min(W/bw,(H-T-sh-8-B)/bh);cx=W/2;cy=T+sh+8+(H-B-T-sh-8)/2;
