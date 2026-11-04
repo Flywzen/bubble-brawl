@@ -14,12 +14,12 @@ function cl(){const c={room:null,snap:null,you:null,err:null,evs:[]};c.ws=new WS
  ok(Q.room.players.length===4&&Q.room.players.filter(p=>p.bot).length===3,'quick play: 1 human + 3 bots, match starts without waiting');
  ok(Q.room.solo===1&&Q.room.host===Q.you.id,'quick play room is solo, host is the human');
  ok(Q.room.players.filter(p=>p.bot).every(p=>/\(bot\)$/.test(p.name)&&p.on),'bots are labelled "(bot)" and online');
- // the human stays idle; the bots must actually move, dash/burst and knock players out
+ // the human stays idle; the bots must actually move, dash/parry and knock players out
  await until(()=>Q.room.st==='final',120000);
  ok(Q.room.log.length===3,'quick play: all 3 rounds finish (log '+Q.room.log.length+')');
  const decisive=Q.room.log.filter(l=>!l.to).length;
- console.log('INFO rounds decided before time-out:',decisive+'/3, events dash='+Q.evs.filter(e=>e[0]==='dash'&&e[1]!==Q.you.id).length+' burst='+Q.evs.filter(e=>e[0]==='burst'&&e[1]!==Q.you.id).length+' out='+Q.evs.filter(e=>e[0]==='out').length);
- ok(Q.evs.some(e=>(e[0]==='dash'||e[0]==='burst')&&e[1]!==Q.you.id),'bots use dash/burst');
+ console.log('INFO rounds decided before time-out:',decisive+'/3, events dash='+Q.evs.filter(e=>e[0]==='dash'&&e[1]!==Q.you.id).length+' parry='+Q.evs.filter(e=>e[0]==='parry'&&e[1]!==Q.you.id).length+' out='+Q.evs.filter(e=>e[0]==='out').length);
+ ok(Q.evs.some(e=>(e[0]==='dash'||e[0]==='parry')&&e[1]!==Q.you.id),'bots use dash/parry');
  ok(Q.room.players.reduce((a,p)=>a+p.score,0)>0,'scores were awarded');
  // solo rematch restarts straight away, bots stay
  Q.send({t:'again'});await until(()=>Q.room.st==='count');
