@@ -1,11 +1,13 @@
 const http = require('http'), fs = require('fs'), path = require('path'), { WebSocketServer } = require('ws');
 const PORT = process.env.PORT || 3000, FAST = +process.env.FAST || 1; // FAST>1 is only for automated tests
 const DT = 1 / 30, ROUND = 45 / FAST, SHRINK_AT = 15 / FAST, SHRINK_LEN = 20 / FAST;
-const R0 = 300, RMIN = 130, SR = 22, ACC = 600, FR = 0.95, VCAP = 700, DASHV = 380, CD = 3, BCD = 6, BR = 125, BIMP = 360, MAXP = 8, ROUNDS = 3;
+const R0 = 300, RMIN = 130, SR = 22, ACC = 600, FR = 0.95, VCAP = 700, DASHV = 380, CD = 3, MAXP = 8, ROUNDS = 3;
 // arena: 0 sink (circle), 1 toilet (oval), 2 bathtub (rounded rectangle). true = outside; same as AX.d on the client
 const OUT = [(x, y) => Math.hypot(x, y) > R0, (x, y) => Math.hypot(x / 270, y / 285) > 1,
   (x, y) => { const qx = Math.abs(x) - 170, qy = Math.abs(y) - 95; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) > 130; }];
 // sink faucet gush (only before the arena starts shrinking): aimed jet. GW warn time, GD active time, GI gap between gushes, GA push accel, GHW half width, GO nozzle position
+// parry: PWIN = active window after the press, PCD / PCDOK = cooldown when it missed / when it caught a hit, PREF = how hard the attacker is sent back, PMIN = minimum bounce speed, PSTUN = attacker is dizzy (weak steering) for this long
+const PWIN = .3, PCD = 4, PCDOK = 2, PREF = 1.25, PMIN = 260, PSTUN = .9;
 const GW = 1.2, GD = 1.5, GI = 10, GA = 700, GHW = 38, GOY = -290;
 const rooms = new Map();
 let TICKN = 0; // simulation clock: snapshots carry ts = TICKN*DT (ms). Clients use it to smooth out network jitter.
@@ -26,13 +28,13 @@ const all = (r, o) => { const s = JSON.stringify(o); for (const p of r.players) 
 const info = r => ({ t: 'room', code: r.code, host: r.host, st: r.st, round: r.round, log: r.log, res: r.res, solo: r.solo ? 1 : 0,
   players: r.players.map(p => ({ id: p.id, name: p.name, ci: p.ci, score: p.score, on: p.connected, wait: p.wait, in: p.in, bot: p.bot ? 1 : 0 })) });
 
-function mkp(room, name, ws) {
-  const used = new Set(room.players.map(p => p.ci)); let ci = 0; while (used.has(ci)) ci++;
+function mkp(room, name, ws, want) { // want = the soap (0-7) the player picked; falls back to the first free one
+  const used = new Set(room.players.map(p => p.ci)); let ci = Number.isInteger(want) && want >= 0 && want < 8 && !used.has(want) ? want : 0; while (used.has(ci)) ci++;
   return { id: rid(), token: rid() + rid(), name: String(name || '').trim().slice(0, 12) || 'Sabun', ci, ws, connected: true,
-    score: 0, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, bcd: 0 };
+    score: 0, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, pcd: 0, par: 0, stun: 0 };
 }
 // ---------- bots ----------
-// A bot is a normal player object with bot:true and no socket. It is driven by botThink() inside step(), using the same inputs (ix/iy, dash, burst) as a human.
+// A bot is a normal player object with bot:true and no socket. It is driven by botThink() inside step(), using the same inputs (ix/iy, dash, parry) as a human.
 const BOTN = ['Foamy', 'Suds', 'Squeaky', 'Slippy', 'Lather', 'Scrubby', 'Bubbly', 'Pumice'];
 function addBot(r) {
   const used = new Set(r.players.map(p => p.name)), free = BOTN.filter(n => !used.has(n + ' (bot)'));
@@ -47,13 +49,12 @@ function edgeU(r, x, y) {
   return l / Math.max(1, lo);
 }
 function doDash(r, p) { p.vx += Math.cos(p.fa) * DASHV; p.vy += Math.sin(p.fa) * DASHV; p.cd = CD; r.ev.push(['dash', p.id, Math.round(p.x), Math.round(p.y)]); }
-function doBurst(r, p) {
-  p.bcd = BCD;
-  for (const o of r.players) if (o !== p && o.in && o.alive) {
-    const dx = o.x - p.x, dy = o.y - p.y, d = Math.hypot(dx, dy) || 1;
-    if (d < BR) { const f = BIMP * (1 - d / (BR * 1.3)); o.vx += dx / d * f; o.vy += dy / d * f; }
-  }
-  r.ev.push(['burst', p.id, Math.round(p.x), Math.round(p.y)]);
+function doParry(r, p) { p.pcd = PCD; p.par = PWIN; r.ev.push(['parry', p.id, Math.round(p.x), Math.round(p.y)]); }
+// a soap that is parrying when a rival rams it takes no knockback; the rival is thrown back (harder than it came) and left dizzy
+function parryHit(r, P, A, m, c) { // m = unit vector from P to A, c = closing speed
+  const vn = (A.vx - P.vx) * m[0] + (A.vy - P.vy) * m[1], nv = Math.max(PMIN, c * PREF);
+  A.vx += m[0] * (nv - vn); A.vy += m[1] * (nv - vn); A.stun = PSTUN; P.par = 0; P.pcd = PCDOK;
+  r.ev.push(['parried', P.id, A.id, Math.round((P.x + A.x) / 2), Math.round((P.y + A.y) / 2)]);
 }
 function botThink(r, b, ps) {
   b.think -= DT; if (b.think > 0) return; b.think = .14 + Math.random() * .12; // reaction time
@@ -83,9 +84,9 @@ function botThink(r, b, ps) {
   if (r.st !== 'play') return;
   const d = Math.hypot(tgt.x - b.x, tgt.y - b.y), ta = Math.atan2(tgt.y - b.y, tgt.x - b.x);
   if (b.cd <= 0 && d > 55 && d < 230 && Math.cos(ta - b.fa) > .8 && u < .7 && edgeU(r, b.x + (b.vx + Math.cos(b.fa) * DASHV) * .6, b.y + (b.vy + Math.sin(b.fa) * DASHV) * .6) < .88 && Math.random() < .75) doDash(r, b);
-  if (b.bcd <= 0) for (const o of foes) {
-    const od = Math.hypot(o.x - b.x, o.y - b.y);
-    if (od < BR * .8 && (edgeU(r, o.x, o.y) > u + .05 || (u > .75 && od < BR * .6) || Math.random() < .12) && Math.random() < .7) { doBurst(r, b); break; }
+  if (b.pcd <= 0 && b.par <= 0) for (const o of foes) { // a rival is rushing at us: parry just before it lands
+    const dx = b.x - o.x, dy = b.y - o.y, od = Math.hypot(dx, dy) || 1, closing = ((o.vx - b.vx) * dx + (o.vy - b.vy) * dy) / od;
+    if (od < 125 && closing > 140 && Math.random() < .6) { doParry(r, b); break; }
   }
 }
 function startMatch(r) {
@@ -98,14 +99,14 @@ function startRound(r) {
   const ps = r.players.filter(p => p.in);
   ps.forEach((p, i) => {
     const a = i / ps.length * Math.PI * 2 + r.round * 0.7, d = R0 * 0.62;
-    Object.assign(p, { x: Math.cos(a) * d, y: Math.sin(a) * d, vx: 0, vy: 0, alive: true, cd: 0, bcd: 0, ix: 0, iy: 0 });
+    Object.assign(p, { x: Math.cos(a) * d, y: Math.sin(a) * d, vx: 0, vy: 0, alive: true, cd: 0, pcd: 0, par: 0, stun: 0, ix: 0, iy: 0 });
     p.fa = Math.atan2(-p.y, -p.x);
   });
   all(r, info(r));
 }
 function snap(r) {
   all(r, { t: 's', ts: Math.round(TICKN * DT * 1000), a: r.a, st: r.st, r: r.round, tm: Math.round((r.st === 'play' ? Math.max(0, ROUND - r.t) : r.tmr) * 10) / 10, R: Math.round(r.R * 10) / 10, g: r.g ? [+r.g.ang.toFixed(2), r.g.ph, +r.g.tm.toFixed(1)] : 0,
-    p: r.players.filter(p => p.in).map(p => [p.id, +p.x.toFixed(1), +p.y.toFixed(1), Math.round(p.vx), Math.round(p.vy), p.alive ? 1 : 0, +p.cd.toFixed(1), +p.fa.toFixed(2), +p.bcd.toFixed(1)]), ev: r.ev });
+    p: r.players.filter(p => p.in).map(p => [p.id, +p.x.toFixed(1), +p.y.toFixed(1), Math.round(p.vx), Math.round(p.vy), p.alive ? 1 : 0, +p.cd.toFixed(1), +p.fa.toFixed(2), +p.pcd.toFixed(1), p.par > 0 ? 1 : 0, p.stun > 0 ? 1 : 0]), ev: r.ev });
   r.ev = [];
 }
 function step(r) {
@@ -118,8 +119,8 @@ function step(r) {
   } else if (r.g) r.g = null; // shrinking started (or nobody left): cancel any warning/gush in progress
   for (const p of ps) if (p.bot) botThink(r, p, ps);
   for (const p of ps) {
-    p.cd = Math.max(0, p.cd - DT); p.bcd = Math.max(0, p.bcd - DT);
-    const ix = p.connected ? p.ix : 0, iy = p.connected ? p.iy : 0; // disconnected: input zeroed, body can still be pushed
+    p.cd = Math.max(0, p.cd - DT); p.pcd = Math.max(0, p.pcd - DT); p.par = Math.max(0, p.par - DT); p.stun = Math.max(0, p.stun - DT);
+    const sf = p.stun > 0 ? .3 : 1, ix = p.connected ? p.ix * sf : 0, iy = p.connected ? p.iy * sf : 0; // disconnected: input zeroed, body can still be pushed
     let gx = 0, gy = 0;
     if (r.g && r.g.ph === 1) { const dx = Math.sin(r.g.ang), dy = Math.cos(r.g.ang), rx = p.x, ry = p.y - GOY; if (rx * dx + ry * dy > 0 && Math.abs(rx * dy - ry * dx) < GHW) { gx = dx * GA; gy = dy * GA; } }
     p.vx = (p.vx + (ix * ACC + gx) * DT) * FR; p.vy = (p.vy + (iy * ACC + gy) * DT) * FR;
@@ -134,9 +135,13 @@ function step(r) {
       a.x += nx * ov; a.y += ny * ov; b.x -= nx * ov; b.y -= ny * ov;
       const rel = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
       if (rel < 0) {
-        const j = -(1 + 1.15) * rel / 2;
-        a.vx += j * nx; a.vy += j * ny; b.vx -= j * nx; b.vy -= j * ny;
-        if (-rel > 60) r.ev.push(['hit', Math.round((a.x + b.x) / 2), Math.round((a.y + b.y) / 2), Math.round(-rel)]);
+        const pa = a.par > 0, pb = b.par > 0;
+        if (pa !== pb && -rel > 40) parryHit(r, pa ? a : b, pa ? b : a, pa ? [-nx, -ny] : [nx, ny], -rel); // exactly one side is parrying: reflect
+        else {
+          const j = -(1 + 1.15) * rel / 2;
+          a.vx += j * nx; a.vy += j * ny; b.vx -= j * nx; b.vy -= j * ny;
+          if (-rel > 60) r.ev.push(['hit', Math.round((a.x + b.x) / 2), Math.round((a.y + b.y) / 2), Math.round(-rel)]);
+        }
       }
     }
   }
@@ -183,7 +188,7 @@ wss.on('connection', ws => {
     if (m.t === 'ping') return send(ws, { t: 'pong', c: m.c }); // client measures round-trip time for its movement prediction
     if (m.t === 'create' && !room) {
       const r = { code: newCode(), players: [], host: null, st: 'lobby', round: 0, log: [], res: null, tmr: 0, t: 0, ev: [], k: 0, R: R0, a: 0, ord: [0, 1, 2], solo: false };
-      rooms.set(r.code, r); const p = mkp(r, m.name, ws); r.players.push(p); attach(r, p);
+      rooms.set(r.code, r); const p = mkp(r, m.name, ws, m.ci); r.players.push(p); attach(r, p);
       if (m.quick) { r.solo = true; for (let i = Math.min(MAXP - 1, Math.max(1, +m.bots || 3)); i > 0; i--) addBot(r); startMatch(r); } // Quick Play: bots fill the room and the match starts right away
     } else if (m.t === 'join' && !room) {
       const r = rooms.get(String(m.code || '').toUpperCase().trim());
@@ -192,7 +197,7 @@ wss.on('connection', ws => {
       if (p) { if (p.ws && p.ws !== ws && p.ws.readyState === 1) p.ws.close(); }
       else {
         if (r.players.length >= MAXP && r.st === 'lobby') { const b = r.players.filter(x => x.bot).pop(); if (b) r.players = r.players.filter(x => x !== b); } // a human takes a bot's seat
-        if (r.players.length >= MAXP) return send(ws, { t: 'err', m: 'Room is full', fatal: 1 }); p = mkp(r, m.name, ws); r.players.push(p); }
+        if (r.players.length >= MAXP) return send(ws, { t: 'err', m: 'Room is full', fatal: 1 }); p = mkp(r, m.name, ws, m.ci); r.players.push(p); }
       attach(r, p);
     } else if (!room) return;
     else if (m.t === 'start') {
@@ -219,9 +224,15 @@ wss.on('connection', ws => {
     } else if (m.t === 'dash') {
       if (room.st !== 'play' || !pl.in || !pl.alive || pl.cd > 0) return;
       doDash(room, pl);
-    } else if (m.t === 'burst') {
-      if (room.st !== 'play' || !pl.in || !pl.alive || pl.bcd > 0) return;
-      doBurst(room, pl);
+    } else if (m.t === 'parry') {
+      if (room.st !== 'play' || !pl.in || !pl.alive || pl.pcd > 0 || pl.par > 0) return;
+      doParry(room, pl);
+    } else if (m.t === 'soap') { // lobby: change your soap. A bot that has it gives up its look (swap); another human's soap is taken.
+      if (room.st !== 'lobby' || !Number.isInteger(m.ci) || m.ci < 0 || m.ci > 7 || m.ci === pl.ci) return;
+      const o = room.players.find(x => x !== pl && x.ci === m.ci);
+      if (o && !o.bot) return send(ws, { t: 'err', m: 'That soap is taken' });
+      if (o) o.ci = pl.ci;
+      pl.ci = m.ci; all(room, info(room));
     } else if (m.t === 'cheer') { // spectators (eliminated / waiting players) cheer; living players cannot
       const n = Date.now();
       if (!['play', 'end'].includes(room.st) || (pl.in && pl.alive && room.st === 'play') || n - (pl.cheerAt || 0) < 700) return;
