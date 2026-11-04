@@ -36,7 +36,7 @@ function cl(){const c={room:null,snap:null,you:null,err:null,evs:[]};c.ws=new WS
  A.send({t:'cheer'});await sleep(200);ok(!A.evs.some(e=>e[0]==='cheer'&&e[1]===A.you.id),'living player cannot cheer');A.send({t:'dash'});await sleep(250);A.send({t:'dash'});
  await sleep(300);const cd=A.snap.p.find(p=>p[0]===A.you.id)[6];ok(cd>1.5&&cd<=3,'dash cooldown active ('+cd+'s), second dash rejected');
  ok(A.evs.filter(e=>e[0]==='dash').length===1,'exactly 1 dash event');
- A.send({t:'burst'});await sleep(150);A.send({t:'burst'});await sleep(300);const bc=A.snap.p.find(p=>p[0]===A.you.id)[8];ok(bc>4.5&&bc<=6,'burst cooldown active ('+bc+'s)');ok(A.evs.filter(e=>e[0]==='burst').length===1,'exactly 1 burst event');
+ A.send({t:'parry'});await sleep(150);A.send({t:'parry'});await sleep(300);const bc=A.snap.p.find(p=>p[0]===A.you.id)[8];ok(bc>3.4&&bc<=4,'parry cooldown active ('+bc+'s)');ok(A.evs.filter(e=>e[0]==='parry').length===1,'exactly 1 parry event');
  // host leaves mid-round
  A.ws.close();await until(()=>B2.room.host===bid);ok(true,'host moves to another player');
  const t0=B2.snap.tm;await sleep(700);ok(B2.snap.tm!==t0,'round keeps running after host leaves');
