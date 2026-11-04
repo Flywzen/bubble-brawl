@@ -284,7 +284,7 @@ function place(L,st){const R=document.documentElement,o=$('#out'),n=$('#cnt');R.
 // ---------- spectators: soap-bar fans with eyes (no arms: some shapes face sideways); they cheer by hopping, wobbling and squeezing their eyes shut ----------
 let cheerL=0,crowd=[],vo=[],says=[],seats={};const cj={},SAY=['YEAY!','WOOO!','GO GO!','HOORAY!','C\'MON!','BONK!'];
 function say(i,t){says.push({i,t,l:1.1})}
-function cSoap(c,si,col,now,k){const u=c.u,D=SP[si],j=k>.1?Math.abs(Math.sin(now/95+c.ph))*u*(.4+.9*k):Math.abs(Math.sin(now/310+c.ph))*u*.32,sc=u*1.3/30,y0=c.y-u*.9-j;
+function cSoap(c,si,col,now,k){const u=c.u,D=SP[si],j=Math.abs(Math.sin(now/95+c.ph))*u*(.4+k*.55),sc=u*1.3/30,y0=c.y-u*.9-j;
  x.save();x.fillStyle='#0002';x.beginPath();x.ellipse(c.x,c.y+u*.5,u*.9,u*.28,0,0,7);x.fill();
  x.translate(c.x,y0);x.rotate(k>.5?Math.sin(now/70+c.ph)*.2:0);x.scale(sc,sc);
  x.lineCap='round';
@@ -622,7 +622,7 @@ function draw(now){
   if(f){
     const ids=Object.keys(f.pl);
     for(const id of ids){const p=f.pl[id],pi=room&&room.players.find(z=>z.id===id);if(!pi||!p.alive)continue;
-      const sp=Math.hypot(p.vx,p.vy);if(sp>110&&Math.random()<.6)parts.push({x:p.x-p.vx*.02,y:p.y-p.vy*.02,vx:0,vy:-8,l:.7,m:.7,r:5+Math.random()*5,c:'#fff'});
+      const sp=Math.hypot(p.vx,p.vy);if(sp>80&&Math.random()<.65){const bx=-p.vx/sp,by=-p.vy/sp,off=18+Math.random()*6,sw=(Math.random()-.5)*14;parts.push({x:p.x+bx*off+by*sw,y:p.y+by*off-bx*sw,vx:bx*25+(Math.random()-.5)*15,vy:by*25-6+(Math.random()-.5)*15,l:.6+Math.random()*.3,m:.9,r:3+Math.random()*5,c:'#fff'})}
       for(const o of ids){if(o<=id)continue;const q=f.pl[o];if(q.alive&&Math.hypot(p.x-q.x,p.y-q.y)<50){hitUntil[id]=hitUntil[o]=now+300}}
     }
     for(const id of ids){const p=f.pl[id],pi=room&&room.players.find(z=>z.id===id);if(pi&&p.alive)soap(p,pi,now)}
