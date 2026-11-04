@@ -5,4 +5,4 @@
 //  (https:// otomatis dipakai sebagai wss://, jadi tempel saja URL-nya.)
 //  Kosongkan ("") kalau game + server jalan di satu alamat yang sama.
 // ============================================================
-window.BRAWL_SERVER = "https://bubble-brawl.onrender.com;
+window.BRAWL_SERVER = "https://bubble-brawl.onrender.com";
