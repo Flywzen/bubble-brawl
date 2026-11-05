@@ -104,7 +104,7 @@ input:focus{border-color:#25c7c0}
 @media (max-height:500px){#sc div:not(.me) .nm{display:none}#sc{gap:3px}}
 :root{--cb:16px}
 @media (pointer:coarse) and (max-aspect-ratio:108/100){:root{--cb:76px}}
-#home,#quick,#friends,#lobby{padding-top:calc(14px + var(--st,0px));padding-bottom:calc(14px + var(--cb));padding-left:calc(14px + max(0px,calc(-1*var(--sh,0px))));padding-right:calc(14px + max(0px,var(--sh,0px)))}
+#home,#friends,#lobby{padding-top:calc(14px + var(--st,0px));padding-bottom:calc(14px + var(--cb));padding-left:calc(14px + max(0px,calc(-1*var(--sh,0px))));padding-right:calc(14px + max(0px,var(--sh,0px)))}
 .rdy{display:inline-flex;align-items:center;gap:2px;margin-left:5px;padding:0 8px;border-radius:999px;background:#fffaf0;color:#0e8a85;font-size:13px;line-height:20px;vertical-align:1px}.rdy.no{color:#a89468}
 .dfh{font-size:14px;color:#8a6a4a;margin:12px 0 2px}
 .seg{display:flex;gap:7px;margin:4px 0 2px}
@@ -120,19 +120,12 @@ input:focus{border-color:#25c7c0}
 
 <div id="home" class="scr"><div class="card">
   <h1>BUBBLE BRAWL</h1><div class="tag">Slide. Bonk. Don't fall.</div>
+  <div class="nrow"><button class="av" id="avH" aria-label="Choose your soap"></button><input id="name" class="nmi" maxlength="12" placeholder="Your name" autocomplete="off"></div>
+  <div class="dfh">Bot difficulty</div><div id="dfH"></div>
   <button class="btn o" id="bQuick">Quick Play<span class="sub">Jump in now against bots, no invite needed</span></button>
   <button class="btn" id="bFriends">Play with Friends<span class="sub">Room code or invite link, 2–8 players</span></button>
   <div class="err" id="err"></div>
   <button class="btn g" onclick="showHelp()">How to play &amp; scoring</button>
-</div></div>
-
-<div id="quick" class="scr" hidden><div class="card">
-  <button class="bk" id="bBackQ"><i data-i="back" data-z="16"></i> Back</button>
-  <div class="sub-h">Quick Play</div>
-  <div class="small">Pick your name and soap, then jump in against bots.</div>
-  <div class="nrow"><button class="av" id="avQ" aria-label="Choose your soap"></button><input id="name3" class="nmi" maxlength="12" placeholder="Your name" autocomplete="off"></div>
-  <button class="btn o" id="bGoQuick">Play</button>
-  <div class="err" id="err3"></div>
 </div></div>
 
 <div id="friends" class="scr" hidden><div class="card">
@@ -447,7 +440,7 @@ let cT=0,lastRx=0;
 function connect(){
   clearTimeout(cT);if(ws&&ws.readyState<2)return;
   ws=new WebSocket(wsUrl());const w=ws;
-  w.onopen=()=>{dW=[];jit=0;everOpen=true;fails=0;lastRx=performance.now();$('#conn').hidden=true;for(const e of['#err','#err2','#err3'])if($(e).textContent.startsWith('Connecting'))$(e).textContent='';if(pending){send(pending);pending=null}else if(sess&&sess.token)send({t:'join',code:sess.code,name:sess.name,token:sess.token})}; // re-attach to our seat after every drop, even when the room screen is still showing
+  w.onopen=()=>{dW=[];jit=0;everOpen=true;fails=0;lastRx=performance.now();$('#conn').hidden=true;for(const e of['#err','#err2'])if($(e).textContent.startsWith('Connecting'))$(e).textContent='';if(pending){send(pending);pending=null}else if(sess&&sess.token)send({t:'join',code:sess.code,name:sess.name,token:sess.token})}; // re-attach to our seat after every drop, even when the room screen is still showing
   w.onmessage=e=>{lastRx=performance.now();onMsg(JSON.parse(e.data))};
   w.onclose=()=>{if(w!==ws)return;if(sess||room)$('#conn').hidden=false;if(!everOpen&&++fails>=2)E('Connecting to server… (can take ~1 min if it was asleep)');cT=setTimeout(connect,fails>6?3000:1000)};
 }
@@ -455,12 +448,12 @@ function connect(){
 setInterval(()=>{if(ws&&ws.readyState===1&&lastRx&&performance.now()-lastRx>6000)ws.close()},2000);
 const wake=()=>{if(!ws||ws.readyState>1)connect();else if(ws.readyState===1&&performance.now()-lastRx>4000)ws.close()};
 addEventListener('online',wake);document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
-const E=t=>{$('#err').textContent=t;$('#err2').textContent=t;$('#err3').textContent=t};
+const E=t=>{$('#err').textContent=t;$('#err2').textContent=t};
 function act(m){if(!send(m))pending=m}
 function clearSess(){sess=null;me=null;room=null;sessionStorage.removeItem('ss');history.replaceState(null,'','/');}
 function onMsg(m){
   if(m.t==='pong'){rtt=rtt*.7+(performance.now()-m.c)*.3;return}
-  if(m.t==='you'){dW=[];jit=0;pme=null;me=m;sess={code:m.code,token:m.token,name:sess&&sess.name||nm()};sessionStorage.ss=JSON.stringify(sess);history.replaceState(null,'','?room='+m.code)}
+  if(m.t==='you'){dW=[];jit=0;pme=null;me=m;sess={code:m.code,token:m.token,name:sess&&sess.name||$('#name').value};sessionStorage.ss=JSON.stringify(sess);history.replaceState(null,'','?room='+m.code)}
   else if(m.t==='err'){ if(m.fatal){clearSess();if(scr==='home'&&q)scr='friends';ui();E(m.m)}else $('#lerr').textContent=m.m; setTimeout(()=>$('#lerr').textContent='',2500)}
   else if(m.t==='room'){if(!sess)return;room=m;ui()} // no sess = we already pressed Back; ignore late messages
   else if(m.t==='s'){
@@ -530,7 +523,8 @@ function ui(){
   const st=room&&room.st;
   if(!room||st==='lobby')$('#sheet').hidden=true;
   updAv();if(!$('#pick').hidden)renderPick();
-  $('#home').hidden=!!room||scr!=='home';$('#quick').hidden=!!room||scr!=='quick';$('#friends').hidden=!!room||scr!=='friends';$('#lobby').hidden=!(room&&st==='lobby');$('#hud').hidden=!(room&&st!=='lobby');
+  put('dfH',$('#dfH'),dfSeg(diff));
+  $('#home').hidden=!!room||scr!=='home';$('#friends').hidden=!!room||scr!=='friends';$('#lobby').hidden=!(room&&st==='lobby');$('#hud').hidden=!(room&&st!=='lobby');
   $('#ov').hidden=!(room&&(st==='end'||st==='final'));
   if(!room)return;
   if(st==='lobby'){
@@ -553,7 +547,7 @@ function ui(){
   }
   if(st==='final'){
     const w=room.res.winners.map(pname).map(esc).join(' & ');
-    $('#ovc').innerHTML=`<h2 style="margin:0">${ico('trophy',28)} ${room.res.winners.length>1?'Co-winners':'Winner'}: ${w}</h2>`+board()+(me&&room.host===me.id&&!room.solo&&room.players.some(p=>p.bot)?`<div class="dfh">Bot difficulty</div>${dfSeg(rdf())}`:'')+`<button class="btn o" id="bAgain">${room.solo?'Play Again':'Play Again (same room)'}</button><button class="btn g" id="bMenu">Back to menu</button>`;
+    $('#ovc').innerHTML=`<h2 style="margin:0">${ico('trophy',28)} ${room.res.winners.length>1?'Co-winners':'Winner'}: ${w}</h2>`+board()+(me&&room.host===me.id&&room.players.some(p=>p.bot)?`<div class="dfh">Bot difficulty</div>${dfSeg(rdf())}`:'')+`<button class="btn o" id="bAgain">${room.solo?'Play Again':'Play Again (same room)'}</button><button class="btn g" id="bMenu">Back to menu</button>`;
     $('#bAgain').onclick=()=>send({t:'again'});$('#bMenu').onclick=()=>leave('home');
   }
 }
@@ -580,12 +574,10 @@ function hud(s){intense=s.st==='play'&&(s.R<299||s.tm<12);
   $('#db').classList.remove('off');$('#bb').classList.toggle('off',!!ost);cv.style.filter=ost?'saturate(.7)':'';
 }
 function showHelp(){$('#help').hidden=false}
-const nm=()=>($('#name3').value||$('#name2').value).trim();
+const nm=()=>($('#name').value||$('#name2').value).trim();
 function leave(to){send({t:'leave'});clearSess();snaps=[];lastRound=-1;outState='';scr=to||'home';ui()}
 function needName(){const n=nm();if(!n){E('Enter your name first');return null}E('');return n}
-$('#bQuick').onclick=()=>{au();E('');scr='quick';ui()};
-$('#bBackQ').onclick=()=>{E('');scr='home';ui()};
-$('#bGoQuick').onclick=()=>{au();const n=needName();if(!n)return;sess={name:n};if(!ws||ws.readyState!==1)E('Connecting to server… (can take ~1 min if it was asleep)');act({t:'create',name:n,quick:1,bots:3,ci:myCi,df:1})};
+$('#bQuick').onclick=()=>{au();const n=needName();if(!n)return;sess={name:n};if(!ws||ws.readyState!==1)E('Connecting to server… (can take ~1 min if it was asleep)');act({t:'create',name:n,quick:1,bots:3,ci:myCi,df:diff})};
 $('#bFriends').onclick=()=>{au();E('');scr='friends';ui()};
 $('#bBackHome').onclick=()=>{E('');scr='home';ui()};
 $('#bCreate').onclick=()=>{au();const n=needName();if(!n)return;sess={name:n};act({t:'create',name:n,ci:myCi,df:diff})};
@@ -617,7 +609,7 @@ function renderPick(){const taken=new Set(room&&room.st==='lobby'?room.players.f
 function openPick(mode){pickMode=mode;renderPick();$('#pick').hidden=false}
 $('#pgrid').onclick=e=>{const b=e.target.closest('.sp');if(!b||b.disabled)return;const i=+b.dataset.s;myCi=i;try{localStorage.bbSoap=i}catch{}if(pickMode==='lobby')send({t:'soap',ci:i});$('#pick').hidden=true;updAv()};
 $('#bPickX').onclick=()=>{$('#pick').hidden=true};
-$('#avQ').onclick=$('#avF').onclick=()=>{au();openPick('menu')};
+$('#avH').onclick=$('#avF').onclick=()=>{au();openPick('menu')};
 $('#bSoap').onclick=()=>openPick('lobby');
 $('#lctl').textContent='Controls: '+(TOUCH?'joystick on the left, DASH and PARRY buttons on the right.':'WASD or arrows to move, Space to dash, E to parry.');
 const q=new URLSearchParams(location.search).get('room');if(q){$('#code').value=q.toUpperCase();scr='friends'}
@@ -871,4 +863,10 @@ function draw(now){
   }
   for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.l-=dt;if(p.l<=0){parts.splice(i,1);continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.95;p.vy*=.95;
     x.globalAlpha=Math.max(0,p.l/p.m)*.85;x.fillStyle=p.c;if(p.t){shp(x,3,p.x,p.y,p.r);x.fill()}else{x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()}}
-  for(let i=rings.length-1;i>=0;i--){const r=rings[i];r.l-=dt;if(
+  for(let i=rings.length-1;i>=0;i--){const r=rings[i];r.l-=dt;if(r.l<=0){rings.splice(i,1);continue}const k=1-r.l/r.m;x.globalAlpha=r.l/r.m*.9;x.lineWidth=(r.w||5)*(1-k*.6);x.strokeStyle=r.c;x.beginPath();x.arc(r.x,r.y,r.r0+(r.r1-r.r0)*(1-(1-k)*(1-k)),0,7);x.stroke()}
+  for(let i=pops.length-1;i>=0;i--){const p=pops[i];p.l-=dt;if(p.l<=0){pops.splice(i,1);continue}const k=1-p.l/p.m,sc=p.s*(k<.2?.4+k*3:1+(k-.2)*.15);x.save();x.translate(p.x,p.y-k*30);x.rotate(p.r);x.scale(sc,sc);x.globalAlpha=Math.min(1,p.l/p.m*2.2);x.font='800 26px "Baloo 2",sans-serif';x.textAlign='center';x.lineJoin='round';x.lineWidth=7;x.strokeStyle='#fffaf0';x.strokeText(p.t,0,0);x.fillStyle=p.c;x.fillText(p.t,0,0);x.restore()}
+  x.globalAlpha=1;x.restore();
+}
+if(Q.has('debug')){const d=document.createElement('div');d.style.cssText='position:fixed;left:6px;top:6px;z-index:99;font:700 11px monospace;background:#000a;color:#0f0;padding:4px 6px;border-radius:6px;pointer-events:none;white-space:pre';document.body.appendChild(d);let fr=0;(function f(){fr++;requestAnimationFrame(f)})();setInterval(()=>{d.textContent='fps '+fr*2+'\nping '+Math.round(rtt)+'ms\njitter '+Math.round(jit)+'ms\ndelay '+Math.round(dly)+'ms\nsnapgap '+Math.round(DBG.g)+'ms';fr=0;DBG.g=0},500)}
+requestAnimationFrame(draw);connect();
+</script></body></html>
