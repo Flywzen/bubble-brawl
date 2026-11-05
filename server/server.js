@@ -14,7 +14,7 @@ const GW = 1.2, GD = 1.5, GI = 4, GA = process.env.GA != null ? +process.env.GA 
 const PT_WIN = 3, PT_SURV = 1, PT_KILL = 1, KWIN = 3, KMIN = 40;
 // the faucet is a snake-like creature: it slithers out of one of 4 ports in the rim (0 top, 1 right, 2 bottom, 3 left) and spits from the nozzle, 87 px inside the water edge. NZ = nozzle distance from the centre (x, y) per arena [sink, toilet, bathtub].
 // g = { s: port, ang: jet direction (cos, sin), hx/hy: nozzle position, ph: 0 warn / 1 gush, tm }. The jet may swing up to GSWING either side of 'straight at the centre'.
-const PORTS = [-Math.PI / 2, 0, Math.PI / 2, Math.PI], NZ = [[235, 235], [205, 220], [235, 160]], GSWING = 1.1, NS = 18; // NS = number of soap looks (0-7 classic, 8-11 galaxy, 12-15 reef, 16-17 storybook)
+const PORTS = [-Math.PI / 2, 0, Math.PI / 2, Math.PI], NZ = [[235, 235], [205, 220], [235, 160]], GSWING = 1.1, NS = 18, NE = 7, EMO_CD = 1500; // NS = number of soap looks (0-7 classic, 8-11 galaxy, 12-15 reef, 16-17 storybook)
 const wrapA = a => ((a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
 const rooms = new Map();
 let TICKN = 0; // simulation clock: snapshots carry ts = TICKN*DT (ms). Clients use it to smooth out network jitter.
@@ -76,6 +76,7 @@ function parryHit(r, P, A, m, c) { // m = unit vector from P to A, c = closing s
 }
 function botThink(r, b, ps) {
   b.think -= DT; if (b.think > 0) return; const D = DIFFS[r.df]; b.think = D.th[0] + Math.random() * D.th[1]; // reaction time
+  if (Date.now() > (b.eu || 0) && Math.random() < 0.02) { b.eu = Date.now() + 6000 + Math.random() * 6000; all(r, { t: 'emo', id: b.id, i: Math.floor(Math.random() * NE) }); } // bots taunt now and then
   const foes = ps.filter(o => o !== b); if (!foes.length) { b.ix = b.iy = 0; return; }
   const u = edgeU(r, b.x, b.y), pu = edgeU(r, b.x + b.vx * .55, b.y + b.vy * .55), danger = Math.max(u, pu) * D.ea;
   const cl = Math.hypot(b.x, b.y) || 1, cx = -b.x / cl, cy = -b.y / cl; // unit vector to the centre
@@ -213,6 +214,8 @@ wss.on('connection', ws => {
   };
   ws.on('message', d => {
     let m; try { m = JSON.parse(d); } catch { return; }
+    if (m.t === 'emo') { // emote: index 0..NE-1, at most one per EMO_CD ms per player, relayed to the whole room
+      const now = Date.now(); if (room && pl && Number.isInteger(m.i) && m.i >= 0 && m.i < NE && now >= (pl.eu || 0)) { pl.eu = now + EMO_CD; all(room, { t: 'emo', id: pl.id, i: m.i }); } return; }
     if (m.t === 'ping') return send(ws, { t: 'pong', c: m.c }); // client measures round-trip time for its movement prediction
     if (m.t === 'create' && !room) {
       const r = { code: newCode(), players: [], host: null, st: 'lobby', round: 0, log: [], res: null, tmr: 0, t: 0, ev: [], k: 0, R: R0, a: 0, ord: [0, 1, 2], solo: false, df: cdf(m.df), gc: 0 };

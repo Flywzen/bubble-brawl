@@ -6,6 +6,8 @@ All notable changes to Bubble Brawl.
 
 ### Features
 
+- **Emotes** — 7 meme stickers (Muach, Shhh, Stare, MDR, AAAA, Bleh, Haha) shown in a speech bubble above the soap for ~2 s. Keys **1-7** on a laptop, the 😀 button above Dash on a phone. Client cooldown 2 s, server cooldown 1.5 s per player. Bots taunt now and then. Assets live in `client/emotes/` as animated WebP (96 px, ~300 KB total, original frame timing). They are DOM `<img>` overlays because canvas `drawImage` would freeze animated images on one frame.
+- **Protocol (emotes)** — client `emo {i}` (0-6), server relays `emo {id, i}` to the whole room; invalid index, no room or cooldown = ignored. Test: `tests/test-emote.js`.
 - **Ready check for guests** — in a friends room every player except the host gets an **I'm ready!** button in the lobby (tap again to take it back). The host's **Start!** stays disabled until all guests are ready, and the note under the player list says who is still missing. Each guest's chip shows a *Ready* or *Not ready* badge. The host never needs to be ready, bots are always ready, guests who are offline do not block the start, and Quick Play is unchanged. After a match everybody has to get ready again, and a guest who joins late starts as not ready. If a new player becomes host they count as ready.
 - **Protocol** — new message `ready {v}` (1 = ready, 0 = not ready; lobby only, ignored for the host), `players[].rd` in the room info (1 for the host, bots and ready guests), `start` is refused with `Waiting for <name> to get ready` while a connected guest is not ready, and the server reports the `ready` feature. An older server sends no `rd`: the client then hides the button and never blocks Start.
 
