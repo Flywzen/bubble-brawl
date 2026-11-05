@@ -19,7 +19,10 @@ const me=c=>c.snap&&c.snap.p.find(p=>p[0]===c.you.id);
  B.send({t:'soap',ci:5});await until(()=>B.err);ok(/taken/i.test(B.err.m),'changing to another human\'s soap is refused');
  B.send({t:'soap',ci:7});await until(()=>B.room.players.find(p=>p.id===B.you.id).ci===7);ok(true,'changing to a free soap works and reaches everyone');
  ok(A.room.players.find(p=>p.id===B.you.id).ci===7,'other clients see the new soap');
- A.send({t:'addbot'});await until(()=>A.room.players.length===3);const bot=A.room.players.find(p=>p.bot);
+ B.send({t:'soap',ci:12});await until(()=>B.room.players.find(p=>p.id===B.you.id).ci===12);ok(true,'new soaps (8-15) can be picked, e.g. 12');
+  B.send({t:'soap',ci:16});await sleep(200);ok(B.room.players.find(p=>p.id===B.you.id).ci===12,'soap index 16 is out of range and ignored');
+  B.send({t:'soap',ci:7});await until(()=>B.room.players.find(p=>p.id===B.you.id).ci===7);
+  A.send({t:'addbot'});await until(()=>A.room.players.length===3);const bot=A.room.players.find(p=>p.bot);
  A.send({t:'soap',ci:bot.ci});await until(()=>A.room.players.find(p=>p.id===A.you.id).ci===bot.ci);
  ok(A.room.players.find(p=>p.id===bot.id).ci===5,'taking a bot\'s soap swaps the looks (bot gets mine)');
  // soap choice survives a rematch / start

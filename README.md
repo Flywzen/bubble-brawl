@@ -1,6 +1,6 @@
 # Bubble Brawl
 
-Online multiplayer party game for 2–8 players. Slide your soap bar around a sink, toilet or bathtub and bonk rivals off the edge. Last soap standing wins!
+Online multiplayer party game for 2–8 players. Slide your soap bar around a sink, toilet or bathtub and bonk rivals off the edge. Win rounds and score kills; the highest total after 3 rounds wins!
 
 ## Features
 
@@ -9,7 +9,8 @@ Online multiplayer party game for 2–8 players. Slide your soap bar around a si
 - **Dash & Parry** — dash to ram, parry to reflect incoming hits
 - **Bots** — Quick Play starts instantly against bots; add bots to private rooms too
 - **Spectator stand** — eliminated players cheer from the "SOAP FANS" stand
-- **Faucet gush** — water jet hazard on the sink arena
+- **Scoring** — 3 points for winning a round, +1 point for every kill (the last rival you bumped before they fell), 1 point for each survivor on a time-out
+- **Faucet gush** — a living faucet that spits a water jet in all three arenas, every few seconds, even while the arena shrinks
 - **Procedural music** — funky party synth, no audio files needed
 
 ## Folder Structure
@@ -19,7 +20,7 @@ bubble-brawl/
 ├── server/              # Node.js game server (authoritative)
 │   ├── server.js        # Game logic, physics, WebSocket handling
 │   ├── package.json
-│   └── tests/           # Automated tests & benchmarks
+│   └── tests/           # Automated tests & benchmarks (incl. test-score.js for kill points)
 ├── client/              # Static frontend (single HTML page)
 │   ├── index.html       # Game UI, rendering, controls, audio
 │   ├── config.js        # Server URL configuration

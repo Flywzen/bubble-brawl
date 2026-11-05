@@ -5,16 +5,23 @@ const R0 = 300, RMIN = 130, SR = 22, ACC = 600, FR = 0.95, VCAP = 700, DASHV = 3
 // arena: 0 sink (circle), 1 toilet (oval), 2 bathtub (rounded rectangle). true = outside; same as AX.d on the client
 const OUT = [(x, y) => Math.hypot(x, y) > R0, (x, y) => Math.hypot(x / 270, y / 285) > 1,
   (x, y) => { const qx = Math.abs(x) - 170, qy = Math.abs(y) - 95; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) > 130; }];
-// sink faucet gush (only before the arena starts shrinking): aimed jet. GW warn time, GD active time, GI gap between gushes, GA push accel, GHW half width, GO nozzle position
+// faucet gush in all 3 arenas, the whole round (also while the arena shrinks): aimed jet. GW warn time, GD active time, GI gap between gushes, GA push accel, GHW half width, GFIRST first warning (seconds into the round)
 // parry: PWIN = active window after the press, PCD / PCDOK = cooldown when it missed / when it caught a hit, PREF = how hard the attacker is sent back, PMIN = minimum bounce speed, PSTUN = attacker is dizzy (weak steering) for this long
 const PWIN = .3, PCD = 4, PCDOK = 2, PREF = 1.25, PMIN = 260, PSTUN = .9;
-const GW = 1.2, GD = 1.5, GI = 10, GA = 700, GHW = 38, GOY = -290;
+const GW = 1.2, GD = 1.5, GI = 4, GA = process.env.GA != null ? +process.env.GA : 700, GHW = 38, GFIRST = 4; // env GA is only for automated tests (GA=0: the jet pushes nobody, so test soaps survive to watch the faucet cycle)
+// scoring: PT_WIN = last soap standing, PT_SURV = each survivor when time runs out, PT_KILL = per knock-out. A soap that falls counts as a kill for whoever bumped it last
+// (a hit harder than KMIN, or a parry reflection) no more than KWIN seconds earlier. Falling alone, being pushed by the faucet only, or leaving the room gives nobody a kill.
+const PT_WIN = 3, PT_SURV = 1, PT_KILL = 1, KWIN = 3, KMIN = 40;
+// the faucet is a snake-like creature: it slithers out of one of 4 ports in the rim (0 top, 1 right, 2 bottom, 3 left) and spits from the nozzle, 87 px inside the water edge. NZ = nozzle distance from the centre (x, y) per arena [sink, toilet, bathtub].
+// g = { s: port, ang: jet direction (cos, sin), hx/hy: nozzle position, ph: 0 warn / 1 gush, tm }. The jet may swing up to GSWING either side of 'straight at the centre'.
+const PORTS = [-Math.PI / 2, 0, Math.PI / 2, Math.PI], NZ = [[235, 235], [205, 220], [235, 160]], GSWING = 1.1, NS = 16; // NS = number of soap looks (0-7 classic, 8-11 galaxy, 12-15 reef)
+const wrapA = a => ((a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
 const rooms = new Map();
 let TICKN = 0; // simulation clock: snapshots carry ts = TICKN*DT (ms). Clients use it to smooth out network jitter.
 
 const srv = http.createServer((q, r) => {
   if (q.url === '/health') return r.end('ok');
-  if (q.url === '/version') return r.end(JSON.stringify({ build: 'parry-soap-bots-1', features: ['bots', 'quick', 'parry', 'soap', 'ts-snapshots'] }));
+  if (q.url === '/version') return r.end(JSON.stringify({ build: 'kills-faucet-always-1', features: ['bots', 'quick', 'parry', 'soap', 'ts-snapshots', 'snake-faucet', 'soap16', 'kills', 'faucet-always'] }));
   const page = path.join(__dirname, 'public', 'index.html'); // optional: only exists when frontend is bundled with the server
   if (!fs.existsSync(page)) { r.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }); return r.end('BUBBLE BRAWL game server is running. The game page is hosted separately.'); }
   if (q.url.split('?')[0] === '/config.js') { r.writeHead(200, { 'Content-Type': 'text/javascript' }); return r.end('window.BRAWL_SERVER = "";'); } // single-service mode: same host
@@ -27,19 +34,20 @@ const newCode = () => { let c; do { c = Array.from({ length: 4 }, () => 'ABCDEFG
 const send = (ws, o) => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); };
 const all = (r, o) => { const s = JSON.stringify(o); for (const p of r.players) if (p.connected && p.ws && p.ws.readyState === 1) p.ws.send(s); };
 const info = r => ({ t: 'room', code: r.code, host: r.host, st: r.st, round: r.round, log: r.log, res: r.res, solo: r.solo ? 1 : 0,
-  players: r.players.map(p => ({ id: p.id, name: p.name, ci: p.ci, score: p.score, on: p.connected, wait: p.wait, in: p.in, bot: p.bot ? 1 : 0 })) });
+  players: r.players.map(p => ({ id: p.id, name: p.name, ci: p.ci, score: p.score, kl: p.kills, on: p.connected, wait: p.wait, in: p.in, bot: p.bot ? 1 : 0 })) });
 
-function mkp(room, name, ws, want) { // want = the soap (0-7) the player picked; falls back to the first free one
-  const used = new Set(room.players.map(p => p.ci)); let ci = Number.isInteger(want) && want >= 0 && want < 8 && !used.has(want) ? want : 0; while (used.has(ci)) ci++;
+function mkp(room, name, ws, want) { // want = the soap (0-15) the player picked; falls back to the first free one
+  const used = new Set(room.players.map(p => p.ci)); let ci = Number.isInteger(want) && want >= 0 && want < NS && !used.has(want) ? want : 0; while (used.has(ci)) ci++;
   return { id: rid(), token: rid() + rid(), name: String(name || '').trim().slice(0, 12) || 'Sabun', ci, ws, connected: true,
-    score: 0, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, pcd: 0, par: 0, stun: 0 };
+    score: 0, kills: 0, lh: 0, lht: -99, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, pcd: 0, par: 0, stun: 0 };
 }
 // ---------- bots ----------
 // A bot is a normal player object with bot:true and no socket. It is driven by botThink() inside step(), using the same inputs (ix/iy, dash, parry) as a human.
 const BOTN = ['Foamy', 'Suds', 'Squeaky', 'Slippy', 'Lather', 'Scrubby', 'Bubbly', 'Pumice'];
 function addBot(r) {
   const used = new Set(r.players.map(p => p.name)), free = BOTN.filter(n => !used.has(n + ' (bot)'));
-  const p = mkp(r, 'bot', null); p.bot = true; p.token = ''; p.name = (free[Math.random() * free.length | 0] || 'Bot') + ' (bot)';
+  const usedCi = new Set(r.players.map(x => x.ci)), freeCi = Array.from({ length: NS }, (_, i) => i).filter(i => !usedCi.has(i));
+  const p = mkp(r, 'bot', null, freeCi[Math.random() * freeCi.length | 0]); p.bot = true; p.token = ''; p.name = (free[Math.random() * free.length | 0] || 'Bot') + ' (bot)';
   p.skill = .8 + Math.random() * .2; p.think = Math.random() * .3; r.players.push(p); return p;
 }
 // 0 = arena centre, 1 = on the edge (measured along the ray from the centre; every arena is convex)
@@ -71,8 +79,8 @@ function botThink(r, b, ps) {
   const late = r.t > SHRINK_AT - 2 ? .25 : 0; // the arena is about to shrink: drift inwards
   const w = Math.min(1, Math.max(0, (danger - .7) / .25)); // 0 = safe, 1 = about to fall
   dx = dx * (1 - w) + cx * (1.3 * w + late); dy = dy * (1 - w) + cy * (1.3 * w + late);
-  if (r.a === 0 && r.g) { // dodge the faucet stripe
-    const gx = Math.sin(r.g.ang), gy = Math.cos(r.g.ang), rx = b.x, ry = b.y - GOY, cr = rx * gy - ry * gx;
+  if (r.g) { // dodge the faucet stripe
+    const gx = Math.cos(r.g.ang), gy = Math.sin(r.g.ang), rx = b.x - r.g.hx, ry = b.y - r.g.hy, cr = rx * gy - ry * gx;
     if (rx * gx + ry * gy > 0 && Math.abs(cr) < GHW + 32) {
       let sx = gy, sy = -gx; if (sx * cx + sy * cy < 0 !== cr < 0) { sx = -sx; sy = -sy; } // leave the stripe on the side that is closer to the centre
       dx = sx + cx * .3; dy = sy + cy * .3;
@@ -91,22 +99,22 @@ function botThink(r, b, ps) {
   }
 }
 function startMatch(r) {
-  r.players = r.players.filter(p => p.connected); r.players.forEach(p => { p.in = true; p.wait = false; p.score = 0; });
+  r.players = r.players.filter(p => p.connected); r.players.forEach(p => { p.in = true; p.wait = false; p.score = 0; p.kills = 0; });
   r.ord = [0, 1, 2].sort(() => Math.random() - .5);
   r.round = 0; r.log = []; r.res = null; startRound(r);
 }
 function startRound(r) {
-  r.round++; r.a = r.ord[(r.round - 1) % 3]; r.R = R0; r.g = null; r.gn = +process.env.GFIRST || 8; r.st = 'count'; r.tmr = 3; r.t = 0; r.ev = [];
+  r.round++; r.a = r.ord[(r.round - 1) % 3]; r.R = R0; r.g = null; r.gs = -1; r.gn = +process.env.GFIRST || GFIRST; r.kl = {}; r.st = 'count'; r.tmr = 3; r.t = 0; r.ev = [];
   const ps = r.players.filter(p => p.in);
   ps.forEach((p, i) => {
     const a = i / ps.length * Math.PI * 2 + r.round * 0.7, d = R0 * 0.62;
-    Object.assign(p, { x: Math.cos(a) * d, y: Math.sin(a) * d, vx: 0, vy: 0, alive: true, cd: 0, pcd: 0, par: 0, stun: 0, ix: 0, iy: 0 });
+    Object.assign(p, { x: Math.cos(a) * d, y: Math.sin(a) * d, vx: 0, vy: 0, alive: true, cd: 0, pcd: 0, par: 0, stun: 0, ix: 0, iy: 0, lh: 0, lht: -99 });
     p.fa = Math.atan2(-p.y, -p.x);
   });
   all(r, info(r));
 }
 function snap(r) {
-  all(r, { t: 's', ts: Math.round(TICKN * DT * 1000), a: r.a, st: r.st, r: r.round, tm: Math.round((r.st === 'play' ? Math.max(0, ROUND - r.t) : r.tmr) * 10) / 10, R: Math.round(r.R * 10) / 10, g: r.g ? [+r.g.ang.toFixed(2), r.g.ph, +r.g.tm.toFixed(1)] : 0,
+  all(r, { t: 's', ts: Math.round(TICKN * DT * 1000), a: r.a, st: r.st, r: r.round, tm: Math.round((r.st === 'play' ? Math.max(0, ROUND - r.t) : r.tmr) * 10) / 10, R: Math.round(r.R * 10) / 10, g: r.g ? [+r.g.ang.toFixed(2), r.g.ph, +r.g.tm.toFixed(1), r.g.s] : 0,
     p: r.players.filter(p => p.in).map(p => [p.id, +p.x.toFixed(1), +p.y.toFixed(1), Math.round(p.vx), Math.round(p.vy), p.alive ? 1 : 0, +p.cd.toFixed(1), +p.fa.toFixed(2), +p.pcd.toFixed(1), p.par > 0 ? 1 : 0, p.stun > 0 ? 1 : 0]), ev: r.ev });
   r.ev = [];
 }
@@ -114,16 +122,20 @@ function step(r) {
   const ps = r.players.filter(p => p.in && p.alive); r.t += DT;
   r.R = r.t < SHRINK_AT ? R0 : R0 - (R0 - RMIN) * Math.min(1, (r.t - SHRINK_AT) / SHRINK_LEN);
   const k = r.R / R0;
-  if (r.a === 0 && ps.length && r.t < SHRINK_AT) { // sink: warn first (stripe on the water), then the jet pushes everyone inside the stripe. Faucet is off once the water starts shrinking
-    if (!r.g) { if (r.t >= r.gn) { const t = ps[Math.random() * ps.length | 0], ang = Math.max(-1.1, Math.min(1.1, Math.atan2(t.x, t.y - GOY) + (Math.random() - .5) * .3)); r.g = { ang, ph: 0, tm: GW }; r.ev.push(['warn', +ang.toFixed(2)]); } }
-    else if ((r.g.tm -= DT) <= 0) { if (r.g.ph === 0) { r.g.ph = 1; r.g.tm = GD; r.ev.push(['gush', +r.g.ang.toFixed(2)]); } else { r.g = null; r.gn = r.t + GI; } }
-  } else if (r.g) r.g = null; // shrinking started (or nobody left): cancel any warning/gush in progress
+  if (ps.length) { // warn first (stripe on the water), then the jet pushes everyone inside the stripe. The faucet keeps going while the water shrinks
+    if (!r.g) { if (r.t >= r.gn) { // the snake picks a port (never the same twice in a row) and a victim, and aims straight at them (+ a little error)
+        let s; do { s = Math.random() * 4 | 0; } while (s === r.gs); r.gs = s;
+        const t = ps[Math.random() * ps.length | 0], ph = PORTS[s], hx = Math.cos(ph) * NZ[r.a][0], hy = Math.sin(ph) * NZ[r.a][1], inward = ph + Math.PI,
+          d = Math.max(-GSWING, Math.min(GSWING, wrapA(Math.atan2(t.y - hy, t.x - hx) - inward) + (Math.random() - .5) * .3)), ang = inward + d;
+        r.g = { s, ang, hx, hy, ph: 0, tm: GW }; r.ev.push(['warn', +ang.toFixed(2), s]); } }
+    else if ((r.g.tm -= DT) <= 0) { if (r.g.ph === 0) { r.g.ph = 1; r.g.tm = GD; r.ev.push(['gush', +r.g.ang.toFixed(2), r.g.s]); } else { r.g = null; r.gn = r.t + GI; } }
+  } else if (r.g) r.g = null; // nobody left: cancel any warning/gush in progress
   for (const p of ps) if (p.bot) botThink(r, p, ps);
   for (const p of ps) {
     p.cd = Math.max(0, p.cd - DT); p.pcd = Math.max(0, p.pcd - DT); p.par = Math.max(0, p.par - DT); p.stun = Math.max(0, p.stun - DT);
     const sf = p.stun > 0 ? .3 : 1, ix = p.connected ? p.ix * sf : 0, iy = p.connected ? p.iy * sf : 0; // disconnected: input zeroed, body can still be pushed
     let gx = 0, gy = 0;
-    if (r.g && r.g.ph === 1) { const dx = Math.sin(r.g.ang), dy = Math.cos(r.g.ang), rx = p.x, ry = p.y - GOY; if (rx * dx + ry * dy > 0 && Math.abs(rx * dy - ry * dx) < GHW) { gx = dx * GA; gy = dy * GA; } }
+    if (r.g && r.g.ph === 1) { const dx = Math.cos(r.g.ang), dy = Math.sin(r.g.ang), rx = p.x - r.g.hx, ry = p.y - r.g.hy; if (rx * dx + ry * dy > 0 && Math.abs(rx * dy - ry * dx) < GHW) { gx = dx * GA; gy = dy * GA; } }
     p.vx = (p.vx + (ix * ACC + gx) * DT) * FR; p.vy = (p.vy + (iy * ACC + gy) * DT) * FR;
     const s = Math.hypot(p.vx, p.vy); if (s > VCAP) { p.vx *= VCAP / s; p.vy *= VCAP / s; }
     p.x += p.vx * DT; p.y += p.vy * DT;
@@ -137,24 +149,29 @@ function step(r) {
       const rel = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
       if (rel < 0) {
         const pa = a.par > 0, pb = b.par > 0;
-        if (pa !== pb && -rel > 40) parryHit(r, pa ? a : b, pa ? b : a, pa ? [-nx, -ny] : [nx, ny], -rel); // exactly one side is parrying: reflect
+        if (pa !== pb && -rel > 40) { (pa ? b : a).lh = (pa ? a : b).id; (pa ? b : a).lht = r.t; parryHit(r, pa ? a : b, pa ? b : a, pa ? [-nx, -ny] : [nx, ny], -rel); } // exactly one side is parrying: reflect (the rebounded attacker was 'last hit' by the parrier)
         else {
           const j = -(1 + 1.15) * rel / 2;
           a.vx += j * nx; a.vy += j * ny; b.vx -= j * nx; b.vy -= j * ny;
+          if (-rel > KMIN) { a.lh = b.id; a.lht = r.t; b.lh = a.id; b.lht = r.t; } // remember who bumped whom: kill credit if one of them goes out within KWIN
           if (-rel > 60) r.ev.push(['hit', Math.round((a.x + b.x) / 2), Math.round((a.y + b.y) / 2), Math.round(-rel)]);
         }
       }
     }
   }
-  for (const p of ps) if (OUT[r.a](p.x / k, p.y / k)) { p.alive = false; r.ev.push(['out', p.id, Math.round(p.x), Math.round(p.y)]); }
+  for (const p of ps) if (OUT[r.a](p.x / k, p.y / k)) {
+    p.alive = false; const kid = p.lh && p.lh !== p.id && r.t - p.lht <= KWIN && r.players.some(x => x.id === p.lh) ? p.lh : 0; // who gets the kill (0 = nobody)
+    if (kid) r.kl[kid] = (r.kl[kid] || 0) + 1;
+    r.ev.push(['out', p.id, Math.round(p.x), Math.round(p.y), kid]);
+  }
   const alive = ps.filter(p => p.alive), pts = {}; let winner = null, done = false, timeout = false;
-  if (alive.length === 1) { winner = alive[0].id; pts[winner] = 3; done = true; }
-  else if (alive.length === 0) done = true; // everyone fell on the same step: draw
-  else if (r.t >= ROUND) { alive.forEach(p => pts[p.id] = 1); done = true; timeout = true; }
+  if (alive.length === 1) { winner = alive[0].id; pts[winner] = PT_WIN; done = true; }
+  else if (alive.length === 0) done = true; // everyone fell on the same step: no win points (kills still count)
+  else if (r.t >= ROUND) { alive.forEach(p => pts[p.id] = PT_SURV); done = true; timeout = true; }
   if (done) {
     r.g = null;
-    for (const p of r.players) if (pts[p.id]) p.score += pts[p.id];
-    r.log.push({ n: r.round, w: winner, pts, to: timeout });
+    for (const p of r.players) { const kn = r.kl[p.id] || 0; p.score += (pts[p.id] || 0) + kn * PT_KILL; p.kills += kn; } // round points (win / survive) + kill points
+    r.log.push({ n: r.round, w: winner, pts, k: r.kl, to: timeout }); // pts = win/survive points, k = kills made this round (PT_KILL each)
     r.st = 'end'; r.tmr = 4.5; snap(r); all(r, info(r));
   }
 }
@@ -229,7 +246,7 @@ wss.on('connection', ws => {
       if (room.st !== 'play' || !pl.in || !pl.alive || pl.pcd > 0 || pl.par > 0) return;
       doParry(room, pl);
     } else if (m.t === 'soap') { // lobby: change your soap. A bot that has it gives up its look (swap); another human's soap is taken.
-      if (room.st !== 'lobby' || !Number.isInteger(m.ci) || m.ci < 0 || m.ci > 7 || m.ci === pl.ci) return;
+      if (room.st !== 'lobby' || !Number.isInteger(m.ci) || m.ci < 0 || m.ci >= NS || m.ci === pl.ci) return;
       const o = room.players.find(x => x !== pl && x.ci === m.ci);
       if (o && !o.bot) return send(ws, { t: 'err', m: 'That soap is taken' });
       if (o) o.ci = pl.ci;
@@ -241,7 +258,7 @@ wss.on('connection', ws => {
     } else if (m.t === 'again') {
       if (room.st !== 'final') return;
       room.players = room.players.filter(p => p.connected);
-      room.players.forEach(p => { p.wait = false; p.in = false; p.score = 0; });
+      room.players.forEach(p => { p.wait = false; p.in = false; p.score = 0; p.kills = 0; });
       room.st = 'lobby'; room.round = 0; room.log = []; room.res = null;
       if (room.solo) startMatch(room); else all(room, info(room)); // Quick Play: straight into the next match
     }
@@ -257,4 +274,4 @@ wss.on('connection', ws => {
   });
 });
 setInterval(() => wss.clients.forEach(c => { if (c.live === false) return c.terminate(); c.live = false; c.ping(); }), 25000);
-srv.listen(PORT, '0.0.0.0', () => console.log('BUBBLE BRAWL (build parry-soap-bots-1) di port ' + PORT));
+srv.listen(PORT, '0.0.0.0', () => console.log('BUBBLE BRAWL (build kills-faucet-always-1) di port ' + PORT));
