@@ -21,8 +21,8 @@ Key decisions made during development, with rationale.
 | **Arena shrinks after 15s** | Forces engagement. R0 (300) shrinks to RMIN (130) over 20s. Rounds cap at 45s. |
 | **Scoring: 3 / 1 / 0** | Last standing = 3 pts, timeout survivors = 1 pt each, simultaneous elimination = 0. Simple, rewards aggressive play. |
 | **Parry mechanic** | 0.3s active window. Successful parry: attacker is reflected at 1.25× speed, stunned for 0.9s, parrier gets 2s cooldown. Missed parry: 4s cooldown. Risk/reward trade-off. |
-| **Faucet gush (sink only)** | Environmental hazard. Warning stripe (1.2s) then push (1.5s). Disabled once shrinking starts to avoid unfair late-game combos. |
-| **8 cosmetic soap shapes** | Purely visual differentiation. All soaps have the same hitbox (radius 22). |
+| **Faucet gush (all 3 arenas)** | Environmental hazard. Warning stripe (1.2s) then push (1.5s). Disabled once shrinking starts to avoid unfair late-game combos. The faucet is a snake: it comes out of one of 4 rim ports and the jet starts at its head, 87 px inside the water edge of that port (nozzle at 235 px on the sink, 205/220 px on the toilet's x/y axes, 235/160 px on the bathtub's), so the stripe always shows exactly where the push will be. The same timing, push and width apply in every arena; the server keeps a per-arena nozzle table (NZ). |
+| **16 cosmetic soap looks** | Purely visual differentiation (index 0-15, one per player; the server only validates the range). All soaps have the same hitbox (radius 22). The themed ones are original designs inspired by a space-fantasy and a seaside cartoon cast, not copies. |
 
 ## Bots
 
