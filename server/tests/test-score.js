@@ -14,7 +14,7 @@ function cl(){const c={room:null,snap:null,you:null,evs:[]};c.ws=new WS('ws://lo
  B.send({t:'join',code:A.you.code,name:'Budi'});await until(()=>B.you&&A.room.players.length===2);
  const hunt=setInterval(()=>{const s=A.snap;if(!s||s.st!=='play')return;const a=s.p.find(p=>p[0]===A.you.id),b=s.p.find(p=>p[0]===B.you.id);if(!a||!b||!a[5]||!b[5])return;
    const dx=b[1]-a[1],dy=b[2]-a[2],d=Math.hypot(dx,dy)||1;A.send({t:'in',x:dx/d,y:dy/d});if(a[6]<=0&&d<260)A.send({t:'dash'})},40);
- A.send({t:'start'});await until(()=>A.room.st==='final');clearInterval(hunt);
+ B.send({t:'ready',v:1});await until(()=>(B.you&&A.room.players.find(p=>p.id===B.you.id)||{}).rd===1);A.send({t:'start'});await until(()=>A.room.st==='final');clearInterval(hunt);
  const id=A.you.id,bid=B.you.id,log=A.room.log,pa=A.room.players.find(p=>p.id===id),pb=A.room.players.find(p=>p.id===bid);
  const kills=log.reduce((n,l)=>n+((l.k&&l.k[id])||0),0), expect=log.reduce((n,l)=>n+((l.pts&&l.pts[id])||0)+((l.k&&l.k[id])||0),0);
  console.log('INFO log:',JSON.stringify(log));

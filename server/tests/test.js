@@ -15,7 +15,8 @@ function cl(){const c={room:null,snap:null,you:null,err:null,evs:[]};c.ws=new WS
  B.send({t:'start'});await sleep(200);ok(A.room.st==='lobby','non-host cannot start');
  // B runs off the arena each round -> A wins 3 rounds
  const run=setInterval(()=>{const e=B.snap&&B.snap.p.find(p=>p[0]===B.you.id);if(e&&!e[5]&&!B.ch&&['play','end'].includes(B.snap.st)){B.ch=1;B.send({t:'cheer'})}if(e&&B.snap.st==='play'){const l=Math.hypot(e[1],e[2])||1;B.send({t:'in',x:e[1]/l,y:e[2]/l})}},50);
- A.send({t:'start'});await until(()=>A.room.st==='count');
+ A.send({t:'start'});await sleep(200);ok(A.room.st==='lobby'&&A.err&&/ready/i.test(A.err.m),'host cannot start while the guest is not ready');
+ B.send({t:'ready',v:1});await until(()=>(B.you&&A.room.players.find(p=>p.id===B.you.id)||{}).rd===1);A.send({t:'start'});await until(()=>A.room.st==='count');
  await until(()=>A.room.st==='final',90000);clearInterval(run);
  const sa=A.room.players.find(p=>p.id===A.you.id).score,sb=B.room.players.find(p=>p.id===B.you.id).score;
  ok(sa===9&&sb===0,`3-round score A=${sa} B=${sb} (must be 9/0)`);ok(A.room.res.winners.length===1&&A.room.res.winners[0]===A.you.id,'winner A');
@@ -28,7 +29,8 @@ function cl(){const c={room:null,snap:null,you:null,err:null,evs:[]};c.ws=new WS
  const B2=cl();await B2.open;B2.send({t:'join',code,token:tok,name:'Budi'});await until(()=>B2.you);
  ok(B2.you.id===bid&&A.room.players.find(p=>p.id===bid).on,'reconnect restores the same player');
  // new player joins mid-game -> waits
- A.send({t:'start'});await until(()=>A.room.st==='count');
+ ok(A.room.players.find(p=>p.id===bid).rd===0,'after the rematch the guest has to get ready again');
+ B2.send({t:'ready',v:1});await until(()=>(B2.you&&A.room.players.find(p=>p.id===B2.you.id)||{}).rd===1);A.send({t:'start'});await until(()=>A.room.st==='count');
  const D=cl();await D.open;D.send({t:'join',code,name:'Dedi'});await until(()=>D.room);
  ok(D.room.players.find(p=>p.id===D.you.id).wait,'new player mid-match is waiting');
  await until(()=>A.snap&&A.snap.st==='play');

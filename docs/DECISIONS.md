@@ -18,6 +18,7 @@ Key decisions made during development, with rationale.
 | Decision | Detail |
 |---|---|
 | **3 arenas, shuffled per round** | Sink (circle), toilet (oval), bathtub (rounded rect). Variety without complexity. Each arena has a distinct collision boundary function (`OUT[]`). |
+| **Ready check in friends rooms** | The host cannot start until every connected guest has pressed Ready, so nobody is thrown into a match while still choosing a soap or away from the phone. The flag lives on the server (`p.ready`) and the room info sends `rd` (host and bots always 1); `start` is enforced on the server, not just by the greyed-out button. Offline guests are skipped (they are dropped from the match anyway), the flag is cleared on rematch so the group confirms again, and Quick Play skips it because there is only one human. Known trade-off: a connected but idle guest can hold the start; they can tap Ready or leave with Back. |
 | **Arena shrinks after 15s** | Forces engagement. R0 (300) shrinks to RMIN (130) over 20s. Rounds cap at 45s. |
 | **Scoring: round win + kills** | Round win (last standing) = 3 pts, timeout survivors = 1 pt each, simultaneous elimination = 0 win points. On top of that every kill = +1 pt (`PT_KILL`), so a round won by knocking the last rival out is worth 4. The match winner is whoever has the most points after 3 rounds (a tie is a shared win). Constants `PT_WIN`, `PT_SURV`, `PT_KILL` are at the top of `server.js`. |
 | **Kill credit = last bump** | Every collision harder than `KMIN` (40 px/s closing speed) records who bumped whom (`lh`, `lht`). A parry rebound counts as the parrier bumping the attacker. When a soap goes out and was bumped within `KWIN` (3 s), the last one to bump it gets the kill, even if that soap falls later in the same round. Falling alone, being pushed out by the faucet only, or leaving the room gives nobody a kill (the `out` event carries the killer id as its 5th value, 0 = none). Kills count in a draw round too. |
@@ -30,7 +31,8 @@ Key decisions made during development, with rationale.
 | Decision | Detail |
 |---|---|
 | **Same input model as humans** | `ix`, `iy`, `dash`, `parry` — no special physics. Makes them fair and testable. |
-| **Reaction delay + randomness** | 0.14–0.26s think interval, 80–100% skill factor, 4% random wander chance. Keeps bots beatable. |
+| **Reaction delay + randomness** | Hard: 0.14–0.26s think interval, 80–100% skill factor, 4% random wander chance. Keeps bots beatable. |
+| **Three difficulty levels, per room** | Easy / Normal / Hard live in one table (`DIFFS` in `server.js`); Hard is the original bot, so nothing changed for people who liked it. Each level sets reaction time, steering strength, aim wobble, wander chance, dash and parry chance, parry reaction distance, faucet dodging, edge awareness and targeting smarts. Levels only change how well a bot uses the same inputs as a human, never its physics. The level is stored per room (`r.df`) and read on every bot decision, so the host can change it live in the lobby or after a match; the faucet jet gets an id so a bot decides once per jet whether it notices it. Normal is the default because Hard proved too sharp for most players. |
 | **Bots never become host, never keep rooms alive** | Simplifies room lifecycle. Last human leaving deletes the room. |
 | **Quick Play = solo room with bots** | No matchmaking needed. Instant gameplay for solo users. |
 

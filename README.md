@@ -7,7 +7,8 @@ Online multiplayer party game for 2–8 players. Slide your soap bar around a si
 - **3 arenas** — Sink (circle), Toilet (oval), Bathtub (rounded rectangle) — shuffled each round
 - **18 soap looks** — cosmetic only; each player picks their own
 - **Dash & Parry** — dash to ram, parry to reflect incoming hits
-- **Bots** — Quick Play starts instantly against bots; add bots to private rooms too
+- **Bots with 3 difficulty levels** — Easy, Normal or Hard. Quick Play starts instantly against bots; add bots to private rooms too. Pick the level on the home screen, in the lobby (host) or after a match
+- **Ready check** — in a friends room every guest taps *I'm ready* in the lobby; the host can only start once all of them are ready (bots are always ready)
 - **Spectator stand** — eliminated players cheer from the "SOAP FANS" stand
 - **Scoring** — 3 points for winning a round, +1 point for every kill (the last rival you bumped before they fell), 1 point for each survivor on a time-out
 - **Faucet gush** — a living faucet that spits a water jet in all three arenas, every few seconds, even while the arena shrinks
@@ -20,7 +21,7 @@ bubble-brawl/
 ├── server/              # Node.js game server (authoritative)
 │   ├── server.js        # Game logic, physics, WebSocket handling
 │   ├── package.json
-│   └── tests/           # Automated tests & benchmarks (incl. test-score.js for kill points)
+│   └── tests/           # Automated tests & benchmarks (incl. test-score.js for kill points, test-difficulty.js for bot difficulty, test-ready.js for the lobby ready check)
 ├── client/              # Static frontend (single HTML page)
 │   ├── index.html       # Game UI, rendering, controls, audio
 │   ├── config.js        # Server URL configuration
@@ -49,7 +50,7 @@ For single-service mode (server serves the frontend too), copy `client/index.htm
 ```bash
 cd server
 npm test                     # runs all test suites
-npm run bench:bots           # bot performance benchmark (~2.5 min)
+npm run bench:bots           # how a scripted casual player fares against each bot difficulty (~3 min)
 ```
 
 ## Deploy

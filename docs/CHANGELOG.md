@@ -2,7 +2,29 @@
 
 All notable changes to Bubble Brawl.
 
-## Current Build: kills-faucet-always-1
+## Current Build: lobby-ready-1
+
+### Features
+
+- **Ready check for guests** — in a friends room every player except the host gets an **I'm ready!** button in the lobby (tap again to take it back). The host's **Start!** stays disabled until all guests are ready, and the note under the player list says who is still missing. Each guest's chip shows a *Ready* or *Not ready* badge. The host never needs to be ready, bots are always ready, guests who are offline do not block the start, and Quick Play is unchanged. After a match everybody has to get ready again, and a guest who joins late starts as not ready. If a new player becomes host they count as ready.
+- **Protocol** — new message `ready {v}` (1 = ready, 0 = not ready; lobby only, ignored for the host), `players[].rd` in the room info (1 for the host, bots and ready guests), `start` is refused with `Waiting for <name> to get ready` while a connected guest is not ready, and the server reports the `ready` feature. An older server sends no `rd`: the client then hides the button and never blocks Start.
+
+### Tests
+
+- New `test-ready.js` (start gate, taking ready back, host and bots always ready, offline guests do not block, no change during a match, reset after a match and for late joiners, new host, Quick Play). The other multiplayer tests now ready their guest before the host starts.
+
+### Previous build: bot-difficulty-1
+
+### Features
+
+- **Bot difficulty: Easy / Normal / Hard** — the bots were too sharp for most players, so every room now has a difficulty. **Hard is the old bot, unchanged.** **Normal** (the new default) thinks slower, aims worse, dashes and parries less often and does not always dodge the faucet. **Easy** is slow and clumsy: long reaction time, wobbly aim, rarely dashes, almost never parries, often ignores the faucet stripe and drifts close to the rim before turning back. The pick is made on the home screen (used by Quick Play and by new rooms), by the host in the lobby, or after a match before the rematch; it is remembered on the device. Bots read the level on every decision, so a change in the lobby applies at once. It cannot be changed in the middle of a match.
+- **Protocol** — `create` accepts `df` (0 easy, 1 normal, 2 hard; anything else means normal), new host-only message `setdiff {df}` (lobby and after a match), `room.df` in the room info, and the server reports the `difficulty` feature. An old client that sends no `df` gets Normal; an old server sends no `df` and the client shows Normal.
+
+### Tests
+
+- New `test-difficulty.js` (start values, invalid values, host-only changes, no change mid-match, change before a rematch, every level plays). `bench-bots.js` now plays a scripted casual player against every level and prints a table (player win rate, round win rate, points, bot dashes and parries).
+
+### Previous build: kills-faucet-always-1
 
 ### Features
 

@@ -19,6 +19,7 @@ async function run(port,gfirst,fast){
     B.send({t:'join',code:A.you.code,name:'B'});while(!(A.room&&A.room.players.length===2))await sleep(50);
     // both soaps hold the centre of the arena (the shrinking water would otherwise drop idle soaps spawned near the edge and end the round early)
     const hold=setInterval(()=>{for(const c of [A,B]){const s=c.snaps[c.snaps.length-1],e=s&&c.you&&s.p.find(p=>p[0]===c.you.id);if(!e||s.st!=='play')continue;const l=Math.hypot(e[1],e[2]);c.send({t:'in',x:l>25?-e[1]/l:0,y:l>25?-e[2]/l:0})}},50);
+    B.send({t:'ready',v:1});while(!((B.you&&A.room.players.find(p=>p.id===B.you.id))||{}).rd)await sleep(50);
     A.send({t:'start'});const t0=Date.now();
     while(!(A.room&&A.room.st==='final')){if(Date.now()-t0>120000)throw new Error('match timeout');await sleep(100)}
     clearInterval(hold);

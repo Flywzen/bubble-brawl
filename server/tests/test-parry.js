@@ -28,7 +28,7 @@ const me=c=>c.snap&&c.snap.p.find(p=>p[0]===c.you.id);
  // soap choice survives a rematch / start
  // ---- parry: A rushes B (dash), B parries -> A is thrown back and stunned, B is not pushed ----
  A.send({t:'rmbot'});await until(()=>A.room.players.length===2);
- A.send({t:'start'});await until(()=>A.snap&&A.snap.st==='play',20000);
+ B.send({t:'ready',v:1});await until(()=>(B.you&&A.room.players.find(p=>p.id===B.you.id)||{}).rd===1);A.send({t:'start'});await until(()=>A.snap&&A.snap.st==='play',20000);
  let done=false,res=null;
  const run=setInterval(()=>{const a=me(A),b=me(B);if(!a||!b||A.snap.st!=='play')return;
   const dx=b[1]-a[1],dy=b[2]-a[2],d=Math.hypot(dx,dy);
