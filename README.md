@@ -5,7 +5,7 @@ Online multiplayer party game for 2–8 players. Slide your soap bar around a si
 ## Features
 
 - **3 arenas** — Sink (circle), Toilet (oval), Bathtub (rounded rectangle) — shuffled each round
-- **8 soap shapes** — cosmetic only; each player picks their own
+- **18 soap looks** — cosmetic only; each player picks their own
 - **Dash & Parry** — dash to ram, parry to reflect incoming hits
 - **Bots** — Quick Play starts instantly against bots; add bots to private rooms too
 - **Spectator stand** — eliminated players cheer from the "SOAP FANS" stand

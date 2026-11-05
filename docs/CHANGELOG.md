@@ -6,6 +6,8 @@ All notable changes to Bubble Brawl.
 
 ### Features
 
+- **Two new soaps (18 in total)** — *Bubblefin* (16): a little goldfish kid with orange hair and fin tufts, a red dress with a scalloped hem, little side fins and floating bubbles. *Bobbie* (17): a rosy-cheeked kid with a blunt black bob, a red ribbon, a hair flower and a mint pinafore with a pocket. Both have slim, rounded soap-bar bodies (no neck, no feet) so they read as soap, not dolls. Original designs, cosmetic only. `NS` is 18 on server and client, the picker shows 18 tiles, the server reports the `soap18` feature, and `test-parry.js` now checks that 17 is valid and 18 is out of range.
+- **Action button icons centred** — the icon inside the Dash/Parry/Cheer bubble buttons used to sit up to 11 px left of centre; the icon box now has a fixed size and centres its SVG.
 - **New action buttons** — Parry (teal shield), Dash (orange chevrons) and Cheer (pink star) are icon-only bubble buttons now. The cooldown is a ring that fills clockwise with the seconds left in the middle; the button presses down when tapped. Cheer hops gently while you are out.
 - **New favicon** — two soap bars bonking inside a burst of bubbles (SVG, ICO, 32/192 PNG and the Apple touch icon).
 - **Boss Crab redesign** — one giant claw, a small one, uneven eye stalks, angry brows, a tiny gold crown and bubble-dot swim trunks. Original design, cosmetic only.

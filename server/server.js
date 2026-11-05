@@ -14,14 +14,14 @@ const GW = 1.2, GD = 1.5, GI = 4, GA = process.env.GA != null ? +process.env.GA 
 const PT_WIN = 3, PT_SURV = 1, PT_KILL = 1, KWIN = 3, KMIN = 40;
 // the faucet is a snake-like creature: it slithers out of one of 4 ports in the rim (0 top, 1 right, 2 bottom, 3 left) and spits from the nozzle, 87 px inside the water edge. NZ = nozzle distance from the centre (x, y) per arena [sink, toilet, bathtub].
 // g = { s: port, ang: jet direction (cos, sin), hx/hy: nozzle position, ph: 0 warn / 1 gush, tm }. The jet may swing up to GSWING either side of 'straight at the centre'.
-const PORTS = [-Math.PI / 2, 0, Math.PI / 2, Math.PI], NZ = [[235, 235], [205, 220], [235, 160]], GSWING = 1.1, NS = 16; // NS = number of soap looks (0-7 classic, 8-11 galaxy, 12-15 reef)
+const PORTS = [-Math.PI / 2, 0, Math.PI / 2, Math.PI], NZ = [[235, 235], [205, 220], [235, 160]], GSWING = 1.1, NS = 18; // NS = number of soap looks (0-7 classic, 8-11 galaxy, 12-15 reef, 16-17 storybook)
 const wrapA = a => ((a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
 const rooms = new Map();
 let TICKN = 0; // simulation clock: snapshots carry ts = TICKN*DT (ms). Clients use it to smooth out network jitter.
 
 const srv = http.createServer((q, r) => {
   if (q.url === '/health') return r.end('ok');
-  if (q.url === '/version') return r.end(JSON.stringify({ build: 'kills-faucet-always-1', features: ['bots', 'quick', 'parry', 'soap', 'ts-snapshots', 'snake-faucet', 'soap16', 'kills', 'faucet-always'] }));
+  if (q.url === '/version') return r.end(JSON.stringify({ build: 'kills-faucet-always-1', features: ['bots', 'quick', 'parry', 'soap', 'ts-snapshots', 'snake-faucet', 'soap16', 'soap18', 'kills', 'faucet-always'] }));
   const page = path.join(__dirname, 'public', 'index.html'); // optional: only exists when frontend is bundled with the server
   if (!fs.existsSync(page)) { r.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }); return r.end('BUBBLE BRAWL game server is running. The game page is hosted separately.'); }
   if (q.url.split('?')[0] === '/config.js') { r.writeHead(200, { 'Content-Type': 'text/javascript' }); return r.end('window.BRAWL_SERVER = "";'); } // single-service mode: same host
@@ -36,7 +36,7 @@ const all = (r, o) => { const s = JSON.stringify(o); for (const p of r.players) 
 const info = r => ({ t: 'room', code: r.code, host: r.host, st: r.st, round: r.round, log: r.log, res: r.res, solo: r.solo ? 1 : 0,
   players: r.players.map(p => ({ id: p.id, name: p.name, ci: p.ci, score: p.score, kl: p.kills, on: p.connected, wait: p.wait, in: p.in, bot: p.bot ? 1 : 0 })) });
 
-function mkp(room, name, ws, want) { // want = the soap (0-15) the player picked; falls back to the first free one
+function mkp(room, name, ws, want) { // want = the soap (0-17) the player picked; falls back to the first free one
   const used = new Set(room.players.map(p => p.ci)); let ci = Number.isInteger(want) && want >= 0 && want < NS && !used.has(want) ? want : 0; while (used.has(ci)) ci++;
   return { id: rid(), token: rid() + rid(), name: String(name || '').trim().slice(0, 12) || 'Sabun', ci, ws, connected: true,
     score: 0, kills: 0, lh: 0, lht: -99, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, pcd: 0, par: 0, stun: 0 };

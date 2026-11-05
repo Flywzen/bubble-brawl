@@ -71,7 +71,7 @@ input:focus{border-color:#25c7c0}
 .gb{--c:#25c7c0;--d:#14958f;--p:360deg;position:absolute;border:0;padding:0;border-radius:50%;font:inherit;color:#4a2f20;background:#fffaf0;box-shadow:0 6px 0 var(--d);pointer-events:auto;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;transition:transform .08s,box-shadow .08s}
 .gb::before{content:"";position:absolute;inset:4%;border-radius:50%;background:conic-gradient(var(--c) var(--p),#cdb892 0)}
 .gb::after{content:"";position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle at 30% 24%,#ffffff80 0 9%,transparent 10%),var(--c);box-shadow:0 0 0 5px #fffaf0}
-.gb>*{position:relative;z-index:1}.gb .gi{display:flex}.gb .gi svg{width:50%;height:auto;min-width:30px}.gb .gl{display:none;font-size:24px;font-weight:800}
+.gb>*{position:relative;z-index:1}.gb .gi{display:flex;align-items:center;justify-content:center;width:40%;height:40%}.gb .gi svg{display:block;width:100%;height:100%}.gb .gl{display:none;font-size:24px;font-weight:800}
 .gb:active{transform:translateY(4px);box-shadow:0 2px 0 var(--d)}
 .gb.cd{--d:#a89468}.gb.cd::after{background:radial-gradient(circle at 30% 24%,#ffffffa0 0 9%,transparent 10%),#efe3c6}.gb.cd .gi{display:none}.gb.cd .gl{display:block;color:#a89468}#db.cd{--d:#a89468}
 #bb{right:124px;bottom:calc(var(--cb) + 30px);width:76px;height:76px}#db{--c:#ff9a5c;--d:#d9733a;right:14px;bottom:calc(var(--cb) + 6px);width:104px;height:104px}
@@ -163,7 +163,7 @@ input:focus{border-color:#25c7c0}
   <p><i data-i="soap"></i> <b>Slide. Bonk. Don't fall.</b> Shove rival soaps out of the arena: a sink, a toilet or a bathtub. You're out when the center of your body crosses the edge.</p>
   <p><i data-i="keyboard"></i> <b>Laptop:</b> WASD / arrow keys to move, Space to dash, E to parry.<br><i data-i="phone"></i> <b>Phone:</b> joystick on the left, big DASH and PARRY buttons on the right. Dash recharges in 3 seconds.</p>
   <p><i data-i="shield"></i> <b>Parry:</b> tap it right before a soap rams you (it works for a split second). Their push bounces back at them and they get dizzy. If you miss it recharges in 4 seconds, if you land it it is back in 2.</p>
-  <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 16 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
+  <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 18 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
   <p><i data-i="clock"></i> The arena starts shrinking after 15 seconds. Every round begins with a 3-second countdown. In the sink, the toilet and the bathtub, watch the faucet: it is alive. It slithers out of a hole in the rim, picks a victim and glares at them while a white stripe on the water warns where the jet will shove you. It keeps spitting every few seconds for the whole round, even while the arena shrinks.</p>
   <p><i data-i="trophy"></i> <b>Scoring:</b> win the round (last soap standing) = <b>3 points</b>. Every <b>kill</b> = <b>+1 point</b>: knock a rival out and you get it if you were the last one to bump them (within 3 seconds, parry rebounds count too). Falling on your own or from the faucet alone gives nobody a kill. If the 45 seconds run out with several survivors = <b>1 point</b> each. Everyone falls at once = no win points, but kills still count. Eliminated? You join the cheering crowd: press CHEER (Space) to cheer the rest on, then you're back next round.</p>
   <p>After 3 rounds the highest score wins. A tie means a shared victory.</p>
@@ -281,7 +281,29 @@ const SP=[
  Ln(g,[[-30,14],[30,14]],'#5a3d2b',2.2);Ln(g,[[-30,17.6],[30,17.6]],'#5a3d2b55',1.2);Ln(g,[[0,17.6],[0,30]],'#5a3d2b',2);g.restore();
  Ln(g,[[-21,-35],[-7,-30.5]],'#5a3d2b',3.6);Ln(g,[[6.5,-33.5],[21.5,-39]],'#5a3d2b',3.6);
  g.fillStyle='#ffd24a';g.strokeStyle='#5a3d2b';g.lineWidth=2;g.lineJoin='round';g.beginPath();g.moveTo(-6,-9);g.lineTo(-6.5,-19);g.lineTo(-3,-14.5);g.lineTo(0,-21);g.lineTo(3,-14.5);g.lineTo(6.5,-19);g.lineTo(6,-9);g.closePath();g.fill();g.stroke();
- g.fillStyle='#fff';g.beginPath();g.arc(0,-12,1.2,0,7);g.fill()}}];
+ g.fillStyle='#fff';g.beginPath();g.arc(0,-12,1.2,0,7);g.fill()}},
+// ---- storybook pair (16-17): two more original soap-bar characters in a gentle hand-drawn anime-cartoon mood. Bubblefin = a little goldfish kid with fin tufts, a tiny dress and floating bubbles; Bobbie = a rosy-cheeked kid with a blunt black bob, a ribbon and a hair flower ----
+{k:.95,p:[g=>rp(g,[[-18,3],[18,3],[18,24],[-18,24]],10),g=>g.arc(0,-10,15,0,7),g=>{g.moveTo(-12,-12);g.lineTo(-22,-18.5);g.quadraticCurveTo(-19.5,-12,-23,-5.5);g.lineTo(-13,-6);g.closePath()},g=>{g.moveTo(12,-12);g.lineTo(22,-18.5);g.quadraticCurveTo(19.5,-12,23,-5.5);g.lineTo(13,-6);g.closePath()},g=>g.ellipse(-20.5,13,4.6,7.5,.35,0,7),g=>g.ellipse(20.5,13,4.6,7.5,-.35,0,7)],e:[[-6,-8],[6,-8]],er:3.9,m:[0,-2,3.2],o:[0,-1.5,.62],t:37,h:[-10,-17],x:g=>{
+ C(g,0,-10,13.8,'#ffd9bd',null);
+ g.save();g.beginPath();rp(g,[[-18,3],[18,3],[18,24],[-18,24]],10);g.clip();g.fillStyle='#fffaf0';g.fillRect(-30,18.5,60,10);Ln(g,[[-30,18.5],[30,18.5]],'#5a3d2b',1.8);g.restore();
+ for(const a of[-12.5,-4.2,4.2,12.5]){g.beginPath();g.arc(a,18.9,3,0,Math.PI);g.fillStyle='#fffaf0';g.fill();g.lineWidth=1.4;g.strokeStyle='#5a3d2b';g.stroke()}
+ g.beginPath();g.moveTo(-10,4);g.lineTo(10,4);g.lineTo(0,13);g.closePath();g.fillStyle='#fffaf0';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.stroke();C(g,0,15,1.7,'#ffd54a','#5a3d2b',1.2);
+ for(const s of[-1,1]){Ln(g,[[s*13,-12],[s*18.5,-15]],'#ffffff99',1.4);Ln(g,[[s*13,-9],[s*19.5,-9]],'#ffffff99',1.4);Ln(g,[[s*20.5,10],[s*21.5,16]],'#ffffff99',1.4)}
+ g.beginPath();g.moveTo(-14.5,-9);g.bezierCurveTo(-18,-32,18,-32,14.5,-9);g.quadraticCurveTo(10,-17,3,-15);g.quadraticCurveTo(-2,-20,-8,-15);g.quadraticCurveTo(-12.5,-15.5,-14.5,-9);g.closePath();g.fillStyle='#ff8a3d';g.fill();g.lineWidth=2;g.strokeStyle='#5a3d2b';g.stroke();
+ g.beginPath();g.moveTo(-4.5,-26);g.quadraticCurveTo(-3,-32,0,-35);g.quadraticCurveTo(3,-32,4.5,-26);g.closePath();g.fillStyle='#ff8a3d';g.fill();g.stroke();
+ g.fillStyle='#ff7a7a88';for(const q of[-1,1]){g.beginPath();g.arc(q*9.5,-3,2.9,0,7);g.fill()}
+ for(const[a,b,r]of[[23,-30,3.4],[30,-25,2.2]]){g.beginPath();g.arc(a,b,r,0,7);g.fillStyle='#ffffffaa';g.fill();g.lineWidth=1.5;g.strokeStyle='#6fc4dc';g.stroke();g.beginPath();g.arc(a-r*.3,b-r*.3,r*.28,0,7);g.fillStyle='#fff';g.fill()}}},
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,16,0,7),g=>g.ellipse(-21.5,13.5,4.4,7,.35,0,7),g=>g.ellipse(21.5,13.5,4.4,7,-.35,0,7)],e:[[-6.2,-8],[6.2,-8]],er:3.7,m:[0,-1.5,3],o:[0,-1,.58],t:37,h:[-10,-18],x:g=>{
+ C(g,0,-10,14.6,'#ffd9bd',null);
+ for(const s of[-1,1])Ln(g,[[s*8,5],[s*11,23]],'#fffaf0',3);
+ Ln(g,[[-15,18.5],[15,18.5]],'#5a3d2b55',1.8);
+ Bx(g,-4.5,13.5,9,7,2.2,'#fffaf0','#5a3d2b',1.3);Ln(g,[[-2.4,17],[2.4,17]],'#e6423a',1.5);
+ g.beginPath();g.moveTo(-10,4);g.lineTo(10,4);g.lineTo(0,12.5);g.closePath();g.fillStyle='#fffaf0';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.stroke();
+ g.fillStyle='#e6423a';g.strokeStyle='#5a3d2b';g.lineWidth=1.4;g.lineJoin='round';for(const s of[-1,1]){g.beginPath();g.moveTo(0,8);g.lineTo(s*6.5,4.8);g.lineTo(s*6.5,11.2);g.closePath();g.fill();g.stroke()}C(g,0,8,1.7,'#e6423a','#5a3d2b',1.2);
+ g.fillStyle='#ff7a7a88';for(const q of[-1,1]){g.beginPath();g.arc(q*10,-2.5,3,0,7);g.fill()}
+ g.beginPath();g.moveTo(-19,-4);g.lineTo(-19,-11);g.bezierCurveTo(-20.5,-35,20.5,-35,19,-11);g.lineTo(19,-4);g.quadraticCurveTo(15.5,-3,12.5,-5);g.lineTo(12.5,-12);g.lineTo(9,-15.2);g.lineTo(3,-14.4);g.lineTo(-3,-15.2);g.lineTo(-9,-14.4);g.lineTo(-12.5,-15.5);g.lineTo(-12.5,-5);g.quadraticCurveTo(-15.5,-3,-19,-4);g.closePath();g.fillStyle='#2a2230';g.fill();g.lineWidth=2;g.strokeStyle='#14101a';g.lineJoin='round';g.stroke();
+ Ln(g,[[-11,-25],[-3,-28]],'#ffffff55',2.4);
+ for(let a=0;a<5;a++){const t=a*Math.PI*2/5-Math.PI/2;g.beginPath();g.arc(13+Math.cos(t)*2.9,-24+Math.sin(t)*2.9,2.1,0,7);g.fillStyle='#ffd54a';g.fill();g.lineWidth=1.2;g.strokeStyle='#5a3d2b';g.stroke()}C(g,13,-24,1.5,'#ff8a3d','#5a3d2b',1)}}];
 // lightsaber / foam blade: hilt a->b, blade b->c (outlined like everything else)
 function sab(g,a,b,c,bl){Ln(g,[a,b],'#5a3d2b',9.5);Ln(g,[b,c],'#5a3d2b',10);Ln(g,[a,b],'#aab4be',6);Ln(g,[b,c],bl,6.5);Ln(g,[b,c],'#fff',2.6);Ln(g,[a,b],'#4a525c',2)}
 // sleepy eyelids for soaps with lid:1 (drawn over the eyes in the soap's own colour)
@@ -375,8 +397,9 @@ document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=ico(e.dataset.i,+e.
 
 const COL=['#ff9ec7','#8fd3ff','#ffd36e','#b4ec86','#c4a3ff','#ffae85','#78e0cc','#f3a0f3',
  '#d8b98b','#4a4858','#e8b58a','#e6edf4', // galaxy crew
- '#f4e04d','#ff7a9c','#7bbfcf','#ff6a55'], // reef crew
-SN=['Hole','Fish','Duck','Frog','Star','Cat','Whale','Heart','Lather Knight','Lord Lather','Skylather','Bleep-Bar','Squarepore','Star Buddy','Grumpus','Boss Crab'],NS=16;
+ '#f4e04d','#ff7a9c','#7bbfcf','#ff6a55', // reef crew
+ '#e84a5f','#8ad7a4'], // storybook pair
+SN=['Hole','Fish','Duck','Frog','Star','Cat','Whale','Heart','Lather Knight','Lord Lather','Skylather','Bleep-Bar','Squarepore','Star Buddy','Grumpus','Boss Crab','Bubblefin','Bobbie'],NS=18;
 const R0=300,CDMAX=3,PCDMAX=4,TOUCH=matchMedia('(pointer:coarse)').matches,CTL=TOUCH?'Drag to move · DASH to ram · PARRY to block':'WASD move · Space dash · E parry';
 let parryUntil={},goUntil=0,lastSt='',sayT=0,myCi=0,pickMode='';const MKb=[];
 const Q=new URLSearchParams(location.search),DBG={l:0,g:0};let scr='home',dW=[],minD=0,jit=0,dly=100,rtt=80,curIn={x:0,y:0},lastFa=null,pendDash=null,pme=null,lastMine=null,music=!Q.has('nomusic'),mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;
