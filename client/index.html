@@ -160,8 +160,8 @@ input:focus{border-color:#25c7c0}
   <p><i data-i="keyboard"></i> <b>Laptop:</b> WASD / arrow keys to move, Space to dash, E to parry.<br><i data-i="phone"></i> <b>Phone:</b> joystick on the left, big DASH and PARRY buttons on the right. Dash recharges in 3 seconds.</p>
   <p><i data-i="shield"></i> <b>Parry:</b> tap it right before a soap rams you (it works for a split second). Their push bounces back at them and they get dizzy. If you miss it recharges in 4 seconds, if you land it it is back in 2.</p>
   <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 16 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
-  <p><i data-i="clock"></i> The arena starts shrinking after 15 seconds. Every round begins with a 3-second countdown. In the sink, the toilet and the bathtub, watch the faucet: it is alive. It slithers out of a hole in the rim, picks a victim and glares at them while a white stripe on the water warns where the jet will shove you. Once the arena starts shrinking, the faucet falls asleep for good.</p>
-  <p><i data-i="trophy"></i> <b>Scoring:</b> last soap standing = <b>3 points</b>. If the 45 seconds run out with several survivors = <b>1 point</b> each. Everyone falls at once = draw, 0 points. Eliminated? You join the cheering crowd: press CHEER (Space) to cheer the rest on, then you're back next round.</p>
+  <p><i data-i="clock"></i> The arena starts shrinking after 15 seconds. Every round begins with a 3-second countdown. In the sink, the toilet and the bathtub, watch the faucet: it is alive. It slithers out of a hole in the rim, picks a victim and glares at them while a white stripe on the water warns where the jet will shove you. It keeps spitting every few seconds for the whole round, even while the arena shrinks.</p>
+  <p><i data-i="trophy"></i> <b>Scoring:</b> win the round (last soap standing) = <b>3 points</b>. Every <b>kill</b> = <b>+1 point</b>: knock a rival out and you get it if you were the last one to bump them (within 3 seconds, parry rebounds count too). Falling on your own or from the faucet alone gives nobody a kill. If the 45 seconds run out with several survivors = <b>1 point</b> each. Everyone falls at once = no win points, but kills still count. Eliminated? You join the cheering crowd: press CHEER (Space) to cheer the rest on, then you're back next round.</p>
   <p>After 3 rounds the highest score wins. A tie means a shared victory.</p>
   <p><i data-i="bot"></i> <b>Bots:</b> <b>Quick Play</b> starts straight away against 3 bots. In <b>Play with Friends</b> the host can add bots to empty seats (up to 8 players in total). Bots follow the same rules and scoring as everyone else, and a friend joining a full lobby takes a bot's seat.</p>
   <p><i data-i="back"></i> Use <b>Back</b> (or the exit button during a match) to leave a room at any time.</p>
@@ -215,7 +215,7 @@ function Ln(g,p,s,w){g.beginPath();p.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.move
 const stp=(R,r)=>{const o=[];for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,q=k%2?r:R;o.push([Math.cos(a)*q,Math.sin(a)*q+2])}return o};
 // 8 bentuk sabun batang, satu per warna pemain: bolong, ikan, bebek, kodok, bintang, kucing, paus, hati. d=1: menghadap arah gerak. t=tinggi (buat posisi nama)
 const SP=[
-{p:[g=>{rp(g,[[-30,-21],[30,-21],[30,21],[-30,21]],12);g.moveTo(10,0);g.arc(0,0,10,0,7,true)}],e:[[-20,-4],[20,-4]],er:5,m:[0,14,4],t:21,h:[-21,-12],x:g=>{Ln(g,[[-25,14],[-19,14]],'#5a3d2b44',2.5);Ln(g,[[19,14],[25,14]],'#5a3d2b44',2.5)}},
+{p:[g=>{rp(g,[[-30,-21],[30,-21],[30,21],[-30,21]],12);g.moveTo(10,0);g.arc(0,0,10,0,7,true)}],e:[[-20,-4],[20,-4]],er:5,m:[0,14,4],o:[0,15.5,.7],t:21,h:[-21,-12],x:g=>{Ln(g,[[-25,14],[-19,14]],'#5a3d2b44',2.5);Ln(g,[[19,14],[25,14]],'#5a3d2b44',2.5)}},
 {p:[g=>g.ellipse(4,0,21,16,0,0,7),g=>{g.moveTo(-12,0);g.lineTo(-31,-15);g.quadraticCurveTo(-24,0,-31,15);g.closePath()},g=>{g.moveTo(-3,-13);g.quadraticCurveTo(5,-28,15,-13);g.closePath()},g=>{g.moveTo(0,12);g.quadraticCurveTo(7,24,15,13);g.closePath()}],e:[[12,-3]],er:6.5,m:0,t:27,d:1,h:[0,-8],x:g=>{Ln(g,[[2,-9],[-1,0],[2,9]],'#5a3d2b88',2.5);Ln(g,[[-10,-6],[-6,-6]],'#5a3d2b55',2);Ln(g,[[-12,3],[-8,3]],'#5a3d2b55',2)}},
 {p:[g=>g.ellipse(-3,9,24,16,0,0,7),g=>g.arc(9,-9,14,0,7),g=>{g.moveTo(-22,2);g.lineTo(-34,-7);g.lineTo(-24,13);g.closePath()}],e:[[13,-12]],er:4.5,m:0,t:25,d:1,h:[-8,5],x:g=>{g.beginPath();g.ellipse(25,-6,9,5.5,0,0,7);g.fillStyle='#ff9a3c';g.fill();g.lineWidth=2.5;g.strokeStyle='#5a3d2b';g.stroke();Ln(g,[[-14,8],[-4,16],[8,10]],'#5a3d2b88',2.5)}},
 {p:[g=>g.ellipse(0,5,29,19,0,0,7),g=>g.arc(-14,-11,11,0,7),g=>g.arc(14,-11,11,0,7),g=>g.ellipse(-21,22,10,5.5,0,0,7),g=>g.ellipse(21,22,10,5.5,0,0,7)],e:[[-14,-12],[14,-12]],er:6.2,m:[0,10,9],t:25,h:[-19,1],x:g=>{for(const s of[-1,1]){g.beginPath();g.arc(s*22,9,4.5,0,7);g.fillStyle='#ff9ec788';g.fill()}}},
@@ -238,7 +238,7 @@ const SP=[
  for(const[a,c]of[[-5,'#e84a4a'],[0,'#4aa3ff'],[5,'#f6f6f6']]){g.beginPath();g.arc(a,16.5,1.7,0,7);g.fillStyle=c;g.fill()}
  Ln(g,[[-19,22],[19,22]],'#14121c',2.4);
  sab(g,[-27,18],[-32,8],[-44,-17],'#ff5a5a');C(g,-29.5,13,4.6,'#2b2a35','#14121c',1.6)}},
-{k:.85,p:[g=>rp(g,[[-28,26],[28,26],[17,-3],[-17,-3]],7),g=>g.arc(0,-15,15,0,7)],e:[[-5.5,-13],[5.5,-13]],er:4,m:[0,-5,3.5],t:37,h:[-8,-21],x:g=>{
+{k:.85,p:[g=>rp(g,[[-28,26],[28,26],[17,-3],[-17,-3]],7),g=>g.arc(0,-15,15,0,7)],e:[[-5.5,-13],[5.5,-13]],er:4,m:[0,-5,3.5],o:[0,-4.5,.6],t:37,h:[-8,-21],x:g=>{
  g.save();g.beginPath();rp(g,[[-28,26],[28,26],[17,-3],[-17,-3]],7);g.clip();g.fillStyle='#4b3626';g.fillRect(-32,-4,64,34);
  g.fillStyle='#d9c3a0';g.beginPath();g.moveTo(-7,-4);g.lineTo(7,-4);g.lineTo(0,12);g.closePath();g.fill();
  Ln(g,[[-7,-4],[0,12],[7,-4]],'#2c2018',1.8);g.restore();
@@ -258,12 +258,12 @@ const SP=[
  C(g,0,19.5,1.8,'#9ccbff','#5a3d2b',1.2);
  Ln(g,[[-24,2],[-26,16]],'#3f6fc4',3.5);Ln(g,[[24,2],[26,16]],'#3f6fc4',3.5);
  Bx(g,-37,22,22,7,3,'#8fa8c8','#5a3d2b',1.8);Bx(g,15,22,22,7,3,'#8fa8c8','#5a3d2b',1.8);Bx(g,-7,24,14,5,2,'#8fa8c8','#5a3d2b',1.6)}},
-{p:[g=>rp(g,[[-25,-24],[25,-24],[25,24],[-25,24]],7)],e:[[-9,-8],[9,-8]],er:8.5,m:[0,5,10],t:28,h:[-15,-17],x:g=>{
+{p:[g=>rp(g,[[-25,-24],[25,-24],[25,24],[-25,24]],7)],e:[[-9,-8],[9,-8]],er:8.5,m:[0,5,10],o:[0,6.5,.8],t:28,h:[-15,-17],x:g=>{
  g.save();g.beginPath();rp(g,[[-25,-24],[25,-24],[25,24],[-25,24]],7);g.clip();g.fillStyle='#fffaf0';g.fillRect(-30,14,60,4);g.fillStyle='#8a5a3c';g.fillRect(-30,18,60,12);g.restore();
  g.fillStyle='#b8982a66';for(const[a,b,r]of[[-19,-19,2.6],[18,-18,2.2],[21,3,2.2],[-22,3,1.8],[3,-20,1.8]]){g.beginPath();g.arc(a,b,r,0,7);g.fill()}
  g.fillStyle='#ff8a7a66';for(const q of[-1,1]){g.beginPath();g.arc(q*17,5,3.2,0,7);g.fill()}
  Bx(g,-5.5,11.5,5,6,1.2,'#fff','#5a3d2b',1.5);Bx(g,.5,11.5,5,6,1.2,'#fff','#5a3d2b',1.5)}},
-{p:[g=>rp(g,stp(35,19),9)],e:[[-6.5,-6],[6.5,-6]],er:5.6,m:[0,5,4.5],t:34,h:[-9,-13],x:g=>{
+{p:[g=>rp(g,stp(35,19),9)],e:[[-6.5,-6],[6.5,-6]],er:5.6,m:[0,3,4],o:[0,3.5,.6],t:34,h:[-9,-13],x:g=>{
  g.save();g.beginPath();rp(g,stp(35,19),9);g.clip();g.fillStyle='#5dbb63';g.fillRect(-45,7,90,13);g.fillStyle='#3f8f48';g.fillRect(-45,7,90,2.5);
  for(const[a,b]of[[-14,14],[-3,16],[8,13],[16,16],[-21,11]]){g.fillStyle='#b36bd9';g.beginPath();g.arc(a,b,2.6,0,7);g.fill();g.fillStyle='#ffd54a';g.beginPath();g.arc(a,b,.9,0,7);g.fill()}g.restore()}},
 {lid:1,p:[g=>g.ellipse(0,-4,19,25,0,0,7),g=>g.ellipse(-9,22,9,5.5,0,0,7),g=>g.ellipse(9,22,9,5.5,0,0,7)],e:[[-9,-11],[9,-11]],er:6.5,m:0,t:30,h:[-11,-18],x:g=>{
@@ -275,6 +275,8 @@ const SP=[
 function sab(g,a,b,c,bl){Ln(g,[a,b],'#5a3d2b',9.5);Ln(g,[b,c],'#5a3d2b',10);Ln(g,[a,b],'#aab4be',6);Ln(g,[b,c],bl,6.5);Ln(g,[b,c],'#fff',2.6);Ln(g,[a,b],'#4a525c',2)}
 // sleepy eyelids for soaps with lid:1 (drawn over the eyes in the soap's own colour)
 function lids(g,D,col,fl,er){if(!D.lid)return;g.save();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.fillStyle=col;for(const[ex,ey]of D.e){const X=ex*fl;g.beginPath();g.arc(X,ey,er+.9,Math.PI,0);g.closePath();g.fill();g.stroke()}g.restore()}
+// mouth overlay (D.o = optional [x,y,scale] of the open mouth, for soaps whose face is small). Only soaps with D.m have a mouth: st 0 = smile, 1 = surprised "o" (just got hit), 2 = open cheering mouth (fans). Soaps with m:0 (fish, duck, whale, hooded knight, masked lord, droid, Grumpus) never get one: their face has no room for it, so they show feelings with their eyes only.
+function mouth(g,D,fl,st){if(!D.m)return;const[mx,my,mw]=D.m,[ox,oy,os]=D.o||[mx,my+3,1];g.beginPath();if(st===2){g.ellipse(ox*fl,oy,4.5*os,5.5*os,0,0,7);g.fillStyle='#8a3a2a';g.fill()}else{if(st===1)g.arc(ox*fl,oy,3*os,0,7);else g.arc(mx*fl,my,mw,.2,Math.PI-.2);g.stroke()}}
 function drawSoap(g,i,col,ol){const D=SP[i];g.lineJoin='round';g.lineWidth=5.5;g.strokeStyle=ol;for(const f of D.p){g.beginPath();f(g);g.stroke()}g.fillStyle=col;for(const f of D.p){g.beginPath();f(g);g.fill()}
  // efek sabun cetak: tepi dalam bawah-kanan agak gelap, atas-kiri mengkilap
  for(const f of D.p){g.save();g.beginPath();f(g);g.clip();g.lineWidth=6;g.strokeStyle='#5a3d2b1c';g.save();g.translate(-1.5,-2.5);g.beginPath();f(g);g.stroke();g.restore();g.lineWidth=4;g.strokeStyle='#ffffff66';g.save();g.translate(2,2.5);g.beginPath();f(g);g.stroke();g.restore();g.restore()}
@@ -343,7 +345,7 @@ function cSoap(c,si,col,now,k){const u=c.u,D=SP[si],j=Math.abs(Math.sin(now/95+c
  drawSoap(x,si,col,'#5a3d2b');
  x.strokeStyle='#3a2a20';x.lineWidth=2.5;
  for(const[ex,ey]of D.e){if(k>.1){x.beginPath();x.arc(ex,ey,D.er,Math.PI,0);x.stroke()}else{x.fillStyle='#fff';x.beginPath();x.arc(ex,ey,D.er,0,7);x.fill();x.lineWidth=1.5;x.stroke();x.fillStyle=D.pc||'#3a2a20';x.beginPath();x.arc(ex,ey+1,D.er*.5,0,7);x.fill();x.lineWidth=2.5}}if(k<=.1)lids(x,D,col,1,D.er);
- const m=D.m||[D.e[0][0]*.5,7,4];x.beginPath();if(k>.1){x.ellipse(m[0],m[1]+3,4.5,5.5,0,0,7);x.fillStyle='#8a3a2a';x.fill()}else{x.arc(m[0],m[1],m[2]||4,.2,Math.PI-.2);x.stroke()}
+ mouth(x,D,1,k>.1?2:0);
  x.restore()}
 function npc(c,now,L){cSoap(c,c.si,c.col,now,L>.12?Math.min(1,L+.1):0)}
 function vipS(c,p,now,L){const hot=(cj[p.id]||0)>now;cSoap(c,p.ci,COL[p.ci],now,hot?1:L*.5)}
@@ -413,7 +415,8 @@ function onEv(e){
     if(st>140&&crowd.length&&says.length<4&&performance.now()>sayT){sayT=performance.now()+(st>350?260:450);for(let q2=st>420?2:1;q2--;)say(Math.random()*crowd.length|0,SAY[Math.random()*SAY.length|0])}
     for(let i=0;i<Math.min(8,3+(st/80|0));i++){const a=Math.random()*7,v=120+Math.random()*180;parts.push({x:e[1],y:e[2],vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.7,m:.7,r:9,c:'#ffc400',t:1})}
     if(st>350){const f=getF();if(f)for(const id in f.pl){const p=f.pl[id];if(Math.hypot(p.x-e[1],p.y-e[2])<70)dizzy[id]=performance.now()+1300}}}
-  else if(e[0]==='out'){cheerL=1;beep(400,90,.35,.18);burst(e[2],e[3],22,'#bff4ff',260);if(shakeOn)shake=5}
+  else if(e[0]==='out'){cheerL=1;beep(400,90,.35,.18);burst(e[2],e[3],22,'#bff4ff',260);if(shakeOn)shake=5;
+    if(e[4]){const mine=me&&e[4]===me.id;pops.push({x:e[2],y:e[3]-30,t:mine?'+1 KILL!':pname(e[4])+' +1',l:1.1,m:1.1,r:(Math.random()-.5)*.2,s:mine?1.5:1.1,c:mine?'#ffa800':'#ff6f9f'});if(mine)beep(900,1500,.18,.14,'triangle')}}
   else if(e[0]==='cheer'){cheerL=Math.min(1,cheerL+.45);cj[e[1]]=performance.now()+1100;if(seats[e[1]]!=null)say(seats[e[1]],SAY[Math.random()*SAY.length|0]);beep(660+Math.random()*200,1300,.14,.09)}
   else if(e[0]==='warn'){if(e[2]!=null){const[px,py]=portB(e[2]|0);beep(200,430,.2,.12,'triangle');burst(px,py,12,'#ffffffdd',150);rings.push({x:px,y:py,l:.5,m:.5,r0:6,r1:46,c:'#fff',w:4})}beep(440,440,.12,.1,'triangle');setTimeout(()=>beep(440,440,.12,.1,'triangle'),200);setTimeout(()=>beep(440,440,.12,.1,'triangle'),400)}
   else if(e[0]==='gush'){beep(900,160,.9,.11,'sawtooth');if(shakeOn)shake=Math.max(shake,4)}
@@ -474,8 +477,8 @@ function ui(){
     const L=room.log[room.log.length-1];let h;
     if(L.w)h=`<h2 style="margin:0">${esc(pname(L.w))} wins round ${L.n}! <br>+3 pts</h2>`;
     else if(L.to)h=`<h2 style="margin:0">Time's up! Round ${L.n}</h2><div class="small">Survivors get +1 point</div>`;
-    else h=`<h2 style="margin:0">Round ${L.n} is a draw!</h2><div class="small">Everyone fell at once. No points.</div>`;
-    $('#ovc').innerHTML=h+board()+`<div class="small">${room.round<3?'Next round starting soon…':'Tallying final results…'}</div>`;
+    else h=`<h2 style="margin:0">Round ${L.n} is a draw!</h2><div class="small">Everyone fell at once. No win points.</div>`;
+    $('#ovc').innerHTML=h+rsum(L)+board()+`<div class="small">${room.round<3?'Next round starting soon…':'Tallying final results…'}</div>`;
   }
   if(st==='final'){
     const w=room.res.winners.map(pname).map(esc).join(' & ');
@@ -483,7 +486,11 @@ function ui(){
     $('#bAgain').onclick=()=>send({t:'again'});$('#bMenu').onclick=()=>leave('home');
   }
 }
-function board(){return '<div style="margin:8px 0">'+[...room.players.filter(p=>p.in)].sort((a,b)=>b.score-a.score).map(p=>`<div class="row" style="background:${COL[p.ci]}"><span>${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' (YOU)':''}</span><span>${p.score}</span></div>`).join('')+'</div>'}
+function board(){return '<div style="margin:8px 0">'+[...room.players.filter(p=>p.in)].sort((a,b)=>b.score-a.score).map(p=>`<div class="row" style="background:${COL[p.ci]}"><span>${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' (YOU)':''}</span><span>${p.kl?`<small style="opacity:.8;font-size:.75em">${p.kl} kill${p.kl>1?'s':''} · </small>`:''}${p.score}</span></div>`).join('')+'</div>'}
+// this round's points per player: win / survive points and kill points
+function rsum(L){const rows=room.players.filter(p=>p.in).map(p=>({p,w:(L.pts&&L.pts[p.id])||0,k:(L.k&&L.k[p.id])||0})).filter(o=>o.w||o.k);
+  if(!rows.length)return '';
+  return '<div class="small" style="margin:6px 0">'+rows.map(o=>`${esc(o.p.name)}: `+[o.w?`+${o.w} ${L.w?'win':'survived'}`:'',o.k?`+${o.k} kill${o.k>1?'s':''}`:''].filter(Boolean).join(' · ')).join('<br>')+'</div>'}
 const hc={},put=(k,el,v,p='innerHTML')=>{if(hc[k]!==v){hc[k]=v;el[p]=v}};
 function hud(s){intense=s.st==='play'&&(s.R<299||s.tm<12);
   const m=Math.ceil(s.tm),pl=s.st==='play',cnt=s.st==='count',now=performance.now();
@@ -603,7 +610,7 @@ function predictMe(f){
 }
 function rr(w,h,r){x.beginPath();x.moveTo(-w/2+r,-h/2);x.arcTo(w/2,-h/2,w/2,h/2,r);x.arcTo(w/2,h/2,-w/2,h/2,r);x.arcTo(-w/2,h/2,-w/2,-h/2,r);x.arcTo(-w/2,-h/2,w/2,-h/2,r);x.closePath()}
 // ---------- the living faucet ----------
-// A chrome gooseneck snake with googly eyes. At rest its head hangs from the tap bar on the rim (all 3 arenas), watching the nearest soap, blinking, napping when the arena shrinks.
+// A chrome gooseneck snake with googly eyes. At rest its head hangs from the tap bar on the rim (all 3 arenas), watching the nearest soap, blinking, always on the lookout (it keeps working while the arena shrinks).
 // In every arena it slithers out of one of 4 rim ports (PORT_A: top, right, bottom, left; positions per arena in RPX/RPY, nozzle in NZX/NZY) to aim and spit. The server sends g = [jetAngle, phase(0 warn / 1 gush), timer, port].
 const PORT_A=[-Math.PI/2,0,Math.PI/2,Math.PI],RPX=[322,292,322],RPY=[322,307,247],NZX=[235,205,235],NZY=[235,220,160],PD=87,portB=i=>[Math.cos(PORT_A[i])*RPX[AR],Math.sin(PORT_A[i])*RPY[AR]],portN=i=>[Math.cos(PORT_A[i])*NZX[AR],Math.sin(PORT_A[i])*NZY[AR]],HS=1.3,HLEN=36*HS,FZ={ext:0,s:0,ang:-Math.PI/2,ph:0,home:1,bk:0,lx:0,ly:1,jg:0,gt:0,te:0};
 const bez=(a,b,c,d,t)=>{const u=1-t;return[u*u*u*a[0]+3*u*u*t*b[0]+3*u*t*t*c[0]+t*t*t*d[0],u*u*u*a[1]+3*u*u*t*b[1]+3*u*t*t*c[1]+t*t*t*d[1]]};
@@ -645,7 +652,7 @@ function faucet(now,dt,f,R){
  if(gg){FZ.s=gg[3]|0;FZ.ang=gg[0];FZ.ph=gg[1]}
  const tg=gg?1:0;{FZ.ext+=(tg-FZ.ext)*(1-Math.exp(-dt*(tg?7:4.5)));if(Math.abs(FZ.ext-tg)<.004)FZ.ext=tg}
  FZ.home+=((gg&&FZ.s!==0?0:1)-FZ.home)*(1-Math.exp(-dt*9));
- const asleep=!!f&&f.st==='play'&&f.R<R0-1&&!gg,bu=(now-FZ.bk)/170,bl=bu>=0&&bu<1?Math.sin(bu*Math.PI):0;if(bu>=1)FZ.bk=now+2000+Math.random()*3500;
+ const asleep=false,bu=(now-FZ.bk)/170,bl=bu>=0&&bu<1?Math.sin(bu*Math.PI):0;if(bu>=1)FZ.bk=now+2000+Math.random()*3500;
  const ext=FZ.ext,sm=Math.min(1,Math.max(0,(ext-.45)/.55)),sm2=sm*sm*(3-2*sm),mood=gg?(gg[1]===0?1:2):asleep?3:0,amp=gg&&gg[1]===1?3.5:8;
  // tap bar with the hot / cold knobs (the faucet's body on the rim)
  x.save();x.shadowColor='#0003';x.shadowBlur=8;x.shadowOffsetY=4;x.translate(0,fy);const cg=x.createLinearGradient(0,-12,0,12);cg.addColorStop(0,'#f7fcff');cg.addColorStop(.5,'#b9c9d4');cg.addColorStop(1,'#eef6fb');
@@ -729,7 +736,7 @@ function soap(p,pi,now){
    else{x.fillStyle=D.pc||'#3a2a20';x.beginPath();x.arc(X+dx,ey+dy,er*(sur?.4:.55),0,7);x.fill()}}
   if(!dz&&!sur)lids(x,D,col,fl,er);
   if(dz){x.fillStyle='#ffc400';for(let i=0;i<3;i++){shp(x,3,Math.cos(now/150+i*2.1)*26,5-D.t+Math.sin(now/150+i*2.1)*7,5);x.fill()}}
-  if(D.m||sur){const[mx,my,mw]=D.m||[D.e[0][0]*.4,8,5];x.strokeStyle='#5a3d2b';x.lineWidth=2.5;x.beginPath();if(sur)x.arc(mx*fl,my+3,3,0,7);else x.arc(mx*fl,my,mw,.2,Math.PI-.2);x.stroke()}
+  x.strokeStyle='#5a3d2b';x.lineWidth=2.5;mouth(x,D,fl,sur?1:0);
   if(p.par||(parryUntil[pi.id]||0)>now){x.beginPath();x.arc(0,0,46+Math.sin(now/40)*2,0,7);x.fillStyle='#bff4ff55';x.fill();x.lineWidth=5;x.strokeStyle='#ffffffdd';x.stroke();x.lineWidth=2.5;x.strokeStyle='#25c7c0';x.beginPath();x.arc(0,0,39,.5,2.3);x.stroke()}
   const fs=13/S,yl=-(D.t+9);x.font=`800 ${fs}px "Baloo 2",sans-serif`;x.lineJoin='round';x.lineWidth=4/S;
   const w0=x.measureText(pi.name).width,iw=fs*1.2,gp=fs*.3,L0=-(iw+gp+w0)/2;
