@@ -72,7 +72,7 @@ input:focus{border-color:#25c7c0}
 #bb.cd{background:conic-gradient(#25c7c0 var(--p),#cdb892 0);box-shadow:0 5px 0 #a89468;font-size:18px}
 .ic{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.25em}
 .mk{width:18px;height:18px;vertical-align:-4px;margin-right:2px}#sc .mk{width:20px;height:20px;vertical-align:0;margin:0}
-#help [data-i]{color:#19b3ae}#out .o1 .ic{color:#25b5c4}.chip .ic{color:#5a3d2b}
+#help [data-i]{color:#19b3ae}#out .o1 .ic{color:#25b5c4}.chip .ic{color:inherit}
 #db.off,#bb.off{opacity:.3;filter:grayscale(1)}
 @media (pointer:fine){#bb{display:none!important}}canvas{transition:filter .4s}
 #db{right:14px;bottom:calc(var(--cb) + 6px);width:100px;height:100px;border-radius:50%;border:0;font:inherit;font-size:22px;color:#4a2f20;pointer-events:auto;touch-action:none;background:#ff9a5c;box-shadow:0 6px 0 #d9733a;display:flex;align-items:center;justify-content:center}
@@ -455,8 +455,10 @@ setInterval(()=>{if(!ac||!mg||!music||!sound||!room||!['count','play','end'].inc
   while(nextT<now+.15){musicStep(nextT);step++;nextT+=intense?.098:.115}},30);
 
 // ---------- UI ----------
+// readable text colour on a soap-coloured background: light text on dark soaps (Lord Lather), the usual brown on the rest
+function ink(c){const n=parseInt(c.slice(1),16);return((n>>16&255)*.299+(n>>8&255)*.587+(n&255)*.114)<130?'#fffaf0':'#5a3d2b'}
 const pname=id=>{const p=room&&room.players.find(p=>p.id===id);return p?p.name:'?'};
-const chip=p=>`<span class="chip ${p.on?'':'off'}${me&&p.id===me.id?' me':''}" style="background:${COL[p.ci]}">${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' · YOU':''}${room.host===p.id?ico('crown',15):''}${p.bot?ico('bot',15):''}${p.wait?ico('hourglass',15):''}${p.on?'':' (offline)'}</span>`;
+const chip=p=>`<span class="chip ${p.on?'':'off'}${me&&p.id===me.id?' me':''}" style="background:${COL[p.ci]};color:${ink(COL[p.ci])}">${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' · YOU':''}${room.host===p.id?ico('crown',15):''}${p.bot?ico('bot',15):''}${p.wait?ico('hourglass',15):''}${p.on?'':' (offline)'}</span>`;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function ui(){
   const st=room&&room.st;
@@ -486,7 +488,7 @@ function ui(){
     $('#bAgain').onclick=()=>send({t:'again'});$('#bMenu').onclick=()=>leave('home');
   }
 }
-function board(){return '<div style="margin:8px 0">'+[...room.players.filter(p=>p.in)].sort((a,b)=>b.score-a.score).map(p=>`<div class="row" style="background:${COL[p.ci]}"><span>${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' (YOU)':''}</span><span>${p.kl?`<small style="opacity:.8;font-size:.75em">${p.kl} kill${p.kl>1?'s':''} · </small>`:''}${p.score}</span></div>`).join('')+'</div>'}
+function board(){return '<div style="margin:8px 0">'+[...room.players.filter(p=>p.in)].sort((a,b)=>b.score-a.score).map(p=>`<div class="row" style="background:${COL[p.ci]};color:${ink(COL[p.ci])}"><span>${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' (YOU)':''}</span><span>${p.kl?`<small style="opacity:.8;font-size:.75em">${p.kl} kill${p.kl>1?'s':''} · </small>`:''}${p.score}</span></div>`).join('')+'</div>'}
 // this round's points per player: win / survive points and kill points
 function rsum(L){const rows=room.players.filter(p=>p.in).map(p=>({p,w:(L.pts&&L.pts[p.id])||0,k:(L.k&&L.k[p.id])||0})).filter(o=>o.w||o.k);
   if(!rows.length)return '';
@@ -499,7 +501,7 @@ function hud(s){intense=s.st==='play'&&(s.R<299||s.tm<12);
   const cn=$('#cnt'),go=pl&&goUntil>now;cn.hidden=!(cnt||go);cn.classList.toggle('go',go&&!cnt);$('#hud').classList.toggle('cnt',cnt);
   if(cnt){const n=Math.max(1,m);put('cn',$('#cnn'),String(n),'textContent');cn.style.setProperty('--p',(Math.min(1,Math.max(0,s.tm-(n-1)))*360).toFixed(0)+'deg')}
   else if(go){put('cn',$('#cnn'),'GO!','textContent');cn.style.setProperty('--p','360deg')}
-  put('sc',$('#sc'),room.players.filter(p=>p.in).map(p=>{const e=s.p.find(q=>q[0]===p.id),mm=p.id===me.id;return `<div class="${mm?'me':''}" style="background:${COL[p.ci]};${e&&!e[5]?'opacity:.5;text-decoration:line-through':''}">${mk(p.ci)}<span class="nm">${mm?'You':esc(p.name)} </span><b>${p.score}</b></div>`}).join(''));
+  put('sc',$('#sc'),room.players.filter(p=>p.in).map(p=>{const e=s.p.find(q=>q[0]===p.id),mm=p.id===me.id;return `<div class="${mm?'me':''}" style="background:${COL[p.ci]};color:${ink(COL[p.ci])};${e&&!e[5]?'opacity:.5;text-decoration:line-through':''}">${mk(p.ci)}<span class="nm">${mm?'You':esc(p.name)} </span><b>${p.score}</b></div>`}).join(''));
   const mine=s.p.find(q=>q[0]===me.id),left=s.p.filter(q=>q[5]).length,
     ost=!mine?'w':(!mine[5]&&s.st!=='count'?'o':''),o=$('#out');
   if(ost!==outState){outState=ost;o.hidden=!ost;o.style.animation='none';o.offsetWidth;o.style.animation='';
