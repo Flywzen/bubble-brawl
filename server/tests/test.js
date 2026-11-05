@@ -19,7 +19,7 @@ function cl(){const c={room:null,snap:null,you:null,err:null,evs:[]};c.ws=new WS
  await until(()=>A.room.st==='final',90000);clearInterval(run);
  const sa=A.room.players.find(p=>p.id===A.you.id).score,sb=B.room.players.find(p=>p.id===B.you.id).score;
  ok(sa===9&&sb===0,`3-round score A=${sa} B=${sb} (must be 9/0)`);ok(A.room.res.winners.length===1&&A.room.res.winners[0]===A.you.id,'winner A');
- ok(A.room.log.length===3&&A.room.log.every(l=>l.w===A.you.id),'3-round log, A wins every round');
+ ok(A.room.log.length===3&&A.room.log.every(l=>l.w===A.you.id),'3-round log, A wins every round');ok(A.room.log.every(l=>!Object.keys(l.k||{}).length),'B walking off the edge alone gives A no kill (score stays 9)');
  ok(A.evs.some(e=>e[0]==='cheer'&&e[1]===B.you.id),'eliminated player can cheer, event reaches other clients');ok([0,1,2].includes(A.snap.a),'snapshot membawa id arena');ok(B.room.st==='final'&&JSON.stringify(A.room.res)===JSON.stringify(B.room.res),'hasil konsisten di kedua client');
  // rematch
  B.send({t:'again'});await until(()=>A.room.st==='lobby'&&B.room.st==='lobby');ok(A.room.players.every(p=>p.score===0),'rematch: same room, scores reset');
