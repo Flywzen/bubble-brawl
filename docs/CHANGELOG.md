@@ -2,7 +2,20 @@
 
 All notable changes to Bubble Brawl.
 
-## Current Build: snake-faucet-soaps-16
+## Current Build: kills-faucet-always-1
+
+### Features
+
+- **Kill points** — every knock-out now scores +1 on top of the round points (win 3, time-out survivor 1). The last rival you bumped (hit harder than 40 px/s, or a parry rebound) within 3 seconds before they fall is credited to you. Falling alone, faucet-only pushes and leaving the room give no kill. Kills count in draw rounds too. The round-end screen lists each player's points (win / survived / kills), the scoreboard shows total kills, and a "+1 KILL!" popup appears where the soap fell. `log[].k` = kills per player in that round, `players[].kl` = total kills; the `out` event gets the killer id as 5th value. Round-win rules are unchanged.
+- **Faucet is much more active** — first warning at 4 s (was 8 s) and a 4 s gap between gushes (was 10 s): about 7 gushes per round instead of 1.
+- **No more stray mouths** — soaps that have no mouth (fish, duck, whale, Lather Knight, Lord Lather, Bleep-Bar, Grumpus) used to get a fallback mouth when they were hit ("o") or cheering in the stand, drawn in the middle of their body. Now they never get one and show feelings with their eyes only. One shared `mouth()` draws the mouth for the game and the stand. For the soaps that do have a mouth, the open mouth was moved clear of their details (Hole's bottom edge, Skylather's chin and tunic, Squarepore's teeth, Star Buddy's shorts) with the optional `o:[x,y,scale]` in the soap data; Star Buddy's smile sits a little higher.
+- **Faucet also works while the arena shrinks** — it no longer switches off at 15 s; a gush in progress is not cut when the shrink begins, and the snake no longer naps. Bots dodge the stripe the whole round.
+
+### Tests
+
+- New `test-score.js` (win + kill points, killer id in the `out` event, no kill for a soap that walks off alone). `test-faucet.js` rewritten for the new rule (fires after the shrink began, ≥3 warnings per round with the default timing). Test-only env `GA=0` switches the jet's push off.
+
+### Previous build: snake-faucet-soaps-16
 
 ### Features
 
