@@ -2,9 +2,17 @@
 
 All notable changes to Bubble Brawl.
 
-## Current Build: parry-soap-bots-1
+## Current Build: snake-faucet-soaps-16
 
 ### Features
+
+- **Faucet in the bathtub and the toilet too** — the living faucet is no longer sink-only. In every arena it hangs from a tap bar on the top rim, the other three rim ports get chrome hole plates, and it slithers out of a random port to warn (stripe) and spit the jet before the arena starts shrinking. The nozzle sits 87 px inside the water edge of the chosen port (sink 235/235, toilet 205/220, bathtub 235/160 px from the centre on x/y). Timing, push strength and hit width are the same as in the sink; bots dodge the stripe in every arena. `test-faucet.js` now checks all three arenas.
+- **Galaxy crew reworked (still 16 soaps)** — Mini Mossy is gone. *Skylather* (young blade-wielding hero: swept brown hair, scar, dark tunic, blue foam blade) joins Lather Knight and Lord Lather, and *Bleep-Bar* is redrawn as a chibi astromech droid (white dome with blue panels, camera eye with a red light, chest panel, side legs and feet). *Lord Lather* is redrawn as a chibi dark-armor villain (dark glossy dome helmet with a crest, angry brows, red eyes, faceplate with nose and grille, chest panel with lights, wide cape; the soap colour is now charcoal). Order is Knight 8, Lord 9, Skylather 10, Bleep-Bar 11, reef crew back at 12-15. Cosmetic only.
+- **Realistic faucet jet** — the water jet is redrawn from scratch. It leaves the nozzle as a thin stream, fans out into a cone (110 px) and then runs on as a lane of churned water up to 900 px. It has a bright core that thins with distance, flowing streaks, foam rings along the edges, spray droplets flung sideways, mist at the nozzle and a splash at the front. When it starts the water shoots out and travels along the lane; when the faucet stops the tail leaves the nozzle instead of vanishing at once. The warning stripe uses the same cone shape and the head shakes while spitting. Visual only: timing, push strength and the 38 px hit width are unchanged.
+- **Living snake faucet** — the sink faucet is now a creature with eyes. A flexible chrome neck slithers out of one of 4 rim ports (top, right, bottom, left; never the same port twice in a row), the head glares at the chosen victim (angry eyes while warning, squinting while spitting) and the jet starts from the head's nozzle. Snapshot `g` is now `[angle, phase, timer, port]`; the angle uses the normal `(cos, sin)` convention and always points into the arena (max 63 degrees off straight-at-centre). At rest the head hangs from the tap bar in the sink and bathtub, blinks, follows the nearest soap and sleeps ("z") once the arena shrinks. Bots dodge the new jet geometry.
+- **8 new soaps (16 total)** — *galaxy crew*: Lather Knight (hooded robe + foam blade), Lord Lather (masked helmet + red blade), Bleep-Bar (dome droid), Mini Mossy (long-eared sage). *Reef crew*: Squarepore (square sponge), Star Buddy (shorts-wearing starfish), Grumpus (sleepy-eyed long nose), Boss Crab (claws, eye stalks). Original designs, cosmetic only. Bots now pick random free soaps. The picker shows the selected soap's name.
+
+### Previous build: parry-soap-bots-1
 
 - **Parry mechanic** — Tap parry right before a rival rams you. Active window of 0.3s; on success the attacker is thrown back harder and gets dizzy (weak steering for 0.9s). Cooldown: 4s on miss, 2s on success.
 - **Soap selection** — 8 unique soap-bar shapes (hole, fish, duck, frog, star, cat, whale, heart), one per player colour. Cosmetic only. Players can pick/swap in the lobby; bots swap if a human wants their shape.
