@@ -100,7 +100,7 @@ input:focus{border-color:#25c7c0}
 @media (max-height:500px){#sc div:not(.me) .nm{display:none}#sc{gap:3px}}
 :root{--cb:16px}
 @media (pointer:coarse) and (max-aspect-ratio:108/100){:root{--cb:76px}}
-#home,#friends,#lobby{padding-top:calc(14px + var(--st,0px));padding-bottom:calc(14px + var(--cb))}
+#home,#friends,#lobby{padding-top:calc(14px + var(--st,0px));padding-bottom:calc(14px + var(--cb));padding-left:calc(14px + max(0px,calc(-1*var(--sh,0px))));padding-right:calc(14px + max(0px,var(--sh,0px)))}
 #conn{position:fixed;top:0;left:0;right:0;background:#d6443a;color:#fff;text-align:center;padding:4px;z-index:9}
 </style></head><body>
 <canvas id="c"></canvas>
@@ -307,6 +307,7 @@ function layout(W,H,A){
   const T=NPL()?98:30,sh=Math.max(72,Math.min(80,H*.1));
   S=Math.min(W/bw,(H-T-sh-8-B)/bh);cx=W/2;cy=T+sh+8+(H-B-T-sh-8)/2;
   sr={x:6,y:T,w:W-12,h:sh,side:0}}
+ document.documentElement.style.setProperty('--sh',(side?W-2*cx:0)+'px'); // menus (home / friends / lobby) centre on the arena, not on the screen
  return{S,cx,cy,sr,st:mkStand(sr)}}
 function drawStand(g,s){const{x,y,w,h,u,rows}=s,rp=3.3*u,c0=y+3.5*u;
  g.save();g.lineJoin='round';g.lineCap='round';
