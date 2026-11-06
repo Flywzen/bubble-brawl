@@ -14,14 +14,15 @@ const GW = 1.2, GD = 1.5, GI = 4, GA = process.env.GA != null ? +process.env.GA 
 const PT_WIN = 3, PT_SURV = 1, PT_KILL = 1, KWIN = 3, KMIN = 40;
 // the faucet is a snake-like creature: it slithers out of one of 4 ports in the rim (0 top, 1 right, 2 bottom, 3 left) and spits from the nozzle, 87 px inside the water edge. NZ = nozzle distance from the centre (x, y) per arena [sink, toilet, bathtub].
 // g = { s: port, ang: jet direction (cos, sin), hx/hy: nozzle position, ph: 0 warn / 1 gush, tm }. The jet may swing up to GSWING either side of 'straight at the centre'.
-const PORTS = [-Math.PI / 2, 0, Math.PI / 2, Math.PI], NZ = [[235, 235], [205, 220], [235, 160]], GSWING = 1.1, NS = 28, NE = 7, EMO_CD = 1500; // NS = number of soap looks (0-7 classic, 8-11 galaxy, 12-15 reef, 16-17 storybook)
+const PORTS = [-Math.PI / 2, 0, Math.PI / 2, Math.PI], NZ = [[235, 235], [205, 220], [235, 160]], GSWING = 1.1, NS = 28, NE = 7, EMO_CD = 1500; // NS = number of soap looks (0-7 classic, 8-11 galaxy, 12-15 reef, 16-17 storybook, 18-27 anime)
+const SKCD = [7.5, 6.5, 7, 7.5, 7.5, 6.5, 8, 7.5, 7, 8.5, 7.5, 8, 8, 7.5, 8, 7, 7.5, 7.5, 8, 9, 7.5, 7, 8.5, 7.5, 8, 9, 8, 8.5];
 const wrapA = a => ((a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
 const rooms = new Map();
 let TICKN = 0; // simulation clock: snapshots carry ts = TICKN*DT (ms). Clients use it to smooth out network jitter.
 
 const srv = http.createServer((q, r) => {
   if (q.url === '/health') return r.end('ok');
-  if (q.url === '/version') return r.end(JSON.stringify({ build: 'lobby-ready-1', features: ['bots', 'difficulty', 'ready', 'quick', 'parry', 'soap', 'ts-snapshots', 'snake-faucet', 'soap16', 'soap18', 'kills', 'faucet-always'] }));
+  if (q.url === '/version') return r.end(JSON.stringify({ build: 'char-skills-1', features: ['bots', 'difficulty', 'ready', 'quick', 'parry', 'soap', 'ts-snapshots', 'snake-faucet', 'soap16', 'soap18', 'kills', 'faucet-always', 'skills'] }));
   const page = path.join(__dirname, 'public', 'index.html'); // optional: only exists when frontend is bundled with the server
   if (!fs.existsSync(page)) { r.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }); return r.end('BUBBLE BRAWL game server is running. The game page is hosted separately.'); }
   if (q.url.split('?')[0] === '/config.js') { r.writeHead(200, { 'Content-Type': 'text/javascript' }); return r.end('window.BRAWL_SERVER = "";'); } // single-service mode: same host
@@ -33,26 +34,24 @@ const rid = () => Math.random().toString(36).slice(2, 10);
 const newCode = () => { let c; do { c = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join(''); } while (rooms.has(c)); return c; };
 const send = (ws, o) => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); };
 const all = (r, o) => { const s = JSON.stringify(o); for (const p of r.players) if (p.connected && p.ws && p.ws.readyState === 1) p.ws.send(s); };
-const info = r => ({ t: 'room', code: r.code, host: r.host, st: r.st, round: r.round, log: r.log, res: r.res, solo: r.solo ? 1 : 0, df: r.df,
+const info = r => ({ t: 'room', code: r.code, host: r.host, st: r.st, round: r.round, log: r.log, res: r.res, solo: r.solo ? 1 : 0, df: r.df, sk: r.sk,
   players: r.players.map(p => ({ id: p.id, name: p.name, ci: p.ci, score: p.score, kl: p.kills, on: p.connected, wait: p.wait, in: p.in, bot: p.bot ? 1 : 0, rd: p.bot || p.id === r.host || p.ready ? 1 : 0 })) });
 
-function mkp(room, name, ws, want) { // want = the soap (0-17) the player picked; falls back to the first free one
+function mkp(room, name, ws, want) { // want = the soap (0-27) the player picked; falls back to the first free one
   const used = new Set(room.players.map(p => p.ci)); let ci = Number.isInteger(want) && want >= 0 && want < NS && !used.has(want) ? want : 0; while (used.has(ci)) ci++;
   return { id: rid(), token: rid() + rid(), name: String(name || '').trim().slice(0, 12) || 'Sabun', ci, ws, connected: true,
-    score: 0, kills: 0, ready: false, lh: 0, lht: -99, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, pcd: 0, par: 0, stun: 0 };
+    score: 0, kills: 0, ready: false, lh: 0, lht: -99, wait: room.st !== 'lobby', in: false, x: 0, y: 0, vx: 0, vy: 0, alive: false, ix: 0, iy: 0, fa: 0, cd: 0, pcd: 0, par: 0, stun: 0, scd: 0, skt: 0, skp: 0, inv: 0, slw: 0, skh: {} };
 }
 // ---------- bots ----------
-// A bot is a normal player object with bot:true and no socket. It is driven by botThink() inside step(), using the same inputs (ix/iy, dash, parry) as a human.
+// A bot is a normal player object with bot:true and no socket. It is driven by botThink() inside step(), using the same inputs (ix/iy, dash, parry, skill) as a human.
 const BOTN = ['Foamy', 'Suds', 'Squeaky', 'Slippy', 'Lather', 'Scrubby', 'Bubbly', 'Pumice'];
 // bot difficulty: 0 easy, 1 normal, 2 hard (hard is the original bot). The host picks it per room; bots read r.df on every decision, so a change applies at once.
-// th = seconds between decisions [min, spread], sk = steering strength [min, spread] (1 = full), jt = aim wobble in radians, wd = chance per decision to wander off,
-// dp = chance to dash when a dash is possible, pp = chance to parry an incoming hit, pr = distance (px) at which it notices a rival rushing in, fd = chance to dodge a given faucet jet,
-// ea = edge awareness (1 = turns back in time, lower = drifts closer to the rim first), sm = targeting smarts (1 = picks rivals near the rim and attacks from the centre side, 0 = plain nearest)
 const DIFFS = [
-  { n: 'easy',   th: [.42, .30], sk: [.50, .15], jt: 1.3, wd: .12, dp: .20, pp: .08, pr: 95,  fd: .45, ea: .90, sm: 0 },
-  { n: 'normal', th: [.24, .16], sk: [.68, .17], jt: .8,  wd: .07, dp: .45, pp: .30, pr: 110, fd: .80, ea: .97, sm: .6 },
-  { n: 'hard',   th: [.14, .12], sk: [.80, .20], jt: .5,  wd: .04, dp: .75, pp: .60, pr: 125, fd: 1,   ea: 1,   sm: 1 }];
+  { n: 'easy',   th: [.42, .30], sk: [.50, .15], jt: 1.3, wd: .12, dp: .20, pp: .08, sp: .12, pr: 95,  fd: .45, ea: .90, sm: 0 },
+  { n: 'normal', th: [.24, .16], sk: [.68, .17], jt: .8,  wd: .07, dp: .45, pp: .30, sp: .28, pr: 110, fd: .80, ea: .97, sm: .6 },
+  { n: 'hard',   th: [.14, .12], sk: [.80, .20], jt: .5,  wd: .04, dp: .75, pp: .60, sp: .50, pr: 125, fd: 1,   ea: 1,   sm: 1 }];
 const DDEF = 1, cdf = v => Number.isInteger(v) && v >= 0 && v < DIFFS.length ? v : DDEF; // anything that is not 0, 1 or 2 falls back to normal
+const csk = v => v === 0 || v === false ? 0 : 1; // skills are ON (1) by default unless explicitly set to 0
 function addBot(r) {
   const used = new Set(r.players.map(p => p.name)), free = BOTN.filter(n => !used.has(n + ' (bot)'));
   const usedCi = new Set(r.players.map(x => x.ci)), freeCi = Array.from({ length: NS }, (_, i) => i).filter(i => !usedCi.has(i));
@@ -73,6 +72,83 @@ function parryHit(r, P, A, m, c) { // m = unit vector from P to A, c = closing s
   const vn = (A.vx - P.vx) * m[0] + (A.vy - P.vy) * m[1], nv = Math.max(PMIN, c * PREF);
   A.vx += m[0] * (nv - vn); A.vy += m[1] * (nv - vn); A.stun = PSTUN; P.par = 0; P.pcd = PCDOK;
   r.ev.push(['parried', P.id, A.id, Math.round((P.x + A.x) / 2), Math.round((P.y + A.y) / 2)]);
+}
+// ---------- unique character skills (0..27) ----------
+function skHit(r, p, o, vx, vy, stun = 0, slw = 0, brk = false) {
+  if (!o || o === p || !o.alive) return;
+  if (brk) { o.par = 0; o.inv = 0; } // Inverted Spear of Heaven (Toji) pierces parry & invulnerability
+  if (o.inv > 0) return;
+  if (o.par > 0) {
+    const dx = p.x - o.x, dy = p.y - o.y, d = Math.hypot(dx, dy) || 1;
+    p.lh = o.id; p.lht = r.t; parryHit(r, o, p, [dx / d, dy / d], Math.hypot(vx, vy)); return;
+  }
+  o.vx += vx; o.vy += vy; o.lh = p.id; o.lht = r.t;
+  if (stun > o.stun) o.stun = stun;
+  if (slw > o.slw) o.slw = slw;
+  const st = Math.round(Math.hypot(vx, vy));
+  if (st > 60) r.ev.push(['hit', Math.round((p.x + o.x) / 2), Math.round((p.y + o.y) / 2), st]);
+}
+function skRad(r, p, rad, imp, stun = 0, slw = 0, brk = false) {
+  for (const o of r.players) if (o.in && o.alive && o !== p) {
+    const dx = o.x - p.x, dy = o.y - p.y, d = Math.hypot(dx, dy);
+    if (d <= rad) { const l = d || 1, k = imp * (.75 + .25 * (1 - d / rad)); skHit(r, p, o, dx / l * k, dy / l * k, stun, slw, brk); }
+  }
+}
+function skCone(r, p, rad, minCos, imp, stun = 0, slw = 0, pull = false) {
+  const fx = Math.cos(p.fa), fy = Math.sin(p.fa);
+  for (const o of r.players) if (o.in && o.alive && o !== p) {
+    const dx = o.x - p.x, dy = o.y - p.y, d = Math.hypot(dx, dy);
+    if (d <= rad) {
+      const l = d || 1, ux = dx / l, uy = dy / l;
+      if (ux * fx + uy * fy >= minCos) {
+        const vx = (pull ? -ux : fx * .65 + ux * .35) * imp, vy = (pull ? -uy : fy * .65 + uy * .35) * imp;
+        skHit(r, p, o, vx, vy, stun, slw);
+      }
+    }
+  }
+}
+function doSkill(r, p) {
+  if (!r.sk) return;
+  const ci = p.ci; p.scd = SKCD[ci] || 7.5; p.skh = {};
+  if (ci === 26) { // Akaza Compass Needle: auto-locks onto the nearest living rival within range
+    let bd = 240, tgt = null;
+    for (const o of r.players) if (o.in && o.alive && o !== p) { const d = Math.hypot(o.x - p.x, o.y - p.y); if (d < bd) { bd = d; tgt = o; } }
+    if (tgt) p.fa = Math.atan2(tgt.y - p.y, tgt.x - p.x);
+  }
+  const fx = Math.cos(p.fa), fy = Math.sin(p.fa);
+  if (ci === 0) { skRad(r, p, 155, -230, 0, .4); p.skt = .35; p.skp = .32; } // Hole: Vortex Pop
+  else if (ci === 1) { p.vx += fx * 470; p.vy += fy * 470; p.skt = .95; } // Fish: Aqua Torpedo
+  else if (ci === 2) { skRad(r, p, 140, 390, .65); p.skt = .45; } // Duck: Sonic Quack
+  else if (ci === 3) { p.vx += fx * 430; p.vy += fy * 430; p.inv = .45; p.skt = .45; p.skp = .42; } // Frog: Ribbit Leap
+  else if (ci === 4) { p.vx += fx * 380; p.vy += fy * 380; p.skt = 1.1; } // Star: Shooting Star
+  else if (ci === 5) { p.vx += fx * 430; p.vy += fy * 430; skCone(r, p, 125, .15, 460); p.skt = .45; } // Cat: Feline Pounce
+  else if (ci === 6) { skRad(r, p, 155, 480); p.skt = .6; } // Whale: Geyser Spout
+  else if (ci === 7) { skCone(r, p, 175, -.1, 210, .5, 1.6, true); p.skt = .6; } // Heart: Lovely Charm
+  else if (ci === 8) { skCone(r, p, 195, .25, 530, .35); p.skt = .45; } // Lather Knight: Force Push
+  else if (ci === 9) { skCone(r, p, 215, .2, 430, .85, 1.1, true); p.skt = .65; } // Lord Lather: Force Grip
+  else if (ci === 10) { p.vx += fx * 410; p.vy += fy * 410; skRad(r, p, 95, 450); p.skt = .65; } // Skylather: Saber Whirl
+  else if (ci === 11) { p.vx += fx * 310; p.vy += fy * 310; skRad(r, p, 140, 350, 1.05); p.skt = .6; } // Bleep-Bar: Arc Zapper
+  else if (ci === 12) { p.inv = .55; p.skt = .6; p.skp = .42; skRad(r, p, 120, 250); } // Squarepore: Hydro Squeeze
+  else if (ci === 13) { p.vx += fx * 290; p.vy += fy * 290; skRad(r, p, 145, 500, .45); p.skt = .5; } // Star Buddy: Belly Flop
+  else if (ci === 14) { skRad(r, p, 160, 360, 1.15, .8); p.skt = .65; } // Grumpus: Clarinet Solo
+  else if (ci === 15) { p.vx += fx * 270; p.vy += fy * 270; skCone(r, p, 135, .15, 550, .4); p.skt = .45; } // Boss Crab: Big Meaty Claws
+  else if (ci === 16) { p.vx += fx * 460; p.vy += fy * 460; p.skt = 1.05; } // Bubblefin: Ocean Surge
+  else if (ci === 17) { p.inv = .7; p.skt = .7; skRad(r, p, 142, 430); } // Bobbie: Soot Sprite Gust
+  else if (ci === 18) { p.vx += fx * 490; p.vy += fy * 490; p.inv = .4; p.skt = .85; skRad(r, p, 90, 460); } // Captain Scrub: Spinning Slash
+  else if (ci === 19) { p.inv = .35; p.skt = .5; r.prj.push({ ow: p.id, ci: 19, x: p.x + fx * 26, y: p.y + fy * 26, vx: fx * 520, vy: fy * 520, r: 36, t: 1.35, hit: {} }); } // Limitless Lather: Hollow Purple
+  else if (ci === 20) { p.vx += fx * 470; p.vy += fy * 470; p.skt = .65; skCone(r, p, 135, 0, 500); } // Checkerlather: Hinokami Wheel
+  else if (ci === 21) { p.vx += fx * 560; p.vy += fy * 560; p.skt = .5; skCone(r, p, 125, .2, 510); } // Scarlather: ODM Thunder Lunge
+  else if (ci === 22) { p.skt = .75; p.skp = .35; skRad(r, p, 155, 450, .45); } // Itadorinse (Sukuna): Malevolent Shrine (Cleave)
+  else if (ci === 23) { p.vx -= fx * 110; p.vy -= fy * 110; p.skt = .55; skCone(r, p, 155, -.2, 490, .35); } // Bambubble: Exploding Blood
+  else if (ci === 24) { // Tojilather: Heavenly Blink (teleports & breaks parry)
+    let tx = p.x + fx * 135, ty = p.y + fy * 135, u = edgeU(r, tx, ty);
+    if (u > .85) { tx *= .85 / u; ty *= .85 / u; }
+    p.x = tx; p.y = ty; p.vx = fx * 260; p.vy = fy * 260; p.skt = .45;
+    skRad(r, p, 110, 520, .5, 0, true);
+  } else if (ci === 25) { p.stun = 0; p.slw = 0; p.inv = 1.0; p.skt = 1.0; skRad(r, p, 145, 460, .35); } // Mahorasuds: Wheel Adaptation
+  else if (ci === 26) { p.vx += fx * 350; p.vy += fy * 350; p.skt = .75; skCone(r, p, 175, .05, 520, .4); } // Akazuds: Compass Needle
+  else if (ci === 27) { p.skt = .75; skCone(r, p, 175, -.2, 370, .6, 2.0); } // Doumafoam: Freezing Lotus
+  r.ev.push(['sk', p.id, ci, Math.round(p.x), Math.round(p.y), +p.fa.toFixed(2)]);
 }
 function botThink(r, b, ps) {
   b.think -= DT; if (b.think > 0) return; const D = DIFFS[r.df]; b.think = D.th[0] + Math.random() * D.th[1]; // reaction time
@@ -103,6 +179,7 @@ function botThink(r, b, ps) {
   b.fa = Math.atan2(b.iy, b.ix);
   if (r.st !== 'play') return;
   const d = Math.hypot(tgt.x - b.x, tgt.y - b.y), ta = Math.atan2(tgt.y - b.y, tgt.x - b.x);
+  if (r.sk && b.scd <= 0 && d < 185 && Math.cos(ta - b.fa) > .5 && u < .72 && Math.random() < D.sp) { doSkill(r, b); return; }
   if (b.cd <= 0 && d > 55 && d < 230 && Math.cos(ta - b.fa) > .8 && u < .7 && edgeU(r, b.x + (b.vx + Math.cos(b.fa) * DASHV) * .6, b.y + (b.vy + Math.sin(b.fa) * DASHV) * .6) < .88 && Math.random() < D.dp) doDash(r, b);
   if (b.pcd <= 0 && b.par <= 0) for (const o of foes) { // a rival is rushing at us: parry just before it lands
     const dx = b.x - o.x, dy = b.y - o.y, od = Math.hypot(dx, dy) || 1, closing = ((o.vx - b.vx) * dx + (o.vy - b.vy) * dy) / od;
@@ -115,18 +192,20 @@ function startMatch(r) {
   r.round = 0; r.log = []; r.res = null; startRound(r);
 }
 function startRound(r) {
-  r.round++; r.a = r.ord[(r.round - 1) % 3]; r.R = R0; r.g = null; r.gc = 0; r.gs = -1; r.gn = +process.env.GFIRST || GFIRST; r.kl = {}; r.st = 'count'; r.tmr = 3; r.t = 0; r.ev = [];
+  r.round++; r.a = r.ord[(r.round - 1) % 3]; r.R = R0; r.g = null; r.gc = 0; r.gs = -1; r.gn = +process.env.GFIRST || GFIRST; r.kl = {}; r.prj = []; r.st = 'count'; r.tmr = 3; r.t = 0; r.ev = [];
   const ps = r.players.filter(p => p.in);
   ps.forEach((p, i) => {
     const a = i / ps.length * Math.PI * 2 + r.round * 0.7, d = R0 * 0.62;
-    Object.assign(p, { x: Math.cos(a) * d, y: Math.sin(a) * d, vx: 0, vy: 0, alive: true, cd: 0, pcd: 0, par: 0, stun: 0, ix: 0, iy: 0, lh: 0, lht: -99 });
+    Object.assign(p, { x: Math.cos(a) * d, y: Math.sin(a) * d, vx: 0, vy: 0, alive: true, cd: 0, pcd: 0, par: 0, stun: 0, scd: 0, skt: 0, skp: 0, inv: 0, slw: 0, skh: {}, ix: 0, iy: 0, lh: 0, lht: -99 });
     p.fa = Math.atan2(-p.y, -p.x);
   });
   all(r, info(r));
 }
 function snap(r) {
-  all(r, { t: 's', ts: Math.round(TICKN * DT * 1000), a: r.a, st: r.st, r: r.round, tm: Math.round((r.st === 'play' ? Math.max(0, ROUND - r.t) : r.tmr) * 10) / 10, R: Math.round(r.R * 10) / 10, g: r.g ? [+r.g.ang.toFixed(2), r.g.ph, +r.g.tm.toFixed(1), r.g.s] : 0,
-    p: r.players.filter(p => p.in).map(p => [p.id, +p.x.toFixed(1), +p.y.toFixed(1), Math.round(p.vx), Math.round(p.vy), p.alive ? 1 : 0, +p.cd.toFixed(1), +p.fa.toFixed(2), +p.pcd.toFixed(1), p.par > 0 ? 1 : 0, p.stun > 0 ? 1 : 0]), ev: r.ev });
+  const o = { t: 's', ts: Math.round(TICKN * DT * 1000), a: r.a, st: r.st, r: r.round, tm: Math.round((r.st === 'play' ? Math.max(0, ROUND - r.t) : r.tmr) * 10) / 10, R: Math.round(r.R * 10) / 10, g: r.g ? [+r.g.ang.toFixed(2), r.g.ph, +r.g.tm.toFixed(1), r.g.s] : 0,
+    p: r.players.filter(p => p.in).map(p => [p.id, +p.x.toFixed(1), +p.y.toFixed(1), Math.round(p.vx), Math.round(p.vy), p.alive ? 1 : 0, +p.cd.toFixed(1), +p.fa.toFixed(2), +p.pcd.toFixed(1), p.par > 0 ? 1 : 0, p.stun > 0 ? 1 : 0, +p.scd.toFixed(1), (p.skt > 0 ? 1 : 0) | (p.inv > 0 ? 2 : 0) | (p.slw > 0 ? 4 : 0)]), ev: r.ev };
+  if (r.prj && r.prj.length) o.prj = r.prj.map(q => [+q.x.toFixed(1), +q.y.toFixed(1), q.ci, +q.r.toFixed(0)]);
+  all(r, o);
   r.ev = [];
 }
 function step(r) {
@@ -144,12 +223,38 @@ function step(r) {
   for (const p of ps) if (p.bot) botThink(r, p, ps);
   for (const p of ps) {
     p.cd = Math.max(0, p.cd - DT); p.pcd = Math.max(0, p.pcd - DT); p.par = Math.max(0, p.par - DT); p.stun = Math.max(0, p.stun - DT);
-    const sf = p.stun > 0 ? .3 : 1, ix = p.connected ? p.ix * sf : 0, iy = p.connected ? p.iy * sf : 0; // disconnected: input zeroed, body can still be pushed
+    p.scd = Math.max(0, p.scd - DT); p.skt = Math.max(0, p.skt - DT); p.inv = Math.max(0, p.inv - DT); p.slw = Math.max(0, p.slw - DT);
+    if (p.skp > 0 && (p.skp -= DT) <= 0) { // delayed skill pulse (Hole pop, Frog landing, Squarepore burst, Sukuna 2nd Cleave)
+      p.skp = 0;
+      if (p.ci === 0) skRad(r, p, 140, 440);
+      else if (p.ci === 3) skRad(r, p, 130, 410);
+      else if (p.ci === 12) skRad(r, p, 150, 470);
+      else if (p.ci === 22) skRad(r, p, 155, 460, .4);
+    }
+    if (p.skt > 0 && [1, 4, 10, 16, 18, 20].includes(p.ci)) { // active spin / rush skills hit rivals along the way
+      for (const o of ps) if (o !== p && o.alive && r.t - (p.skh[o.id] || -9) > .28 && Math.hypot(o.x - p.x, o.y - p.y) < 72) {
+        p.skh[o.id] = r.t; const dx = o.x - p.x, dy = o.y - p.y, l = Math.hypot(dx, dy) || 1;
+        skHit(r, p, o, dx / l * 420, dy / l * 420, .25);
+      }
+    }
+    const sf = (p.stun > 0 ? .3 : 1) * (p.slw > 0 ? .45 : 1), ix = p.connected ? p.ix * sf : 0, iy = p.connected ? p.iy * sf : 0; // disconnected: input zeroed, body can still be pushed
     let gx = 0, gy = 0;
-    if (r.g && r.g.ph === 1) { const dx = Math.cos(r.g.ang), dy = Math.sin(r.g.ang), rx = p.x - r.g.hx, ry = p.y - r.g.hy; if (rx * dx + ry * dy > 0 && Math.abs(rx * dy - ry * dx) < GHW) { gx = dx * GA; gy = dy * GA; } }
-    p.vx = (p.vx + (ix * ACC + gx) * DT) * FR; p.vy = (p.vy + (iy * ACC + gy) * DT) * FR;
-    const s = Math.hypot(p.vx, p.vy); if (s > VCAP) { p.vx *= VCAP / s; p.vy *= VCAP / s; }
+    if (r.g && r.g.ph === 1 && p.inv <= 0) { const dx = Math.cos(r.g.ang), dy = Math.sin(r.g.ang), rx = p.x - r.g.hx, ry = p.y - r.g.hy; if (rx * dx + ry * dy > 0 && Math.abs(rx * dy - ry * dx) < GHW) { gx = dx * GA; gy = dy * GA; } }
+    const fr = p.skt > 0 && (p.ci === 1 || p.ci === 16) ? .98 : FR;
+    p.vx = (p.vx + (ix * ACC + gx) * DT) * fr; p.vy = (p.vy + (iy * ACC + gy) * DT) * fr;
+    const cap = p.slw > 0 ? VCAP * .55 : VCAP, s = Math.hypot(p.vx, p.vy); if (s > cap) { p.vx *= cap / s; p.vy *= cap / s; }
     p.x += p.vx * DT; p.y += p.vy * DT;
+  }
+  if (r.prj && r.prj.length) { // active projectiles (e.g. Gojo's Hollow Purple)
+    for (let i = r.prj.length - 1; i >= 0; i--) {
+      const q = r.prj[i]; q.x += q.vx * DT; q.y += q.vy * DT; q.t -= DT;
+      const ow = r.players.find(p => p.id === q.ow);
+      if (ow) for (const o of ps) if (o.id !== q.ow && o.alive && !q.hit[o.id] && Math.hypot(o.x - q.x, o.y - q.y) < q.r + SR) {
+        q.hit[o.id] = 1; const dx = o.x - q.x, dy = o.y - q.y, l = Math.hypot(dx, dy) || 1;
+        skHit(r, ow, o, (dx / l * .7 + q.vx / 520 * .3) * 560, (dy / l * .7 + q.vy / 520 * .3) * 560, .55);
+      }
+      if (q.t <= 0 || Math.hypot(q.x, q.y) > R0 * 1.4) r.prj.splice(i, 1);
+    }
   }
   for (let i = 0; i < ps.length; i++) for (let k = i + 1; k < ps.length; k++) {
     const a = ps[i], b = ps[k]; let dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy);
@@ -162,9 +267,9 @@ function step(r) {
         const pa = a.par > 0, pb = b.par > 0;
         if (pa !== pb && -rel > 40) { (pa ? b : a).lh = (pa ? a : b).id; (pa ? b : a).lht = r.t; parryHit(r, pa ? a : b, pa ? b : a, pa ? [-nx, -ny] : [nx, ny], -rel); } // exactly one side is parrying: reflect (the rebounded attacker was 'last hit' by the parrier)
         else {
-          const j = -(1 + 1.15) * rel / 2;
-          a.vx += j * nx; a.vy += j * ny; b.vx -= j * nx; b.vy -= j * ny;
-          if (-rel > KMIN) { a.lh = b.id; a.lht = r.t; b.lh = a.id; b.lht = r.t; } // remember who bumped whom: kill credit if one of them goes out within KWIN
+          const j = -(1 + 1.15) * rel / 2, ia = a.inv > 0 ? 0 : 1, ib = b.inv > 0 ? 0 : 1;
+          a.vx += j * nx * ia; a.vy += j * ny * ia; b.vx -= j * nx * ib; b.vy -= j * ny * ib;
+          if (-rel > KMIN) { if (ia) { a.lh = b.id; a.lht = r.t; } if (ib) { b.lh = a.id; b.lht = r.t; } } // remember who bumped whom: kill credit if one of them goes out within KWIN
           if (-rel > 60) r.ev.push(['hit', Math.round((a.x + b.x) / 2), Math.round((a.y + b.y) / 2), Math.round(-rel)]);
         }
       }
@@ -180,7 +285,7 @@ function step(r) {
   else if (alive.length === 0) done = true; // everyone fell on the same step: no win points (kills still count)
   else if (r.t >= ROUND) { alive.forEach(p => pts[p.id] = PT_SURV); done = true; timeout = true; }
   if (done) {
-    r.g = null;
+    r.g = null; r.prj = [];
     for (const p of r.players) { const kn = r.kl[p.id] || 0; p.score += (pts[p.id] || 0) + kn * PT_KILL; p.kills += kn; } // round points (win / survive) + kill points
     r.log.push({ n: r.round, w: winner, pts, k: r.kl, to: timeout }); // pts = win/survive points, k = kills made this round (PT_KILL each)
     r.st = 'end'; r.tmr = 4.5; snap(r); all(r, info(r));
@@ -218,7 +323,7 @@ wss.on('connection', ws => {
       const now = Date.now(); if (room && pl && Number.isInteger(m.i) && m.i >= 0 && m.i < NE && now >= (pl.eu || 0)) { pl.eu = now + EMO_CD; all(room, { t: 'emo', id: pl.id, i: m.i }); } return; }
     if (m.t === 'ping') return send(ws, { t: 'pong', c: m.c }); // client measures round-trip time for its movement prediction
     if (m.t === 'create' && !room) {
-      const r = { code: newCode(), players: [], host: null, st: 'lobby', round: 0, log: [], res: null, tmr: 0, t: 0, ev: [], k: 0, R: R0, a: 0, ord: [0, 1, 2], solo: false, df: cdf(m.df), gc: 0 };
+      const r = { code: newCode(), players: [], host: null, st: 'lobby', round: 0, log: [], res: null, tmr: 0, t: 0, ev: [], k: 0, R: R0, a: 0, ord: [0, 1, 2], solo: false, df: cdf(m.df), sk: csk(m.sk), gc: 0, prj: [] };
       rooms.set(r.code, r); const p = mkp(r, m.name, ws, m.ci); r.players.push(p); attach(r, p);
       if (m.quick) { r.solo = true; for (let i = Math.min(MAXP - 1, Math.max(1, +m.bots || 3)); i > 0; i--) addBot(r); startMatch(r); } // Quick Play: bots fill the room and the match starts right away
     } else if (m.t === 'join' && !room) {
@@ -248,6 +353,9 @@ wss.on('connection', ws => {
     } else if (m.t === 'setdiff') { // host: how sharp the bots are. Allowed in the lobby and after a match, not mid-match
       if (pl.id !== room.host || !['lobby', 'final'].includes(room.st) || cdf(m.df) !== m.df) return;
       room.df = m.df; all(room, info(room));
+    } else if (m.t === 'setsk') { // host: toggle unique character skills ON (1) or OFF (0)
+      if (pl.id !== room.host || !['lobby', 'final'].includes(room.st) || (m.sk !== 0 && m.sk !== 1)) return;
+      room.sk = m.sk; all(room, info(room));
     } else if (m.t === 'rmbot') {
       if (pl.id !== room.host || room.st !== 'lobby') return;
       const b = room.players.filter(x => x.bot).pop(); if (b) { room.players = room.players.filter(x => x !== b); all(room, info(room)); }
@@ -266,6 +374,9 @@ wss.on('connection', ws => {
     } else if (m.t === 'parry') {
       if (room.st !== 'play' || !pl.in || !pl.alive || pl.pcd > 0 || pl.par > 0) return;
       doParry(room, pl);
+    } else if (m.t === 'skill') {
+      if (room.st !== 'play' || !room.sk || !pl.in || !pl.alive || pl.scd > 0 || pl.stun > 0) return;
+      doSkill(room, pl);
     } else if (m.t === 'soap') { // lobby: change your soap. A bot that has it gives up its look (swap); another human's soap is taken.
       if (room.st !== 'lobby' || !Number.isInteger(m.ci) || m.ci < 0 || m.ci >= NS || m.ci === pl.ci) return;
       const o = room.players.find(x => x !== pl && x.ci === m.ci);
@@ -295,4 +406,4 @@ wss.on('connection', ws => {
   });
 });
 setInterval(() => wss.clients.forEach(c => { if (c.live === false) return c.terminate(); c.live = false; c.ping(); }), 25000);
-srv.listen(PORT, '0.0.0.0', () => console.log('BUBBLE BRAWL (build lobby-ready-1) di port ' + PORT));
+srv.listen(PORT, '0.0.0.0', () => console.log('BUBBLE BRAWL (build char-skills-1) di port ' + PORT));

@@ -2,10 +2,12 @@
 
 All notable changes to Bubble Brawl.
 
-## Current Build: lobby-ready-1
+## Current Build: char-skills-1
 
 ### Features
 
+- **28 Unique Character Skills (`0..27`)** — Every soap character now has a lore-accurate active skill triggered by **Q / R** on desktop or the purple **Skill** button (`#sb`) on mobile, with per-character cooldowns (`6.5s–9.0s`). Includes *Malevolent Shrine (Cleave)* for Itadorinse (`22`), *Hollow Purple* projectile for Limitless Lather (`19`), *Heavenly Blink* parry-piercing flash step for Tojilather (`24`), *Wheel Adaptation* stun cleanse & unstoppable aura for Mahorasuds (`25`), *Compass Needle* auto-target lunge for Akazuds (`26`), *Freezing Lotus* chill cone for Doumafoam (`27`), and signature moves for all Classic, Star Wars, SpongeBob, Ghibli, AoT, and Demon Slayer soaps.
+- **Character Skills Toggle (ON / OFF)** — Host can toggle Character Skills ON (default) or OFF on the Home screen, in the Lobby, or before a rematch (`setsk {sk}`). When OFF, skills are disabled and the HUD hides the skill button/hint.
 - **2 more soap looks (26-27)** — Akazuds (pink hair, blue tattoo lines, compass ring) and Doumafoam (pale red-tipped hair, opal eyes, two golden fans). `NS = 28`; out-of-range test now uses index 28.
 - **2 more soap looks (24-25)** — Tojilather (scarred mercenary, dark staff-blade) and Mahorasuds (pale divine general, golden wheel halo, jagged sword). `NS = 26`; out-of-range test now uses index 26.
 - **3 more soap looks (21-23)** — Scarlather (red scarf scout), Itadorinse (pink spiky hair, hooded uniform) and Bambubble (bamboo muzzle, ombre hair, pink kimono). `NS = 24`; out-of-range test now uses index 24.
