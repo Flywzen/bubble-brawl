@@ -1,4 +1,3 @@
-// Emote tests. Run: node tests/test-emote.js  (spawns its own server on port 3116)
 const {spawn}=require('child_process'),WS=require('ws');
 const sv=spawn('node',['server.js'],{env:{...process.env,PORT:3116},stdio:'inherit'});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));

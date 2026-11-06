@@ -1,5 +1,3 @@
-// Scoring test: round win points + kill points. Run: node test-score.js (own server on port 3115, FAST=4, faucet switched off)
-// A rams B (idle) with dashes; B falls out -> A is credited with the kill (+1) on top of the round win (+3).
 const {spawn}=require('child_process'),WS=require('ws');
 const sv=spawn('node',['server.js'],{env:{...process.env,PORT:3115,FAST:4,GFIRST:99999},stdio:'inherit'});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));

@@ -1,4 +1,3 @@
-// Parry + soap selection tests. Run: node test-parry.js (own server on port 3114, FAST=10)
 const {spawn}=require('child_process'),WS=require('ws');
 const sv=spawn('node',['server.js'],{env:{...process.env,PORT:3114,FAST:10},stdio:'inherit'});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -9,7 +8,6 @@ function cl(){const c={room:null,snap:null,you:null,err:null,evs:[]};c.ws=new WS
  c.send=o=>c.ws.send(JSON.stringify(o));c.open=new Promise(r=>c.ws.on('open',r));return c}
 const me=c=>c.snap&&c.snap.p.find(p=>p[0]===c.you.id);
 (async()=>{try{await sleep(800);
- // ---- soap selection ----
  const A=cl(),B=cl(),C=cl();await Promise.all([A.open,B.open,C.open]);
  A.send({t:'create',name:'Ani',ci:5});await until(()=>A.room);
  ok(A.room.players[0].ci===5,'creator gets the soap they picked (5)');
@@ -25,8 +23,6 @@ const me=c=>c.snap&&c.snap.p.find(p=>p[0]===c.you.id);
   A.send({t:'addbot'});await until(()=>A.room.players.length===3);const bot=A.room.players.find(p=>p.bot);
  A.send({t:'soap',ci:bot.ci});await until(()=>A.room.players.find(p=>p.id===A.you.id).ci===bot.ci);
  ok(A.room.players.find(p=>p.id===bot.id).ci===5,'taking a bot\'s soap swaps the looks (bot gets mine)');
- // soap choice survives a rematch / start
- // ---- parry: A rushes B (dash), B parries -> A is thrown back and stunned, B is not pushed ----
  A.send({t:'rmbot'});await until(()=>A.room.players.length===2);
  B.send({t:'ready',v:1});await until(()=>(B.you&&A.room.players.find(p=>p.id===B.you.id)||{}).rd===1);A.send({t:'start'});await until(()=>A.snap&&A.snap.st==='play',20000);
  let done=false,res=null;
@@ -45,7 +41,6 @@ const me=c=>c.snap&&c.snap.p.find(p=>p[0]===c.you.id);
  ok(aspeed>250&&aspeed>bspeed*2,'attacker is thrown back hard ('+Math.round(aspeed)+' px/s) while the parrier barely moves ('+Math.round(bspeed)+')');
  ok(me(B)[8]>1&&me(B)[8]<=2,'successful parry: short cooldown (~2s), got '+me(B)[8]);
  ok(!A.evs.some(e=>e[0]==='hit'&&e[3]>60&&Date.now()-B.t0<400),'no ordinary hit event for a parried ram');
- // ---- a parry that catches nothing: long cooldown, shield flag lasts only ~0.3s ----
  await until(()=>A.snap.st!=='play'||(me(B)&&me(B)[8]<=0.05),20000).catch(()=>{});
  console.log(process.exitCode?'ADA GAGAL':'ALL PASSED');
 }catch(e){console.log('ERROR',e.message);process.exitCode=1}finally{sv.kill();setTimeout(()=>process.exit(),100)}})();

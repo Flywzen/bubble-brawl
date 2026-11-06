@@ -222,10 +222,9 @@ shield:'<path d="M12 3l7 3v5c0 4.6-3 8.2-7 10-4-1.8-7-5.4-7-10V6z"/><path d="M9 
 help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
 soap:'<rect x="2.5" y="7" width="19" height="11" rx="5.5" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.5" fill="#fffaf0" stroke="none"/><circle cx="15" cy="12" r="1.5" fill="#fffaf0" stroke="none"/><path d="M10.5 15.2c.9.7 2.1.7 3 0" stroke="#fffaf0" stroke-width="1.6"/>'};
 const GI={parry:'<svg viewBox="0 0 32 32"><path d="M16 3.5l9.5 3.7V15c0 5-3.6 9-9.5 13-5.9-4-9.5-8-9.5-13V7.2z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="16" cy="14.500" r="5" fill="none" stroke="#fffaf0" stroke-width="1.900"/></svg>',dash:'<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7l9 9-9 9M20 7l9 9-9 9" stroke-width="3.600"/><path d="M2 11h5M2 16h5M2 21h5" stroke-width="2.400"/></svg>',cheer:'<svg viewBox="0 0 32 32"><path d="M16 4.500l3.700 7.500 8.200 1.100-6 5.800 1.500 8.200-7.400-4-7.400 4 1.500-8.200-6-5.800 8.200-1.100z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><g fill="#fffaf0"><circle cx="4.500" cy="5" r="1.800"/><circle cx="28" cy="6" r="1.500"/><circle cx="27.500" cy="26" r="1.700"/><circle cx="4.500" cy="25" r="1.400"/></g></svg>',skill:'<svg viewBox="0 0 32 32"><path d="M16 2.8l3.5 8.4 8.7 2.8-7.2 5 1.8 9.2L16 23l-6.8 5.2 1.8-9.2-7.2-5 8.7-2.8z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="15.5" r="3.3" fill="#fffaf0"/></svg>'};
-// bot difficulty: 0 easy, 1 normal, 2 hard. diff = what this player picked (remembered on this device); room.df = what the room is using
 const DF=[{n:'Easy',c:'#25c7c0',d:'#14958f',t:'Slow, clumsy bots that rarely parry. Good for learning.'},{n:'Normal',c:'#ff9a5c',d:'#d9733a',t:'A fair fight. Bots dash and parry now and then.'},{n:'Hard',c:'#e8584a',d:'#b53a2e',t:'Sharp bots that dodge, dash and parry fast.'}];
 let diff=1;try{const v=localStorage.bbDiff;if(v==='0'||v==='1'||v==='2')diff=+v}catch{}
-const rdf=()=>room&&room.df>=0&&room.df<=2?room.df|0:1; // an older server sends no df: show Normal
+const rdf=()=>room&&room.df>=0&&room.df<=2?room.df|0:1;
 const dfSeg=cur=>`<div class="seg">${DF.map((o,i)=>`<button data-df="${i}" class="${i===cur?'cur':''}" style="--c:${o.c};--d:${o.d}"><span class="dd">${[0,1,2].map(k=>`<i class="${k<=i?'dl':''}"></i>`).join('')}</span>${o.n}</button>`).join('')}</div><div class="small dft">${DF[cur].t}</div>`;
 function pickDf(v){diff=v;try{localStorage.bbDiff=v}catch{}
   if(room&&(room.st==='lobby'||room.st==='final')){send({t:'setdiff',df:v});room.df=v}
@@ -249,7 +248,6 @@ function C(g,x,y,r,f,s=OL,w=3){g.beginPath();g.arc(x,y,r,0,7);if(f){g.fillStyle=
 function Bx(g,x,y,w,h,r,f,s=OL,lw=3){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();if(f){g.fillStyle=f;g.fill()}if(s){g.lineWidth=lw;g.strokeStyle=s;g.stroke()}}
 function Ln(g,p,s,w){g.beginPath();p.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.lineWidth=w;g.strokeStyle=s;g.lineCap='round';g.lineJoin='round';g.stroke()}
 const stp=(R,r)=>{const o=[];for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,q=k%2?r:R;o.push([Math.cos(a)*q,Math.sin(a)*q+2])}return o};
-// 8 bentuk sabun batang, satu per warna pemain: bolong, ikan, bebek, kodok, bintang, kucing, paus, hati. d=1: menghadap arah gerak. t=tinggi (buat posisi nama)
 const SP=[
 {p:[g=>{rp(g,[[-30,-21],[30,-21],[30,21],[-30,21]],12);g.moveTo(10,0);g.arc(0,0,10,0,7,true)}],e:[[-20,-4],[20,-4]],er:5,m:[0,14,4],o:[0,15.5,.7],t:21,h:[-21,-12],x:g=>{Ln(g,[[-25,14],[-19,14]],'#5a3d2b44',2.5);Ln(g,[[19,14],[25,14]],'#5a3d2b44',2.5)}},
 {p:[g=>g.ellipse(4,0,21,16,0,0,7),g=>{g.moveTo(-12,0);g.lineTo(-31,-15);g.quadraticCurveTo(-24,0,-31,15);g.closePath()},g=>{g.moveTo(-3,-13);g.quadraticCurveTo(5,-28,15,-13);g.closePath()},g=>{g.moveTo(0,12);g.quadraticCurveTo(7,24,15,13);g.closePath()}],e:[[12,-3]],er:6.5,m:0,t:27,d:1,h:[0,-8],x:g=>{Ln(g,[[2,-9],[-1,0],[2,9]],'#5a3d2b88',2.5);Ln(g,[[-10,-6],[-6,-6]],'#5a3d2b55',2);Ln(g,[[-12,3],[-8,3]],'#5a3d2b55',2)}},
@@ -259,7 +257,6 @@ const SP=[
 {p:[g=>g.ellipse(0,5,26,21,0,0,7),g=>rp(g,[[-25,-3],[-23,-27],[-6,-15]],4),g=>rp(g,[[25,-3],[23,-27],[6,-15]],4)],e:[[-10,2],[10,2]],er:5,m:[0,10,4],t:28,h:[-14,-6],x:g=>{for(const s of[-1,1]){g.beginPath();rp(g,[[s*21,-8],[s*20,-20],[s*11,-13]],2);g.fillStyle='#ff9ec7';g.fill();Ln(g,[[s*30,9],[s*19,8]],'#5a3d2b88',2);Ln(g,[[s*30,15],[s*19,12]],'#5a3d2b88',2)}}},
 {p:[g=>g.ellipse(3,3,29,19,0,0,7),g=>g.ellipse(-31,-8,5,12,-.65,0,7),g=>g.ellipse(-25,-11,5,12,.45,0,7)],e:[[14,-3]],er:5.5,m:0,t:36,d:1,h:[2,-8],x:g=>{g.beginPath();g.ellipse(6,11,21,7,0,.15,Math.PI-.15);g.fillStyle='#ffffff88';g.fill();Ln(g,[[10,-16],[10,-23]],'#8fe0ff',3.5);for(const[a,b]of[[3,-29],[10,-33],[17,-29]]){g.beginPath();g.arc(a,b,2.8,0,7);g.fillStyle='#8fe0ff';g.fill()}Ln(g,[[22,6],[27,3]],'#5a3d2b88',2.5)}},
 {p:[g=>{g.moveTo(0,23);g.bezierCurveTo(-36,0,-24,-27,0,-11);g.bezierCurveTo(24,-27,36,0,0,23)}],e:[[-9,-6],[9,-6]],er:5,m:[0,3,6],t:24,h:[-14,-9]},
-// ---- galaxy crew (8-11) and reef crew (12-15): our own soap-bar riffs on a space-fantasy cast and a seaside cartoon cast. k = icon scale for the wide ones, pc = pupil colour, lid = sleepy eyelids ----
 {k:.8,p:[g=>rp(g,[[-12,-18],[12,-18],[29,23],[-29,23]],7),g=>g.arc(0,-13,17,0,7),g=>rp(g,[[0,-36],[15,-17],[-15,-17]],5)],e:[[-5.5,-12],[5.5,-12]],er:4,m:0,t:40,h:[-12,6],x:g=>{
  g.beginPath();g.ellipse(0,-11,11.5,9.5,0,0,7);g.fillStyle='#5b4630';g.fill();
  Ln(g,[[-21,8],[21,8]],'#8a5a3c',5);Bx(g,-3.5,4.5,7,7,1.5,'#f0cf6a','#8a5a3c',1.5);
@@ -313,7 +310,6 @@ const SP=[
  Ln(g,[[-21,-35],[-7,-30.5]],'#5a3d2b',3.6);Ln(g,[[6.5,-33.5],[21.5,-39]],'#5a3d2b',3.6);
  g.fillStyle='#ffd24a';g.strokeStyle='#5a3d2b';g.lineWidth=2;g.lineJoin='round';g.beginPath();g.moveTo(-6,-9);g.lineTo(-6.5,-19);g.lineTo(-3,-14.5);g.lineTo(0,-21);g.lineTo(3,-14.5);g.lineTo(6.5,-19);g.lineTo(6,-9);g.closePath();g.fill();g.stroke();
  g.fillStyle='#fff';g.beginPath();g.arc(0,-12,1.2,0,7);g.fill()}},
-// ---- storybook pair (16-17): two more original soap-bar characters in a gentle hand-drawn anime-cartoon mood. Bubblefin = a little goldfish kid with fin tufts, a tiny dress and floating bubbles; Bobbie = a rosy-cheeked kid with a blunt black bob, a ribbon and a hair flower ----
 {k:.95,p:[g=>rp(g,[[-18,3],[18,3],[18,24],[-18,24]],10),g=>g.arc(0,-10,15,0,7),g=>{g.moveTo(-12,-12);g.lineTo(-22,-18.5);g.quadraticCurveTo(-19.5,-12,-23,-5.5);g.lineTo(-13,-6);g.closePath()},g=>{g.moveTo(12,-12);g.lineTo(22,-18.5);g.quadraticCurveTo(19.5,-12,23,-5.5);g.lineTo(13,-6);g.closePath()},g=>g.ellipse(-20.5,13,4.6,7.5,.35,0,7),g=>g.ellipse(20.5,13,4.6,7.5,-.35,0,7)],e:[[-6,-8],[6,-8]],er:3.9,m:[0,-2,3.2],o:[0,-1.5,.62],t:37,h:[-10,-17],x:g=>{
  C(g,0,-10,13.8,'#ffd9bd',null);
  g.save();g.beginPath();rp(g,[[-18,3],[18,3],[18,24],[-18,24]],10);g.clip();g.fillStyle='#fffaf0';g.fillRect(-30,18.5,60,10);Ln(g,[[-30,18.5],[30,18.5]],'#5a3d2b',1.8);g.restore();
@@ -335,7 +331,6 @@ const SP=[
  g.beginPath();g.moveTo(-19,-4);g.lineTo(-19,-11);g.bezierCurveTo(-20.5,-35,20.5,-35,19,-11);g.lineTo(19,-4);g.quadraticCurveTo(15.5,-3,12.5,-5);g.lineTo(12.5,-12);g.lineTo(9,-15.2);g.lineTo(3,-14.4);g.lineTo(-3,-15.2);g.lineTo(-9,-14.4);g.lineTo(-12.5,-15.5);g.lineTo(-12.5,-5);g.quadraticCurveTo(-15.5,-3,-19,-4);g.closePath();g.fillStyle='#2a2230';g.fill();g.lineWidth=2;g.strokeStyle='#14101a';g.lineJoin='round';g.stroke();
  Ln(g,[[-11,-25],[-3,-28]],'#ffffff55',2.4);
  for(let a=0;a<5;a++){const t=a*Math.PI*2/5-Math.PI/2;g.beginPath();g.arc(13+Math.cos(t)*2.9,-24+Math.sin(t)*2.9,2.1,0,7);g.fillStyle='#ffd54a';g.fill();g.lineWidth=1.2;g.strokeStyle='#5a3d2b';g.stroke()}C(g,13,-24,1.5,'#ff8a3d','#5a3d2b',1)}},
-// ---- anime-inspired trio (18-20): punny original soap-bar homages, drawn in the same hand-drawn style. Captain Scrub = a cleaning-obsessed scout captain (green cloak, wings crest, twin blades); Limitless Lather = a cocky teacher with a blindfold, white spikes and a purple orb; Checkerlather = a kind demon-hunter kid (checkered haori, scar, hanafuda earrings, black blade) ----
 {k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7),g=>{g.moveTo(-15,6);g.lineTo(-27,27);g.lineTo(-13,25);g.closePath()},g=>{g.moveTo(15,6);g.lineTo(27,27);g.lineTo(13,25);g.closePath()}],e:[[-6,-8],[6,-8]],er:3.4,m:[0,-1.5,2.4],t:37,h:[-10,-18],x:g=>{
  for(const s of[-1,1]){Ln(g,[[s*24,23],[s*22,15]],'#5a3d2b',5.5);Ln(g,[[s*22,15],[s*29,-3]],'#5a3d2b',5);Ln(g,[[s*22,15],[s*29,-3]],'#e3ebf3',2.6);Ln(g,[[s*24,23],[s*22,15]],'#8a6a4a',2.6)}
  C(g,0,-10,14.2,'#ffd9bd',null);
@@ -362,7 +357,6 @@ const SP=[
  g.beginPath();g.moveTo(-14.5,-9);g.bezierCurveTo(-18,-31,18,-31,14.5,-9);g.lineTo(12,-16);g.lineTo(8,-12);g.lineTo(3,-17);g.lineTo(-2,-12.5);g.lineTo(-7,-17);g.lineTo(-11,-13);g.closePath();g.fillStyle='#3d1f24';g.fill();g.lineWidth=2;g.strokeStyle='#1d0f12';g.stroke();
  Ln(g,[[-9.5,-24],[-3,-27]],'#a63a3a88',2.2);Ln(g,[[-8.5,-14.5],[-6.5,-10]],'#c43b3b',2.2);
  g.fillStyle='#ff7a7a77';for(const q of[-1,1]){g.beginPath();g.arc(q*9.5,-2.5,2.8,0,7);g.fill()}}},
-// ---- second anime trio (21-23): Scarlather = a quiet scout with a red scarf; Itadorinse = a cheerful pink-haired brawler in a hooded uniform; Bambubble = a little demon girl with a bamboo muzzle and ombre hair ----
 {k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:3.6,m:[0,-1.5,2.2],t:37,h:[-10,-18],x:g=>{
  Ln(g,[[-9,6],[-13,22]],'#8a6f4a',2);Ln(g,[[9,6],[13,22]],'#8a6f4a',2);
  C(g,0,-10,14.2,'#ffd9bd',null);
@@ -392,7 +386,6 @@ const SP=[
  Ln(g,[[-8,0],[-14.5,-3.5]],'#f08aa8',1.8);Ln(g,[[8,0],[14.5,-3.5]],'#f08aa8',1.8);
  Bx(g,-8.5,-2.4,17,5.4,2.7,'#7cc46a','#3f7a3a',1.6);Ln(g,[[-3,-2],[-3,2.6]],'#3f7a3a',1.3);Ln(g,[[3,-2],[3,2.6]],'#3f7a3a',1.3);Ln(g,[[-7,-.6],[-4.5,-.6]],'#ffffff88',1.2);
  g.fillStyle='#ff7a7a77';for(const q of[-1,1]){g.beginPath();g.arc(q*10,-3,2.7,0,7);g.fill()}}},
-// ---- JJK duo (24-25): Tojilather = a lean, scarred mercenary with a dark staff-blade; Mahorasuds = a pale divine general with a golden wheel halo, pointed ears and a jagged sword ----
 {k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:3.3,pc:'#2f5a4a',m:[0,-1.5,3],t:37,h:[-10,-18],x:g=>{
  Ln(g,[[22,27],[29,-14]],'#5a3d2b',6.5);Ln(g,[[22,27],[29,-14]],'#2a2a33',3.6);Ln(g,[[29,-14],[32,-27]],'#5a3d2b',6);Ln(g,[[29,-14],[32,-27]],'#cfd8e3',3);Ln(g,[[22.5,24],[23.6,17]],'#8f1f1a',3.8);
  g.beginPath();g.moveTo(-9,4);g.lineTo(9,4);g.lineTo(0,17);g.closePath();g.fillStyle='#ffd9bd';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();Ln(g,[[-4,10],[0,12],[4,10]],'#5a3d2b66',1.4);
@@ -406,7 +399,6 @@ const SP=[
  Ln(g,[[-5,8],[0,10.5],[5,8]],'#5a3d2b66',1.5);Ln(g,[[0,10.5],[0,15]],'#5a3d2b55',1.4);
  Ln(g,[[-9.5,-3],[-9.5,2.5]],'#7a3d6a99',1.6);Ln(g,[[9.5,-3],[9.5,2.5]],'#7a3d6a99',1.6);Ln(g,[[0,-24],[0,-17]],'#5a3d2b88',1.6);Ln(g,[[-5,-23],[-4,-18]],'#5a3d2b66',1.3);Ln(g,[[5,-23],[4,-18]],'#5a3d2b66',1.3);
  g.save();g.translate(0,-33);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#5a3d2b',5)}C(g,0,0,7.5,null,'#5a3d2b',5);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#e8c04a',3)}C(g,0,0,7.5,null,'#e8c04a',3);C(g,0,0,2.4,'#e8c04a','#5a3d2b',1.4);g.restore()}},
-// ---- demon duo (26-27): Akazuds = a shirtless pink-haired brawler covered in blue tattoo lines with a compass ring under his feet; Doumafoam = a grinning pale-haired noble with red-tipped locks, opal eyes and two golden fans ----
 {k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:3.6,pc:'#3a4fb5',m:[0,-1,4.2],o:[0,.5,.6],t:38,h:[-10,-18],x:g=>{
  g.beginPath();g.ellipse(0,27,24,6,0,0,7);g.lineWidth=1.8;g.strokeStyle='#6a7fd899';g.stroke();Ln(g,[[-24,27],[-30,27]],'#6a7fd899',1.6);Ln(g,[[24,27],[30,27]],'#6a7fd899',1.6);
  g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#fffaf0';g.fillRect(-25,17.5,50,10);g.fillStyle='#2a2a33';g.fillRect(-25,17.5,50,2.8);
@@ -426,26 +418,19 @@ const SP=[
  g.beginPath();g.moveTo(-14.5,-9);g.bezierCurveTo(-18,-32,18,-32,14.5,-9);g.lineTo(12,-14);g.quadraticCurveTo(7,-19,2,-13);g.quadraticCurveTo(-3,-19,-8,-14);g.lineTo(-12,-14);g.closePath();g.fillStyle='#efeaf6';g.fill();g.lineWidth=2;g.strokeStyle='#5a3d2b';g.stroke();
  g.beginPath();g.moveTo(-8,-14);g.lineTo(-6,-10);g.lineTo(-3.5,-15);g.closePath();g.fillStyle='#c43b3b';g.fill();g.beginPath();g.moveTo(5,-14.5);g.lineTo(8,-10);g.lineTo(9.5,-15);g.closePath();g.fill();
  Ln(g,[[-10,-25],[-3,-28]],'#ffffffaa',2.2);g.fillStyle='#ff9aa877';for(const q of[-1,1]){g.beginPath();g.arc(q*9.5,-2.5,2.7,0,7);g.fill()}}}];
-// lightsaber / foam blade: hilt a->b, blade b->c (outlined like everything else)
 function sab(g,a,b,c,bl){Ln(g,[a,b],'#5a3d2b',9.5);Ln(g,[b,c],'#5a3d2b',10);Ln(g,[a,b],'#aab4be',6);Ln(g,[b,c],bl,6.5);Ln(g,[b,c],'#fff',2.6);Ln(g,[a,b],'#4a525c',2)}
-// sleepy eyelids for soaps with lid:1 (drawn over the eyes in the soap's own colour)
 function lids(g,D,col,fl,er){if(!D.lid)return;g.save();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.fillStyle=col;for(const[ex,ey]of D.e){const X=ex*fl;g.beginPath();g.arc(X,ey,er+.9,Math.PI,0);g.closePath();g.fill();g.stroke()}g.restore()}
-// mouth overlay (D.o = optional [x,y,scale] of the open mouth, for soaps whose face is small). Only soaps with D.m have a mouth: st 0 = smile, 1 = surprised "o" (just got hit), 2 = open cheering mouth (fans). Soaps with m:0 (fish, duck, whale, hooded knight, masked lord, droid, Grumpus) never get one: their face has no room for it, so they show feelings with their eyes only.
 function mouth(g,D,fl,st){if(!D.m)return;const[mx,my,mw]=D.m,[ox,oy,os]=D.o||[mx,my+3,1];g.beginPath();if(st===2){g.ellipse(ox*fl,oy,4.5*os,5.5*os,0,0,7);g.fillStyle='#8a3a2a';g.fill()}else{if(st===1)g.arc(ox*fl,oy,3*os,0,7);else g.arc(mx*fl,my,mw,.2,Math.PI-.2);g.stroke()}}
 function drawSoap(g,i,col,ol){const D=SP[i];g.lineJoin='round';g.lineWidth=5.5;g.strokeStyle=ol;for(const f of D.p){g.beginPath();f(g);g.stroke()}g.fillStyle=col;for(const f of D.p){g.beginPath();f(g);g.fill()}
- // efek sabun cetak: tepi dalam bawah-kanan agak gelap, atas-kiri mengkilap
  for(const f of D.p){g.save();g.beginPath();f(g);g.clip();g.lineWidth=6;g.strokeStyle='#5a3d2b1c';g.save();g.translate(-1.5,-2.5);g.beginPath();f(g);g.stroke();g.restore();g.lineWidth=4;g.strokeStyle='#ffffff66';g.save();g.translate(2,2.5);g.beginPath();f(g);g.stroke();g.restore();g.restore()}
  g.fillStyle='#fff8';g.beginPath();g.ellipse(D.h[0],D.h[1],8,3.5,-.5,0,7);g.fill();if(D.x)D.x(g)}
 const mkc=i=>MKs[i]||(MKs[i]=(()=>{const c=document.createElement('canvas');c.width=c.height=48;const g=c.getContext('2d');g.translate(24,24);g.scale(.66*(SP[i].k||1),.66*(SP[i].k||1));drawSoap(g,i,'#fff','#5a3d2b');return c})()),
 mk=i=>`<img class="mk" alt="" src="${MKu[i]||(MKu[i]=mkc(i).toDataURL())}">`;
-// arenas: 0 sink, 1 toilet, 2 bathtub. d(x,y)>0 = outside (same sign convention as the server)
 const AX=[
 {n:'Sink',b:[-334,-334,334,334],bg:'#ffe9b8',ln:'#f1cf88',ln2:'#fff3d4',vg:'#b8842022',rim:'#e6edf1',eg:'#8aa0ad',w:['#62e3da','#22b0c2'],d:(x,y)=>Math.hypot(x,y)-300},
 {n:'Toilet',tm:30,b:[-320,-392,320,320],bg:'#dff3ee',ln:'#c9e6de',ln2:'#eaf8f4',vg:'#2a6a6a1a',rim:'#fbfdfe',eg:'#b9cbd4',w:['#d6f6ff','#8bd8f0'],d:(x,y)=>(Math.hypot(x/270,y/285)-1)*260},
 {n:'Bathtub',b:[-334,-259,334,259],bg:'#d9edfa',ln:'#c0def2',ln2:'#e8f4fc',vg:'#1f5f9a1a',rim:'#ffffff',eg:'#b9cbd4',w:['#7fe9ff','#38b6e0'],d:(x,y)=>{const qx=Math.abs(x)-170,qy=Math.abs(y)-95;return Math.hypot(Math.max(qx,0),Math.max(qy,0))+Math.min(Math.max(qx,qy),0)-130}}];
 const mul=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
-// ---------- layout: arena + ONE small stand ----------
-// landscape: stand sits to the right of the arena; portrait / near-square: stand sits above it. All spectators sit here, none scattered around the arena.
 const NPL=()=>room&&room.players?room.players.filter(p=>p.in).length:0;
 function mkStand(sr){let u=18,rows=2,cols=4;const cc=sr.side?6:5;
  for(;u>=9;u--){rows=Math.max(1,Math.min(2,Math.floor((sr.h-5.1*u-4)/(3.3*u))+1));cols=Math.min(rows<2?8:cc,Math.floor((sr.w-24)/(3.2*u)));if(cols>=3&&rows*cols>=8)break}
@@ -464,7 +449,7 @@ function layout(W,H,A){
   const T=NPL()?98:30,sh=Math.max(72,Math.min(80,H*.1));
   S=Math.min(W/bw,(H-T-sh-8-B)/bh);cx=W/2;cy=T+sh+8+(H-B-T-sh-8)/2;
   sr={x:6,y:T,w:W-12,h:sh,side:0}}
- document.documentElement.style.setProperty('--sh',(side?W-2*cx:0)+'px'); // menus (home / friends / lobby) centre on the arena, not on the screen
+ document.documentElement.style.setProperty('--sh',(side?W-2*cx:0)+'px');
  return{S,cx,cy,sr,st:mkStand(sr)}}
 function drawStand(g,s){const{x,y,w,h,u,rows}=s,rp=3.3*u,c0=y+3.5*u;
  g.save();g.lineJoin='round';g.lineCap='round';
@@ -480,17 +465,14 @@ function drawStand(g,s){const{x,y,w,h,u,rows}=s,rp=3.3*u,c0=y+3.5*u;
  Bx(g,x-8,y,w+16,.62*u,.3*u,'#ff9a5c',OL,3);
  g.restore()}
 function mkBg(W,H,A){bgK=W+'x'+H+AR+'-'+NPL();bgc.width=W*dpr;bgc.height=H*dpr;const g=bgc.getContext('2d'),L=LY,st=L.st;g.setTransform(dpr,0,0,dpr,0,0);
- // plain background: one flat colour + soft vignette. The stand is the only decoration.
  g.fillStyle=A.bg;g.fillRect(0,0,W,H);
  const vg=g.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.hypot(W,H)*.6);vg.addColorStop(0,'#0000');vg.addColorStop(1,A.vg);g.fillStyle=vg;g.fillRect(0,0,W,H);
  drawStand(g,st);
- // seats (back row -> front row). vo = seat order for eliminated players (front + centre first). Each seat holds a soap-bar fan.
  crowd=[];const r2=mul(AR*13+3),pitch=3.2*st.u,CC=['#ffffff','#fff1b8','#d9f2ff','#ffe0ec','#e6ffd9','#efe0ff'],perm=Array.from({length:NS},(_,i)=>i).sort(()=>r2()-.5);
  for(let rw=0;rw<st.rows;rw++)for(let c=0;c<st.cols;c++){const k=crowd.length;crowd.push({x:st.x+st.w/2-(st.cols-1)*pitch/2+c*pitch+(rw%2?1:-1)*pitch*.12,y:st.y+3.5*st.u+rw*3.3*st.u,u:st.u,ph:r2()*6.28,si:perm[k%NS],col:CC[(k*5+rw)%6],row:rw,c})}
  const mid=(st.cols-1)/2;vo=crowd.map((_,i)=>i).sort((a,b)=>(crowd[b].row-crowd[a].row)*100+Math.abs(crowd[a].c-mid)-Math.abs(crowd[b].c-mid));place(L,st)}
 function place(L,st){const R=document.documentElement,o=$('#out'),n=$('#cnt');R.style.setProperty('--st',L.sr.side?'0px':Math.round(st.y+st.h+10)+'px');o.classList.toggle('bot',!!L.sr.side);o.style.left=L.cx+'px';o.style.top=L.sr.side?'':Math.round(st.y+st.h+8)+'px';n.style.left=L.cx+'px';n.style.top=L.cy+'px'}
 
-// ---------- spectators: soap-bar fans with eyes (no arms: some shapes face sideways); they cheer by hopping, wobbling and squeezing their eyes shut ----------
 let cheerL=0,crowd=[],vo=[],says=[],seats={};const cj={},SAY=['YEAY!','WOOO!','GO GO!','HOORAY!','C\'MON!','BONK!'];
 function say(i,t){says.push({i,t,l:1.1})}
 function cSoap(c,si,col,now,k){const u=c.u,D=SP[si],j=Math.abs(Math.sin(now/95+c.ph))*u*(.4+k*.55),sc=u*1.3/30,y0=c.y-u*.9-j;
@@ -504,7 +486,7 @@ function cSoap(c,si,col,now,k){const u=c.u,D=SP[si],j=Math.abs(Math.sin(now/95+c
  x.restore()}
 function npc(c,now,L){cSoap(c,c.si,c.col,now,L>.12?Math.min(1,L+.1):0)}
 function vipS(c,p,now,L){{const m=x.getTransform(),q=m.transformPoint(new DOMPoint(c.x,c.y)),k=m.a/dpr,u=c.u*k;EPOS[p.id]=[q.x/dpr,q.y/dpr,1,performance.now(),u*1.25+8,Math.min(.75,Math.max(.62,u/26))]}const hot=(cj[p.id]||0)>now;cSoap(c,p.ci,COL[p.ci],now,hot?1:L*.5)}
-const VL=[]; // name labels already drawn this frame, so neighbouring fans never print their names on top of each other
+const VL=[];
 function vipL(c,p){if(ELIVE[p.id])return;const u=c.u,fs=Math.max(10,u*.75);x.save();x.font=`800 ${fs}px "Baloo 2",sans-serif`;x.textAlign='center';x.lineJoin='round';x.lineWidth=4;x.strokeStyle='#fffaf0';const nm=p.name+(me&&p.id===me.id?' (you)':''),w=x.measureText(nm).width+6;let yy=c.y-u*2.5;for(let t=0;t<3&&VL.some(r=>Math.abs(r.x-c.x)<(r.w+w)/2&&Math.abs(r.y-yy)<fs);t++)yy-=fs*1.05;VL.push({x:c.x,y:yy,w});x.strokeText(nm,c.x,yy);x.fillStyle='#5a3d2b';x.fillText(nm,c.x,yy);x.restore()}
 function drawCrowd(now,dt,f){VL.length=0;cheerL=Math.max(0,cheerL-dt*.55);const L=cheerL,vip=[],used={};
  if(room&&room.st!=='lobby')for(const p of room.players){const e=f&&f.pl[p.id];if(p.wait||(p.in&&e&&!e.alive&&f.st!=='count'))vip.push(p)}
@@ -519,13 +501,13 @@ $('#db').firstChild.innerHTML=GI.dash;$('#bb').firstChild.innerHTML=GI.parry;$('
 document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=ico(e.dataset.i,+e.dataset.z||(e.closest('button')?20:18)));
 
 const COL=['#ff9ec7','#8fd3ff','#ffd36e','#b4ec86','#c4a3ff','#ffae85','#78e0cc','#f3a0f3',
- '#d8b98b','#4a4858','#e8b58a','#e6edf4', // galaxy crew
- '#f4e04d','#ff7a9c','#7bbfcf','#ff6a55', // reef crew
- '#e84a5f','#8ad7a4', // storybook pair
- '#78a35f','#e8f0ff','#2f7d57', // anime-inspired trio
- '#d8c3a0','#3a3f5c','#f2a6c0', // second anime trio
- '#34413b','#e2ded6', // jjk duo
- '#f2d2bb','#f6efe2'], // demon duo
+ '#d8b98b','#4a4858','#e8b58a','#e6edf4',
+ '#f4e04d','#ff7a9c','#7bbfcf','#ff6a55',
+ '#e84a5f','#8ad7a4',
+ '#78a35f','#e8f0ff','#2f7d57',
+ '#d8c3a0','#3a3f5c','#f2a6c0',
+ '#34413b','#e2ded6',
+ '#f2d2bb','#f6efe2'],
 SN=['Hole','Fish','Duck','Frog','Star','Cat','Whale','Heart','Lather Knight','Lord Lather','Skylather','Bleep-Bar','Squarepore','Star Buddy','Grumpus','Boss Crab','Bubblefin','Bobbie','Captain Scrub','Limitless Lather','Checkerlather','Scarlather','Itadorinse','Bambubble','Tojilather','Mahorasuds','Akazuds','Doumafoam'],NS=28,
 SKCD=[7.5,6.5,7,7.5,7.5,6.5,8,7.5,7,8.5,7.5,8,8,7.5,8,7,7.5,7.5,8,9,7.5,7,8.5,7.5,8,9,8,8.5],
 SKN=[['Vortex Pop','Pulls rivals in, then pops a foam shockwave','VORTEX POP!','#ff6f9f'],['Aqua Torpedo','High-speed water jet glide that rams rivals','AQUA JET!','#29b6f6'],['Sonic Quack','360° quack soundwave that stuns nearby soaps','QUACK!','#ffb300'],['Ribbit Leap','Airborne leap (dodges hits) into a splash slam','RIBBIT!','#66bb6a'],['Shooting Star','Spinning star rush that knocks rivals flying','STAR RUSH!','#ab47bc'],['Feline Pounce','Quick forward pounce with twin claw slashes','POUNCE!','#ff8a65'],['Geyser Spout','Erupts a giant water geyser all around','GEYSER!','#26c6da'],['Lovely Charm','Heart wave that pulls & slows rivals in front','CHARM!','#ec407a'],['Force Push','Telekinetic cone blast that shoves rivals away','FORCE PUSH!','#42a5f5'],['Force Grip','Pulls rivals in front and chokes/stuns them','FORCE GRIP!','#e53935'],['Saber Whirl','Lunges forward spinning a 360° blue blade','SABER WHIRL!','#29b6f6'],['Arc Zapper','Jet boost + electric shock field that stuns','BEEP-ZAP!','#4fc3f7'],['Hydro Squeeze','Soaks up water (unstoppable) then bursts foam','HYDRO SQUEEZE!','#fdd835'],['Belly Flop','Heavy hop & belly slam shockwave','BELLY FLOP!','#ff7a9c'],['Clarinet Solo','Sour note wave that pushes & dizzies rivals','SOUR NOTE!','#7e57c2'],['Big Meaty Claws','Crushing frontal claw snap with huge knockback','BIG CLAWS!','#ef5350'],['Ocean Surge','Surfs on a fast ocean wave, sweeping rivals','OCEAN SURGE!','#29b6f6'],['Soot Sprite Gust','Whirlwind shield of soot sprites that repels foes','SOOT GUST!','#5c6bc0'],['Spinning Slash','Blinding twin-blade whirlwind dash','SPIN SLASH!','#66bb6a'],['Hollow Purple','Fires a Hollow Purple orb across the arena','HOLLOW PURPLE!','#8e24aa'],['Hinokami Wheel','Blazing Sun & Water breathing wheel charge','HINOKAMI!','#ff5722'],['ODM Thunder Lunge','Grapples forward at lightning speed to slash','ODM LUNGE!','#d32f2f'],['Malevolent Shrine','Unleashes Sukuna’s Cleave & Dismantle slash storm','CLEAVE!','#c62828'],['Exploding Blood','Detonates pink demon blood flames in front','BLOOD BURST!','#f06292'],['Heavenly Blink','Instant flash-step teleport that shatters Parry','FLASH STEP!','#26a69a'],['Wheel Adaptation','Cleanses stun, turns unstoppable & shockwaves','ADAPTED!','#fbc02d'],['Compass Needle','Auto-locks nearest foe with a shockwave punch','DESTRUCTIVE DEATH!','#3949ab'],['Freezing Lotus','Golden fan blizzard that chills & slows rivals','FREEZING LOTUS!','#4dd0e1']];
@@ -534,7 +516,6 @@ let parryUntil={},goUntil=0,lastSt='',sayT=0,myCi=0,pickMode='',skFx=[];const MK
 const Q=new URLSearchParams(location.search),DBG={l:0,g:0};let scr='home',dW=[],minD=0,jit=0,dly=100,rtt=80,curIn={x:0,y:0},lastFa=null,pendDash=null,pme=null,lastMine=null,music=!Q.has('nomusic'),mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;
 try{sess=JSON.parse(sessionStorage.ss||'null')}catch{}
 const send=m=>{if(ws&&ws.readyState===1){ws.send(JSON.stringify(m));return true}return false};
-// Server address: window.BRAWL_SERVER (config.js). Empty = same host as this page (single-service deploy).
 function wsUrl(){
   let u=String(window.BRAWL_SERVER||'').trim().replace(/\/+$/,'');
   if(!u)return(location.protocol==='https:'?'wss://':'ws://')+location.host;
@@ -547,11 +528,10 @@ let cT=0,lastRx=0;
 function connect(){
   clearTimeout(cT);if(ws&&ws.readyState<2)return;
   ws=new WebSocket(wsUrl());const w=ws;
-  w.onopen=()=>{dW=[];jit=0;everOpen=true;fails=0;lastRx=performance.now();$('#conn').hidden=true;for(const e of['#err','#err2'])if($(e).textContent.startsWith('Connecting'))$(e).textContent='';if(pending){send(pending);pending=null}else if(sess&&sess.token)send({t:'join',code:sess.code,name:sess.name,token:sess.token})}; // re-attach to our seat after every drop, even when the room screen is still showing
+  w.onopen=()=>{dW=[];jit=0;everOpen=true;fails=0;lastRx=performance.now();$('#conn').hidden=true;for(const e of['#err','#err2'])if($(e).textContent.startsWith('Connecting'))$(e).textContent='';if(pending){send(pending);pending=null}else if(sess&&sess.token)send({t:'join',code:sess.code,name:sess.name,token:sess.token})};
   w.onmessage=e=>{lastRx=performance.now();onMsg(JSON.parse(e.data))};
   w.onclose=()=>{if(w!==ws)return;if(sess||room)$('#conn').hidden=false;if(!everOpen&&++fails>=2)E('Connecting to server… (can take ~1 min if it was asleep)');cT=setTimeout(connect,fails>6?3000:1000)};
 }
-// A phone that locked its screen or lost signal often keeps a dead socket "open" for minutes: no traffic for 6 s = drop it and reconnect now.
 setInterval(()=>{if(ws&&ws.readyState===1&&lastRx&&performance.now()-lastRx>6000)ws.close()},2000);
 const wake=()=>{if(!ws||ws.readyState>1)connect();else if(ws.readyState===1&&performance.now()-lastRx>4000)ws.close()};
 addEventListener('online',wake);document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
@@ -563,11 +543,11 @@ function onMsg(m){
   if(m.t==='pong'){rtt=rtt*.7+(performance.now()-m.c)*.3;return}
   if(m.t==='you'){dW=[];jit=0;pme=null;me=m;sess={code:m.code,token:m.token,name:sess&&sess.name||$('#name').value};sessionStorage.ss=JSON.stringify(sess);history.replaceState(null,'','?room='+m.code)}
   else if(m.t==='err'){ if(m.fatal){clearSess();if(scr==='home'&&q)scr='friends';ui();E(m.m)}else $('#lerr').textContent=m.m; setTimeout(()=>$('#lerr').textContent='',2500)}
-  else if(m.t==='room'){if(!sess)return;room=m;ui()} // no sess = we already pressed Back; ignore late messages
+  else if(m.t==='room'){if(!sess)return;room=m;ui()}
   else if(m.t==='s'){
     if(!sess||!room||!me)return;
     if(m.r!==lastRound){lastRound=m.r;snaps=[];hitUntil={};dizzy={};parryUntil={};skFx=[]}
-    const d=Date.now()-m.ts;dW.push(d);if(dW.length>90)dW.shift();minD=Math.min(...dW);jit=Math.max(d-minD,jit*.985); // server-clock timestamps: jitter-free playback
+    const d=Date.now()-m.ts;dW.push(d);if(dW.length>90)dW.shift();minD=Math.min(...dW);jit=Math.max(d-minD,jit*.985);
     {const _n=performance.now();if(DBG.l)DBG.g=Math.max(DBG.g,_n-DBG.l);DBG.l=_n}snaps.push({rt:m.ts+minD,s:m});if(snaps.length>14)snaps.shift();
     for(const e of m.ev)onEv(e);hud(m);
   }
@@ -653,7 +633,6 @@ function skCast(e){const[,id,ci,sx,sy,ang]=e,I=SKN[ci]||SKN[0],a=SKA[ci]||'radia
 function au(){if(!ac)try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch{}if(ac&&!mg){mg=ac.createGain();mg.gain.value=.45;mg.connect(ac.destination)}if(ac&&ac.state==='suspended')ac.resume()}
 function beep(f1,f2,d,v,type='sine'){if(!sound||!ac)return;const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(Math.max(.001,v),t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(t+d)}
 
-// ---------- Music (procedural: funky party synth, Stumble-Guys vibe) ----------
 const midi=n=>440*Math.pow(2,(n-69)/12),CH=[[48,[60,64,67]],[46,[58,62,65]],[41,[57,60,65]],[43,[59,62,67]]],
  M0=[[0,79],[2,79],[3,76],[6,79],[8,84],[10,79],[12,76],[14,72]],
  M1=[[0,77],[2,77],[3,74],[6,77],[8,82],[10,77],[12,74],[14,70]],
@@ -678,11 +657,9 @@ setInterval(()=>{if(!ac||!mg||!music||!sound||!room||!['count','play','end'].inc
   const now=ac.currentTime;if(!nextT||nextT<now-.1)nextT=now+.05;
   while(nextT<now+.15){musicStep(nextT);step++;nextT+=intense?.098:.115}},30);
 
-// ---------- UI ----------
-// readable text colour on a soap-coloured background: light text on dark soaps (Lord Lather), the usual brown on the rest
 function ink(c){const n=parseInt(c.slice(1),16);return((n>>16&255)*.299+(n>>8&255)*.587+(n&255)*.114)<130?'#fffaf0':'#5a3d2b'}
 const pname=id=>{const p=room&&room.players.find(p=>p.id===id);return p?p.name:'?'};
-const isRdy=p=>p.rd!==0; // an older server sends no rd: everybody counts as ready
+const isRdy=p=>p.rd!==0;
 const rdyTag=p=>room.st==='lobby'&&p.on&&!p.bot&&room.host!==p.id&&p.rd!==undefined?(isRdy(p)?`<span class="rdy">${ico('check',13)}Ready</span>`:'<span class="rdy no">Not ready</span>'):'';
 const chip=p=>`<span class="chip ${p.on?'':'off'}${me&&p.id===me.id?' me':''}" style="background:${COL[p.ci]};color:${ink(COL[p.ci])}">${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' · YOU':''}${room.host===p.id?ico('crown',15):''}${p.bot?ico('bot',15):''}${p.wait?ico('hourglass',15):''}${p.on?'':' (offline)'}${rdyTag(p)}</span>`;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -719,7 +696,6 @@ function ui(){
   }
 }
 function board(){return '<div style="margin:8px 0">'+[...room.players.filter(p=>p.in)].sort((a,b)=>b.score-a.score).map(p=>`<div class="row" style="background:${COL[p.ci]};color:${ink(COL[p.ci])}"><span>${mk(p.ci)} ${esc(p.name)}${me&&p.id===me.id?' (YOU)':''}</span><span>${p.kl?`<small style="opacity:.8;font-size:.75em">${p.kl} kill${p.kl>1?'s':''} · </small>`:''}${p.score}</span></div>`).join('')+'</div>'}
-// this round's points per player: win / survive points and kill points
 function rsum(L){const rows=room.players.filter(p=>p.in).map(p=>({p,w:(L.pts&&L.pts[p.id])||0,k:(L.k&&L.k[p.id])||0})).filter(o=>o.w||o.k);
   if(!rows.length)return '';
   return '<div class="small" style="margin:6px 0">'+rows.map(o=>`${esc(o.p.name)}: `+[o.w?`+${o.w} ${L.w?'win':'survived'}`:'',o.k?`+${o.k} kill${o.k>1?'s':''}`:''].filter(Boolean).join(' · ')).join('<br>')+'</div>'}
@@ -740,7 +716,6 @@ function hud(s){intense=s.st==='play'&&(s.R<299||s.tm<12);
   if(ost==='w'){put('o0',o.children[0],ico('hourglass',20)+' Next match');put('o1',o.children[1],'Match in progress · cheer them on','textContent')}
   $('#hud').classList.toggle('nosk',!rsk());$('#db').classList.remove('off');$('#bb').classList.toggle('off',!!ost);$('#sb').classList.toggle('off',!!ost);cv.style.filter=ost?'saturate(.7)':'';
 }
-// ---- tutorial: 4 short picture slides. Shown once before the first match (Quick Play / Create / Join), and from "How to play" any time ----
 let tutI=0,tutCb=null;
 function tutSlides(){const m2=room&&me&&room.players.find(p=>p.id===me.id),ci=m2?m2.ci:myCi,I=SKN[ci]||SKN[0],K=s=>`<span class="tk">${s}</span>`,H=(n,t)=>`<div class="tut-n">STEP ${n} OF 4</div><h2>${t}</h2>`;
  return[
@@ -754,7 +729,7 @@ function tutEnd(){$('#help').hidden=true;try{localStorage.bbTut='1'}catch{}const
 $('#tPrev').onclick=()=>{tutI--;tutR()};$('#tNext').onclick=()=>{if(tutI>=3)tutEnd();else{tutI++;tutR()}};$('#tSkip').onclick=tutEnd;
 {let sx=null;const c=$('#help .card');c.addEventListener('pointerdown',e=>{sx=e.clientX});c.addEventListener('pointerup',e=>{if(sx==null)return;const d=e.clientX-sx;sx=null;if(Math.abs(d)>50&&!e.target.closest('button')){if(d<0&&tutI<3){tutI++;tutR()}else if(d>0&&tutI){tutI--;tutR()}}})}
 const tutSeen=()=>{try{return!!localStorage.bbTut}catch{return true}};
-const gate=fn=>()=>{au();if(tutSeen()||!nm())return fn();showHelp(fn)}; // first time ever: tutorial first, then the room is made/joined
+const gate=fn=>()=>{au();if(tutSeen()||!nm())return fn();showHelp(fn)};
 const nm=()=>($('#name').value||$('#name2').value).trim();
 function leave(to){send({t:'leave'});clearSess();snaps=[];lastRound=-1;outState='';scr=to||'home';ui()}
 function needName(){const n=nm();if(!n){E('Enter your name first');return null}E('');return n}
@@ -778,7 +753,6 @@ $('#bHelp').onclick=()=>{$('#sheet').hidden=true;showHelp()};
 $('#bMore').onclick=()=>{$('#sheet').hidden=!$('#sheet').hidden};
 addEventListener('pointerdown',e=>{if(!$('#sheet').hidden&&!e.target.closest('#sheet,#bMore'))$('#sheet').hidden=true});
 $('#cch').textContent=CTL;
-// ---- soap picker ----
 try{const v=+localStorage.bbSoap;if(v>=0&&v<NS)myCi=v}catch{}
 const mkb=i=>MKb[i]||(MKb[i]=(()=>{const c=document.createElement('canvas');c.width=88;c.height=76;const g=c.getContext('2d'),D=SP[i];g.translate(44,40);g.scale(.98*(D.k||1),.98*(D.k||1));drawSoap(g,i,COL[i],'#5a3d2b');
   for(const[ex,ey]of D.e){g.fillStyle='#fff';g.beginPath();g.arc(ex,ey,D.er,0,7);g.fill();g.lineWidth=1.5;g.strokeStyle='#5a3d2b';g.stroke();g.fillStyle=D.pc||'#3a2a20';g.beginPath();g.arc(ex+1,ey+1,D.er*.55,0,7);g.fill()}
@@ -797,7 +771,6 @@ const q=new URLSearchParams(location.search).get('room');if(q){$('#code').value=
 if(sess&&sess.token&&q&&sess.code!==q.toUpperCase())clearSess();
 ui();
 
-// ---------- Input ----------
 const EMN=['Muach','Shhh','Stare','MDR','AAAA','Bleh','Haha'],EMF=['muach','shh','stare','mdr','aaaa','bleh','haha'],EPOS={},ELIVE={};let emoAt=0;
 const tap=(el,fn)=>{el.addEventListener('pointerdown',e=>{e.preventDefault();fn()});el.addEventListener('click',e=>{if(e.detail===0)fn()})};
 EMF.forEach((f,i)=>{new Image().src='emotes/'+f+'.webp';const b=document.createElement('button');b.innerHTML='<img alt="" src="emotes/'+f+'.webp">'+EMN[i];b.title=EMN[i];b.setAttribute('aria-label',EMN[i]);tap(b,()=>{emoTog(false);pressEmo(i)});$('#ep').appendChild(b)});
@@ -837,22 +810,20 @@ setInterval(()=>{
   if(Math.abs(x-sentX)>.03||Math.abs(y-sentY)>.03||n-sentAt>250){sentX=x;sentY=y;sentAt=n;send({t:'in',x:+x.toFixed(2),y:+y.toFixed(2)})}
 },33);
 
-// ---------- Render ----------
 const cv=$('#c');let x=cv.getContext('2d');let dpr=1;
 function rs(){dpr=Q.has('lowres')?1:Math.min(2,devicePixelRatio||1);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr}addEventListener('resize',rs);rs();
 function getF(){
   if(!snaps.length)return null;
-  dly+=(Math.min(260,Math.max(75,75+jit))-dly)*.03; // playback delay follows measured jitter
+  dly+=(Math.min(260,Math.max(75,75+jit))-dly)*.03;
   const t=Date.now()-dly;let a=snaps[0],b=null;
   for(let i=snaps.length-1;i>=0;i--)if(snaps[i].rt<=t){a=snaps[i];b=snaps[i+1];break}
-  const ex=!b&&a.rt<=t?Math.min(.12,(t-a.rt)/1000):0, // no newer snapshot yet: keep gliding on the last velocity instead of freezing
+  const ex=!b&&a.rt<=t?Math.min(.12,(t-a.rt)/1000):0,
     k=b?Math.min(1,Math.max(0,(t-a.rt)/((b.rt-a.rt)||1))):0,ref=(k>=.5&&b?b:a).s,L=(u,v)=>u+(v-u)*k,pl={};
   for(const e of ref.p){const o=a.s.p.find(z=>z[0]===e[0]),n=b&&b.s.p.find(z=>z[0]===e[0]),m=o&&n;
     pl[e[0]]={id:e[0],x:m?L(o[1],n[1]):e[1]+e[3]*ex,y:m?L(o[2],n[2]):e[2]+e[4]*ex,vx:e[3],vy:e[4],alive:e[5],cd:e[6],fa:e[7],pcd:e[8]||0,par:e[9]||0,stun:e[10]||0,scd:e[11]||0,sks:e[12]||0}}
   const f={pl,R:b?L(a.s.R,b.s.R):a.s.R,st:ref.st,a:ref.a,g:ref.g,prj:ref.prj||[]};
   predictMe(f);return f
 }
-// Own soap: simulate the server physics forward from the newest snapshot with the current input, so steering feels instant. Eased toward that target, so corrections are not visible.
 function predictMe(f){
   const e=me&&f.pl[me.id];lastMine=e||null;const ns=snaps[snaps.length-1];
   if(!e||!e.alive||f.st!=='play'||!ns||ns.s.st!=='play'){pme=null;return}
@@ -862,28 +833,24 @@ function predictMe(f){
   if(pendDash){if(Date.now()-pendDash.t>700||r[6]>2.4)pendDash=null;else{vx+=Math.cos(pendDash.fa)*380;vy+=Math.sin(pendDash.fa)*380}}
   const stp=dt=>{vx=(vx+ix*600*dt)*(1-.05*dt/DTc);vy=(vy+iy*600*dt)*(1-.05*dt/DTc);const s=Math.hypot(vx,vy);if(s>700){vx*=700/s;vy*=700/s}X+=vx*dt;Y+=vy*dt};
   let left=lead;while(left>DTc){stp(DTc);left-=DTc}if(left>0)stp(left);
-  for(const id in f.pl){if(id===me.id)continue;const o=f.pl[id];if(o.alive&&Math.hypot(o.x-X,o.y-Y)<62){X=e.x;Y=e.y;break}} // in a scrum: trust the server, who is shown at the same moment
+  for(const id in f.pl){if(id===me.id)continue;const o=f.pl[id];if(o.alive&&Math.hypot(o.x-X,o.y-Y)<62){X=e.x;Y=e.y;break}}
   const now=performance.now(),dt=Math.min(.05,(now-(pme?pme.t:now))/1000);
   if(!pme||Math.hypot(pme.x-X,pme.y-Y)>90)pme={x:X,y:Y,t:now};
   else{const q=1-Math.exp(-dt*18);pme.x+=(X-pme.x)*q;pme.y+=(Y-pme.y)*q;pme.t=now}
   e.x=pme.x;e.y=pme.y
 }
 function rr(w,h,r){x.beginPath();x.moveTo(-w/2+r,-h/2);x.arcTo(w/2,-h/2,w/2,h/2,r);x.arcTo(w/2,h/2,-w/2,h/2,r);x.arcTo(-w/2,h/2,-w/2,-h/2,r);x.arcTo(-w/2,-h/2,w/2,-h/2,r);x.closePath()}
-// ---------- the living faucet ----------
-// A chrome gooseneck snake with googly eyes. At rest its head hangs from the tap bar on the rim (all 3 arenas), watching the nearest soap, blinking, always on the lookout (it keeps working while the arena shrinks).
-// In every arena it slithers out of one of 4 rim ports (PORT_A: top, right, bottom, left; positions per arena in RPX/RPY, nozzle in NZX/NZY) to aim and spit. The server sends g = [jetAngle, phase(0 warn / 1 gush), timer, port].
 const PORT_A=[-Math.PI/2,0,Math.PI/2,Math.PI],RPX=[322,292,322],RPY=[322,307,247],NZX=[235,205,235],NZY=[235,220,160],PD=87,portB=i=>[Math.cos(PORT_A[i])*RPX[AR],Math.sin(PORT_A[i])*RPY[AR]],portN=i=>[Math.cos(PORT_A[i])*NZX[AR],Math.sin(PORT_A[i])*NZY[AR]],HS=1.3,HLEN=36*HS,FZ={ext:0,s:0,ang:-Math.PI/2,ph:0,home:1,bk:0,lx:0,ly:1,jg:0,gt:0,te:0};
 const bez=(a,b,c,d,t)=>{const u=1-t;return[u*u*u*a[0]+3*u*u*t*b[0]+3*u*t*t*c[0]+t*t*t*d[0],u*u*u*a[1]+3*u*u*t*b[1]+3*u*t*t*c[1]+t*t*t*d[1]]};
-// head: tip (the nozzle) at tx,ty, pointing along dir. look = unit vector (world) the pupils follow. mood: 0 calm, 1 angry (warning), 2 spitting, 3 asleep. bl = blink 0..1
 function fHead(g,tx,ty,dir,sc,look,mood,bl,now){
  if(sc<.04)return;
- g.save();g.translate(tx+(mood===2?Math.sin(now*.09)*1.1:0),ty+(mood===2?Math.cos(now*.13)*1.1:0));g.rotate(dir);g.scale(sc*HS,sc*HS);g.translate(-16,0);g.rotate(-Math.PI/2); // face frame: x right, y down, nozzle (mouth) at (0,16), back of the head at y=-20
+ g.save();g.translate(tx+(mood===2?Math.sin(now*.09)*1.1:0),ty+(mood===2?Math.cos(now*.13)*1.1:0));g.rotate(dir);g.scale(sc*HS,sc*HS);g.translate(-16,0);g.rotate(-Math.PI/2);
  g.shadowColor='#0003';g.shadowBlur=8;g.shadowOffsetY=4;
  const cg=g.createLinearGradient(-13,0,13,0);cg.addColorStop(0,'#f7fcff');cg.addColorStop(.5,'#b9c9d4');cg.addColorStop(1,'#eef6fb');
  Bx(g,-13,-20,26,36,12,cg,'#8aa0ad',2.5);g.shadowColor='transparent';
  g.fillStyle='#ffffff88';g.beginPath();g.ellipse(-8,-9,2.4,7,0,0,7);g.fill();
  g.beginPath();g.ellipse(0,15.2,mood===2?8.4:7.4,mood===2?5.2:3.4,0,0,7);g.fillStyle='#3d5663';g.fill();g.lineWidth=1.8;g.strokeStyle='#8aa0ad';g.stroke();
- const c=Math.cos(dir),n=Math.sin(dir),hx=look[0]*c+look[1]*n,hy=-look[0]*n+look[1]*c,fx=-hy,fy=hx; // world look -> face frame
+ const c=Math.cos(dir),n=Math.sin(dir),hx=look[0]*c+look[1]*n,hy=-look[0]*n+look[1]*c,fx=-hy,fy=hx;
  for(const q of[-1,1]){const ex=q*6.8,ey=-5;
   g.lineCap='round';g.lineJoin='round';g.lineWidth=2.8;g.strokeStyle='#5a3d2b';
   if(mood===2){g.beginPath();g.moveTo(ex+q*3.2,ey-4.2);g.lineTo(ex-q*3.2,ey);g.lineTo(ex+q*3.2,ey+4.2);g.stroke()}
@@ -897,7 +864,6 @@ function fHead(g,tx,ty,dir,sc,look,mood,bl,now){
  g.restore();
  if(mood===3){g.save();g.font='800 15px "Baloo 2",sans-serif';g.fillStyle='#5f7e8c';g.lineWidth=3;g.strokeStyle='#fffaf0';g.lineJoin='round';const zy=ty-22+Math.sin(now/450)*2;g.strokeText('z',tx+20,zy);g.fillText('z',tx+20,zy);g.restore()}
 }
-// flexible hose from the port B to the back of the head R; it leaves the port along n (inward) and arrives along dv (the head direction), with a wave running along it
 function fNeck(g,B,R,n,dv,now,amp){
  const len=Math.hypot(R[0]-B[0],R[1]-B[1]);if(len<5)return;
  const c1=[B[0]+n[0]*len*.45,B[1]+n[1]*len*.45],c2=[R[0]-dv[0]*len*.45,R[1]-dv[1]*len*.45],N=Math.max(10,len/6|0),P=[];
@@ -914,37 +880,29 @@ function faucet(now,dt,f,R){
  FZ.home+=((gg&&FZ.s!==0?0:1)-FZ.home)*(1-Math.exp(-dt*9));
  const asleep=false,bu=(now-FZ.bk)/170,bl=bu>=0&&bu<1?Math.sin(bu*Math.PI):0;if(bu>=1)FZ.bk=now+2000+Math.random()*3500;
  const ext=FZ.ext,sm=Math.min(1,Math.max(0,(ext-.45)/.55)),sm2=sm*sm*(3-2*sm),mood=gg?(gg[1]===0?1:2):asleep?3:0,amp=gg&&gg[1]===1?3.5:8;
- // tap bar with the hot / cold knobs (the faucet's body on the rim)
  x.save();x.shadowColor='#0003';x.shadowBlur=8;x.shadowOffsetY=4;x.translate(0,fy);const cg=x.createLinearGradient(0,-12,0,12);cg.addColorStop(0,'#f7fcff');cg.addColorStop(.5,'#b9c9d4');cg.addColorStop(1,'#eef6fb');
  x.fillStyle=cg;x.strokeStyle='#8aa0ad';x.lineWidth=2.5;rr(108,24,12);x.fill();x.stroke();x.restore();
  for(const sx of[-40,40]){x.save();x.translate(sx,fy);x.rotate(Math.sin(now/700+sx)*.12);x.fillStyle=sx<0?'#5aa9ff':'#ff6f6f';x.strokeStyle='#fff';x.lineWidth=3;x.beginPath();x.arc(0,0,11,0,7);x.fill();x.stroke();
   x.strokeStyle='#fff';x.lineWidth=2.5;x.beginPath();x.moveTo(-6,0);x.lineTo(6,0);x.moveTo(0,-6);x.lineTo(0,6);x.stroke();x.restore()}
- // the other three ports: chrome plates with a dark hole the snake comes up through
  for(let i=1;i<4;i++){const a=PORT_A[i],pb=portB(i);x.save();x.translate(pb[0],pb[1]);x.rotate(a+Math.PI/2);x.shadowColor='#0003';x.shadowBlur=6;x.shadowOffsetY=3;Bx(x,-25,-11,50,22,9,'#eef6fb','#8aa0ad',2.5);x.shadowColor='transparent';
   x.beginPath();x.ellipse(0,0,15,8.5,0,0,7);x.fillStyle='#3d5663';x.fill();x.lineWidth=2;x.strokeStyle='#8aa0ad';x.stroke();
   for(const q of[-1,1]){x.beginPath();x.arc(q*20,0,1.8,0,7);x.fillStyle='#b7c6d0';x.fill()}x.restore()}
- // where the pupils look: along the jet while attacking, otherwise at the nearest living soap
  const at=ext>.3,hdY=fy+HLEN;let tx=0,ty=1;
  if(at){tx=Math.cos(FZ.ang);ty=Math.sin(FZ.ang)}
  else if(f){let bd=1e9,bp=null;for(const id in f.pl){const p=f.pl[id];if(!p.alive)continue;const d=Math.hypot(p.x,p.y-hdY);if(d<bd){bd=d;bp=p}}if(bp){const l=Math.hypot(bp.x,bp.y-hdY)||1;tx=bp.x/l;ty=(bp.y-hdY)/l}}
  const lk=1-Math.exp(-dt*9);FZ.lx+=(tx-FZ.lx)*lk;FZ.ly+=(ty-FZ.ly)*lk;{const l=Math.hypot(FZ.lx,FZ.ly)||1;FZ.lx/=l;FZ.ly/=l}
  const look=[FZ.lx,FZ.ly],topAtk=FZ.s===0&&ext>0;
- // head at the top (home): hangs from the bar; it also lunges inward when the snake attacks from the top port
  {const D=HLEN*FZ.home+(topAtk?(PD-HLEN)*ext:0),dirv=Math.PI/2+(topAtk?(FZ.ang-Math.PI/2)*sm2:0),sc=FZ.home,tipX=0,tipY=fy+D,dv=[Math.cos(dirv),Math.sin(dirv)];
   fNeck(x,[0,fy],[tipX-dv[0]*HLEN*sc,tipY-dv[1]*HLEN*sc],[0,1],dv,now,amp);fHead(x,tipX,tipY,dirv,sc,look,mood,bl,now)}
- // snake from a side port
  if(FZ.s!==0&&ext>.01){const a=PORT_A[FZ.s],u=[Math.cos(a),Math.sin(a)],n=[-u[0],-u[1]],inw=a+Math.PI,dirv=inw+wrapAng(FZ.ang-inw)*sm2,dv=[Math.cos(dirv),Math.sin(dirv)],sc=Math.min(1,ext*3),B=portB(FZ.s),D=PD*ext,tip=[B[0]+n[0]*D,B[1]+n[1]*D];
   fNeck(x,B,[tip[0]-dv[0]*HLEN*sc,tip[1]-dv[1]*HLEN*sc],n,dv,now,amp);fHead(x,tip[0],tip[1],dirv,sc,look,mood===3?0:mood,bl,now)}
- // drip + ripple under the resting head
  const ph=(now/1300)%1;
  if(!asleep&&!gg&&FZ.home>.95&&ext<.02){if(ph<.55){x.fillStyle='#9be8ff';x.strokeStyle='#fff';x.lineWidth=1.5;x.beginPath();x.arc(0,hdY+4+ph*10,2+ph*6,0,7);x.fill();x.stroke()}
   if(ph<faPh&&R>R0-40)rings.push({x:0,y:hdY+38,l:.9,m:.9,r0:4,r1:26,c:'#ffffffcc',w:3})}
  faPh=ph}
 const wrapAng=a=>((a+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
-// ---------- the water jet ----------
-// Water leaves the small nozzle, fans out into a cone (JCL px long) and then stays a lane of churned, fast water JGL px long. Visual only: the server push area is still the straight GHW (38 px) half-width strip, which equals the cone's final width.
 const JCL=110,JGL=900,JV=6,jhw=u=>u<JCL?5+(38-5)*Math.pow(u/JCL,.75):38,hh=(i,k)=>{const v=Math.sin(i*127.1+k*311.7)*43758.5453;return v-Math.floor(v)};
-function jetWarn(now){ // drawn in the nozzle frame, +x = jet direction
+function jetWarn(now){
  const pu=.5+.5*Math.sin(now/70),N=[];for(let u=0;u<=JGL;u+=15)N.push(u);
  const edge=q=>{x.beginPath();N.forEach((u,i)=>i?x.lineTo(u,q*jhw(u)):x.moveTo(u,q*jhw(u)))};
  x.beginPath();N.forEach((u,i)=>i?x.lineTo(u,-jhw(u)):x.moveTo(u,-jhw(u)));for(let i=N.length-1;i>=0;i--)x.lineTo(N[i],jhw(N[i]));x.closePath();
@@ -952,34 +910,26 @@ function jetWarn(now){ // drawn in the nozzle frame, +x = jet direction
  x.setLineDash([16,12]);x.lineDashOffset=-now/25;x.lineWidth=4;x.lineCap='butt';x.strokeStyle=`rgba(255,255,255,${.5+.4*pu})`;edge(-1);x.stroke();edge(1);x.stroke();x.setLineDash([]);
  x.lineWidth=3;x.lineCap='round';x.lineJoin='round';x.strokeStyle=`rgba(255,255,255,${.22+.12*pu})`;for(let u=(now*.18)%80;u<JGL;u+=80){const h=jhw(u)*.8;x.beginPath();x.moveTo(u-12,-h);x.lineTo(u,0);x.lineTo(u-12,h);x.stroke()}
  const r=18+6*pu,mg=x.createRadialGradient(4,0,0,4,0,r);mg.addColorStop(0,'rgba(255,255,255,.85)');mg.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=mg;x.beginPath();x.arc(4,0,r,0,7);x.fill()}
-function jetGush(now,x0,x1){ // x0 = where the tail of the water is (it leaves the nozzle at 0), x1 = where the front is
+function jetGush(now,x0,x1){
  if(x1-x0<2)return;const A=x.globalAlpha,xs=[];for(let u=x0;u<x1;u+=12)xs.push(u);xs.push(x1);
  const wob=(u,q)=>Math.min(1,u/JCL)*(Math.sin(u*.045-now*.018+q*2.1)*3+Math.sin(u*.12-now*.031+q)*1.4),
   edge=(q,sc)=>xs.map(u=>[u,(q?1:-1)*(jhw(u)+wob(u,q))*sc]),
   poly=a=>{x.beginPath();a.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]))},
   body=sc=>{poly(edge(0,sc).concat(edge(1,sc).reverse()));x.closePath()};
  x.lineJoin='round';x.lineCap='round';
- // soft layered body (lighter and more transparent the further it travels)
  const gr=x.createLinearGradient(0,0,JGL,0);gr.addColorStop(0,'rgba(255,255,255,.8)');gr.addColorStop(.3,'rgba(236,252,255,.55)');gr.addColorStop(1,'rgba(214,247,255,.3)');
  x.fillStyle=gr;body(1);x.fill();body(.7);x.fill();body(.4);x.fill();
- // moving chevrons = the current pushing along the lane
  x.lineWidth=3;x.strokeStyle='rgba(255,255,255,.2)';for(let u=(now*.35)%70;u<x1;u+=70){if(u<x0)continue;const h=jhw(u)*.85;x.beginPath();x.moveTo(u-12,-h);x.lineTo(u,0);x.lineTo(u-12,h);x.stroke()}
- // flow streaks that follow the cone
  x.strokeStyle='rgba(255,255,255,.8)';x.lineWidth=2.4;
  for(let k=0;k<7;k++){const f=(k-3)/3.4,sp=.5+(k*37%11)/28,per=190+k*23,len=60+(k%3)*22,o=(now*sp)%per;
   for(let u0=o-per;u0<x1;u0+=per){const a=Math.max(u0,x0),b=Math.min(u0+len,x1);if(b-a<4)continue;x.beginPath();for(let u=a;u<=b;u+=9){const y=f*jhw(u)+wob(u,k)*.5;u===a?x.moveTo(u,y):x.lineTo(u,y)}x.stroke()}}
- // lane edges
  x.lineWidth=2.6;x.strokeStyle='rgba(255,255,255,.7)';poly(edge(0,1));x.stroke();poly(edge(1,1));x.stroke();
- // the bright core of the stream, thinning out with distance
  {const a=[],b=[];for(const u of xs){if(u>460)break;const cw=Math.max(0,1-u/460)*5.5+1,w=wob(u,3)*.25;a.push([u,-cw+w]);b.push([u,cw+w])}if(a.length>1){x.fillStyle='rgba(255,255,255,.95)';poly(a.concat(b.reverse()));x.closePath();x.fill()}}
- // foam rings along the edges
  x.lineWidth=1.6;x.strokeStyle='rgba(255,255,255,.7)';
  for(let i=0;i<16;i++){const u=(now*(.22+hh(i,6)*.2)+hh(i,7)*JGL)%JGL;if(u<x0||u>x1)continue;const s=hh(i,8)<.5?-1:1,y=s*jhw(u)*(.75+hh(i,9)*.6),r=2.5+hh(i,10)*4;x.beginPath();x.arc(u,y,r,0,7);x.stroke()}
- // spray droplets flung out of the lane
  x.fillStyle='#fff';
  for(let i=0;i<54;i++){const sp=.0009+hh(i,1)*.0012,t=(now*sp+hh(i,2))%1,u=t*(180+hh(i,3)*700);if(u<x0||u>x1)continue;const y=(hh(i,4)*2-1)*jhw(u)*(1+1.3*t),r=(1.1+hh(i,5)*2.6)*(1-t*.55);x.globalAlpha=A*.9*(1-t*.75);x.beginPath();x.arc(u,y,r,0,7);x.fill()}
  x.globalAlpha=A;
- // mist where it leaves the nozzle, splash at the front while it is still shooting out
  if(x0<30){const r=26+3*Math.sin(now/45),mg=x.createRadialGradient(6,0,0,6,0,r);mg.addColorStop(0,'rgba(255,255,255,.9)');mg.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=mg;x.beginPath();x.arc(6,0,r,0,7);x.fill()}
  if(x1<JGL){const r=jhw(x1)*1.15+6,mg=x.createRadialGradient(x1,0,0,x1,0,r);mg.addColorStop(0,'rgba(255,255,255,.75)');mg.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=mg;x.beginPath();x.arc(x1,0,r,0,7);x.fill()}}
 function soap(p,pi,now){
@@ -1007,7 +957,6 @@ function soap(p,pi,now){
   if(mine){const yy=yl-16;x.font=`800 ${15/S}px "Baloo 2",sans-serif`;x.strokeStyle='#fffaf0';x.fillStyle='#e0733f';x.strokeText('YOU',-4/S,yy);x.fillText('YOU',-4/S,yy);{const cx=x.measureText('YOU').width/2+2/S,tt=5/S;x.beginPath();x.moveTo(cx-tt,yy-tt*1.7);x.lineTo(cx+tt,yy-tt*1.7);x.lineTo(cx,yy-tt*.2);x.closePath();x.fillStyle='#e0733f';x.fill()}}
   x.restore();
 }
-// Static rim of the sink / toilet / bathtub (with its big soft shadow) is painted once into an offscreen canvas and reused every frame.
 let rimC=null,rimK='';
 function rimDraw(){
   const ap=(kk,pd)=>{if(AR===0){x.beginPath();x.arc(0,0,300*kk+pd,0,7)}else if(AR===1){x.beginPath();x.ellipse(0,0,270*kk+pd,285*kk+pd,0,0,7)}else rr(600*kk+2*pd,450*kk+2*pd,130*kk+pd)},A=AX[AR];
@@ -1039,7 +988,7 @@ function draw(now){
   x.restore();
   x.beginPath();x.arc(0,0,13,0,7);x.fillStyle='#1b8d9b';x.fill();x.beginPath();x.arc(-3,-3,4,0,7);x.fillStyle='#fff5';x.fill();
   if(AR===0){x.fillStyle='#14707c';for(let i=0;i<8;i++){x.beginPath();x.arc(Math.cos(i*.785)*21,Math.sin(i*.785)*21,2.2,0,7);x.fill()}x.fillStyle='#14707c88';x.beginPath();x.ellipse(0,-(R-17),15,5,0,0,7);x.fill()}
-  {const gg=f&&f.g; // the jet: warning lane, then water shooting out of the nozzle, and a tail that leaves the nozzle when the faucet stops
+  {const gg=f&&f.g;
    if(gg&&gg[1]===1){if(!FZ.jg){FZ.jg=1;FZ.gt=now}}else if(FZ.jg){FZ.jg=0;FZ.te=now}
    if(gg||(FZ.te&&!FZ.jg&&now-FZ.te<JGL/JV)){const s=gg?gg[3]|0:FZ.s,ang=gg?gg[0]:FZ.ang,pn=portN(s);
     x.save();ap(k,0);x.clip();x.translate(pn[0],pn[1]);x.rotate(ang);x.globalAlpha=Math.min(1,FZ.ext*1.6);
