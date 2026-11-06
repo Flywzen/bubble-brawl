@@ -6,6 +6,7 @@ All notable changes to Bubble Brawl.
 
 ### Features
 
+- **2 more soap looks (26-27)** — Akazuds (pink hair, blue tattoo lines, compass ring) and Doumafoam (pale red-tipped hair, opal eyes, two golden fans). `NS = 28`; out-of-range test now uses index 28.
 - **2 more soap looks (24-25)** — Tojilather (scarred mercenary, dark staff-blade) and Mahorasuds (pale divine general, golden wheel halo, jagged sword). `NS = 26`; out-of-range test now uses index 26.
 - **3 more soap looks (21-23)** — Scarlather (red scarf scout), Itadorinse (pink spiky hair, hooded uniform) and Bambubble (bamboo muzzle, ombre hair, pink kimono). `NS = 24`; out-of-range test now uses index 24.
 - **3 new soap looks (18-20)** — Captain Scrub (green cloak, wings crest, twin blades), Limitless Lather (blindfold, white spikes, purple orb) and Checkerlather (checkered haori, scar, hanafuda earrings, black blade). Punny original soap-bar homages in the same hand-drawn style as the rest. The server now accepts soap indexes 0-20 (`NS = 21`), the picker, the stand crowd and the lobby avatars pick them up automatically; tests updated (index 21 is the first out-of-range one).

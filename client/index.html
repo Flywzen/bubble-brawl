@@ -186,7 +186,7 @@ input:focus{border-color:#25c7c0}
   <p><i data-i="soap"></i> <b>Slide. Bonk. Don't fall.</b> Shove rival soaps out of the arena: a sink, a toilet or a bathtub. You're out when the center of your body crosses the edge.</p>
   <p><i data-i="keyboard"></i> <b>Laptop:</b> WASD / arrow keys to move, Space to dash, E to parry.<br><i data-i="phone"></i> <b>Phone:</b> joystick on the left, big DASH and PARRY buttons on the right. Dash recharges in 3 seconds.</p>
   <p><i data-i="shield"></i> <b>Parry:</b> tap it right before a soap rams you (it works for a split second). Their push bounces back at them and they get dizzy. If you miss it recharges in 4 seconds, if you land it it is back in 2.</p>
-  <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 26 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
+  <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 28 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
   <p><i data-i="clock"></i> The arena starts shrinking after 15 seconds. Every round begins with a 3-second countdown. In the sink, the toilet and the bathtub, watch the faucet: it is alive. It slithers out of a hole in the rim, picks a victim and glares at them while a white stripe on the water warns where the jet will shove you. It keeps spitting every few seconds for the whole round, even while the arena shrinks.</p>
   <p><i data-i="trophy"></i> <b>Scoring:</b> win the round (last soap standing) = <b>3 points</b>. Every <b>kill</b> = <b>+1 point</b>: knock a rival out and you get it if you were the last one to bump them (within 3 seconds, parry rebounds count too). Falling on your own or from the faucet alone gives nobody a kill. If the 45 seconds run out with several survivors = <b>1 point</b> each. Everyone falls at once = no win points, but kills still count. Eliminated? You join the cheering crowd: press CHEER (Space) to cheer the rest on, then you're back next round.</p>
   <p>After 3 rounds the highest score wins. A tie means a shared victory.</p>
@@ -409,7 +409,27 @@ const SP=[
  g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#5b8f94';g.fillRect(-25,16,50,10);g.fillStyle='#3f6f75';for(let i=-4;i<4;i++){g.beginPath();g.moveTo(i*5.2,16);g.lineTo(i*5.2+2.6,24);g.lineTo(i*5.2+5.2,16);g.closePath();g.fill()}Ln(g,[[-25,16],[25,16]],'#5a3d2b',1.6);g.restore();
  Ln(g,[[-5,8],[0,10.5],[5,8]],'#5a3d2b66',1.5);Ln(g,[[0,10.5],[0,15]],'#5a3d2b55',1.4);
  Ln(g,[[-9.5,-3],[-9.5,2.5]],'#7a3d6a99',1.6);Ln(g,[[9.5,-3],[9.5,2.5]],'#7a3d6a99',1.6);Ln(g,[[0,-24],[0,-17]],'#5a3d2b88',1.6);Ln(g,[[-5,-23],[-4,-18]],'#5a3d2b66',1.3);Ln(g,[[5,-23],[4,-18]],'#5a3d2b66',1.3);
- g.save();g.translate(0,-33);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#5a3d2b',5)}C(g,0,0,7.5,null,'#5a3d2b',5);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#e8c04a',3)}C(g,0,0,7.5,null,'#e8c04a',3);C(g,0,0,2.4,'#e8c04a','#5a3d2b',1.4);g.restore()}}];
+ g.save();g.translate(0,-33);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#5a3d2b',5)}C(g,0,0,7.5,null,'#5a3d2b',5);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#e8c04a',3)}C(g,0,0,7.5,null,'#e8c04a',3);C(g,0,0,2.4,'#e8c04a','#5a3d2b',1.4);g.restore()}},
+// ---- demon duo (26-27): Akazuds = a shirtless pink-haired brawler covered in blue tattoo lines with a compass ring under his feet; Doumafoam = a grinning pale-haired noble with red-tipped locks, opal eyes and two golden fans ----
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:3.6,pc:'#3a4fb5',m:[0,-1,4.2],o:[0,.5,.6],t:38,h:[-10,-18],x:g=>{
+ g.beginPath();g.ellipse(0,27,24,6,0,0,7);g.lineWidth=1.8;g.strokeStyle='#6a7fd899';g.stroke();Ln(g,[[-24,27],[-30,27]],'#6a7fd899',1.6);Ln(g,[[24,27],[30,27]],'#6a7fd899',1.6);
+ g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#fffaf0';g.fillRect(-25,17.5,50,10);g.fillStyle='#2a2a33';g.fillRect(-25,17.5,50,2.8);
+ g.restore();
+ for(const[y,d]of[[8,2],[12.5,-2]])Ln(g,[[-15,y],[-10,y-d*1.5],[-5,y],[0,y-d*1.5],[5,y],[10,y-d*1.5],[15,y]],'#3a4fb5',1.5);
+ Ln(g,[[-16,5],[-16,15]],'#3a4fb5',1.5);Ln(g,[[16,5],[16,15]],'#3a4fb5',1.5);Ln(g,[[-11,5],[-11,10]],'#3a4fb5',1.3);Ln(g,[[11,5],[11,10]],'#3a4fb5',1.3);
+ C(g,0,-10,14.2,'#f7d6c0',null);
+ g.beginPath();g.moveTo(-15,-9);g.lineTo(-16,-20);g.lineTo(-10,-17);g.lineTo(-8,-27);g.lineTo(-3,-20);g.lineTo(2,-29);g.lineTo(6,-21);g.lineTo(12,-26);g.lineTo(12,-17);g.lineTo(17,-18);g.lineTo(15,-9);g.lineTo(12,-14);g.lineTo(6,-12);g.lineTo(1,-16);g.lineTo(-5,-12);g.lineTo(-10,-15);g.closePath();g.fillStyle='#f6a0b4';g.fill();g.lineWidth=2;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();
+ Ln(g,[[-6,-22],[-2,-26]],'#ffffff77',2.2);Ln(g,[[-10,-13],[-3,-11.5]],'#5a3d2b',1.8);Ln(g,[[10,-13],[3,-11.5]],'#5a3d2b',1.8);
+ Ln(g,[[-13,-3],[-9,-1]],'#3a4fb5aa',1.2);Ln(g,[[13,-3],[9,-1]],'#3a4fb5aa',1.2)}},
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:4,pc:'#6bd3c9',m:[0,-1,5],o:[0,.6,.7],t:37,h:[-10,-18],x:g=>{
+ for(const sg of[-1,1]){g.beginPath();g.moveTo(sg*26,24);g.arc(sg*26,24,16,sg>0?-2.2:Math.PI+.9,sg>0?-.9:Math.PI+2.2);g.closePath();g.fillStyle='#e8c04a';g.fill();g.lineWidth=2;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();for(const a of[-1.75,-1.55,-1.35])Ln(g,[[sg*26,24],[sg*26+Math.cos(sg>0?a:Math.PI-a)*15,24+Math.sin(sg>0?a:Math.PI-a)*15]],'#5a3d2b88',1.2)}
+ g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#5fb8c4';g.fillRect(-25,17,50,10);Ln(g,[[-25,17],[25,17]],'#5a3d2b',1.6);g.fillStyle='#ffffff66';for(let i=-3;i<4;i++){g.beginPath();g.arc(i*6,21.5,1.4,0,7);g.fill()}g.restore();
+ g.beginPath();g.moveTo(-10,4);g.lineTo(10,4);g.lineTo(0,15);g.closePath();g.fillStyle='#e9a6c8';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();Ln(g,[[-12,5],[-4,14]],'#e8c04a',1.6);Ln(g,[[12,5],[4,14]],'#e8c04a',1.6);
+ C(g,0,-10,14.2,'#fbe3d2',null);
+ for(const sg of[-1,1]){g.beginPath();g.moveTo(sg*14.5,-12);g.lineTo(sg*18.5,-4);g.lineTo(sg*17,9);g.lineTo(sg*12.5,8);g.lineTo(sg*12,-4);g.closePath();g.fillStyle='#efeaf6';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.stroke();g.beginPath();g.moveTo(sg*17,3);g.lineTo(sg*17,9);g.lineTo(sg*12.5,8);g.lineTo(sg*12.6,3.6);g.closePath();g.fillStyle='#c43b3b';g.fill();g.stroke()}
+ g.beginPath();g.moveTo(-14.5,-9);g.bezierCurveTo(-18,-32,18,-32,14.5,-9);g.lineTo(12,-14);g.quadraticCurveTo(7,-19,2,-13);g.quadraticCurveTo(-3,-19,-8,-14);g.lineTo(-12,-14);g.closePath();g.fillStyle='#efeaf6';g.fill();g.lineWidth=2;g.strokeStyle='#5a3d2b';g.stroke();
+ g.beginPath();g.moveTo(-8,-14);g.lineTo(-6,-10);g.lineTo(-3.5,-15);g.closePath();g.fillStyle='#c43b3b';g.fill();g.beginPath();g.moveTo(5,-14.5);g.lineTo(8,-10);g.lineTo(9.5,-15);g.closePath();g.fill();
+ Ln(g,[[-10,-25],[-3,-28]],'#ffffffaa',2.2);g.fillStyle='#ff9aa877';for(const q of[-1,1]){g.beginPath();g.arc(q*9.5,-2.5,2.7,0,7);g.fill()}}}];
 // lightsaber / foam blade: hilt a->b, blade b->c (outlined like everything else)
 function sab(g,a,b,c,bl){Ln(g,[a,b],'#5a3d2b',9.5);Ln(g,[b,c],'#5a3d2b',10);Ln(g,[a,b],'#aab4be',6);Ln(g,[b,c],bl,6.5);Ln(g,[b,c],'#fff',2.6);Ln(g,[a,b],'#4a525c',2)}
 // sleepy eyelids for soaps with lid:1 (drawn over the eyes in the soap's own colour)
@@ -508,8 +528,9 @@ const COL=['#ff9ec7','#8fd3ff','#ffd36e','#b4ec86','#c4a3ff','#ffae85','#78e0cc'
  '#e84a5f','#8ad7a4', // storybook pair
  '#78a35f','#e8f0ff','#2f7d57', // anime-inspired trio
  '#d8c3a0','#3a3f5c','#f2a6c0', // second anime trio
- '#34413b','#e2ded6'], // jjk duo
-SN=['Hole','Fish','Duck','Frog','Star','Cat','Whale','Heart','Lather Knight','Lord Lather','Skylather','Bleep-Bar','Squarepore','Star Buddy','Grumpus','Boss Crab','Bubblefin','Bobbie','Captain Scrub','Limitless Lather','Checkerlather','Scarlather','Itadorinse','Bambubble','Tojilather','Mahorasuds'],NS=26;
+ '#34413b','#e2ded6', // jjk duo
+ '#f2d2bb','#f6efe2'], // demon duo
+SN=['Hole','Fish','Duck','Frog','Star','Cat','Whale','Heart','Lather Knight','Lord Lather','Skylather','Bleep-Bar','Squarepore','Star Buddy','Grumpus','Boss Crab','Bubblefin','Bobbie','Captain Scrub','Limitless Lather','Checkerlather','Scarlather','Itadorinse','Bambubble','Tojilather','Mahorasuds','Akazuds','Doumafoam'],NS=28;
 const R0=300,CDMAX=3,PCDMAX=4,TOUCH=matchMedia('(pointer:coarse)').matches,CTL=TOUCH?'Drag to move · DASH to ram · PARRY to block':'WASD move · Space dash · E parry';
 let parryUntil={},goUntil=0,lastSt='',sayT=0,myCi=0,pickMode='';const MKb=[];
 const Q=new URLSearchParams(location.search),DBG={l:0,g:0};let scr='home',dW=[],minD=0,jit=0,dly=100,rtt=80,curIn={x:0,y:0},lastFa=null,pendDash=null,pme=null,lastMine=null,music=!Q.has('nomusic'),mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;

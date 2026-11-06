@@ -7,7 +7,7 @@ Online multiplayer party game for 2–8 players. Slide your soap bar around a si
 - **Emotes**: press 1-7 (or the 😀 button on phones) to pop a meme sticker over your soap.
 
 - **3 arenas** — Sink (circle), Toilet (oval), Bathtub (rounded rectangle) — shuffled each round
-- **26 soap looks** — cosmetic only; each player picks their own
+- **28 soap looks** — cosmetic only; each player picks their own
 - **Dash & Parry** — dash to ram, parry to reflect incoming hits
 - **Bots with 3 difficulty levels** — Easy, Normal or Hard. Quick Play starts instantly against bots; add bots to private rooms too. Pick the level on the home screen, in the lobby (host) or after a match
 - **Ready check** — in a friends room every guest taps *I'm ready* in the lobby; the host can only start once all of them are ready (bots are always ready)
