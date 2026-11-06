@@ -54,18 +54,18 @@ input:focus{border-color:#25c7c0}
 #coach{inset:0;display:none}#hud.cnt #coach{display:block}
 @media (pointer:fine){#hud.cnt #coach{display:none}}
 #coach span{position:absolute;white-space:nowrap;font-size:13px;line-height:1;color:#fffaf0;background:#4a2f20e6;padding:5px 10px;border-radius:999px}
-#coach .c1{left:74px;transform:translateX(-50%);bottom:calc(var(--cb) + 134px)}
-#coach .c2{right:160px;transform:translateX(50%);bottom:calc(var(--cb) + 110px)}
-#coach .c3{right:64px;transform:translateX(50%);bottom:calc(var(--cb) + 110px)}
+#coach .c1{left:74px;transform:translateX(-50%);bottom:calc(var(--ck) + 134px)}
+#coach .c2{right:160px;transform:translateX(50%);bottom:calc(var(--ck) + 110px)}
+#coach .c3{right:64px;transform:translateX(50%);bottom:calc(var(--ck) + 110px)}
 #out{top:140px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;white-space:nowrap;max-width:calc(100vw - 20px);height:44px;padding:0 16px;background:#fffaf0;border:3px solid var(--c,#ff9a5c);border-radius:22px;box-shadow:0 4px 0 #e8c98a;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
 #out.bot{top:auto;bottom:16px}
 #out .o1{font-size:20px;color:#b3481a;display:flex;align-items:center;gap:6px}#out .o2{font-size:15px;color:#7a5a3a;font-weight:600;overflow:hidden;text-overflow:ellipsis}
 @keyframes pop{from{transform:translateX(-50%) scale(.4) rotate(-6deg);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
-#kh{left:14px;bottom:14px;display:none;align-items:center;gap:5px;background:#fffaf0;border-radius:14px;padding:5px 12px;font-size:12px;color:#7a5a3a;box-shadow:0 2px 0 #e8c98a;border:2px solid #e8c98a;z-index:2}
+#kh{left:14px;bottom:14px;display:none;flex-direction:column;align-items:flex-start;gap:5px;background:#fffaf0;border-radius:14px;padding:8px 12px;font-size:12px;color:#7a5a3a;box-shadow:0 2px 0 #e8c98a;border:2px solid #e8c98a;z-index:2}
 .k{display:inline-block;min-width:24px;padding:1px 6px;text-align:center;border-radius:7px;background:#fff;border:2px solid #d6bd88;box-shadow:0 2px 0 #d6bd88;color:#5a3d2b}
-#jg{left:14px;bottom:calc(var(--cb) + 6px);width:120px;height:120px;border-radius:50%;border:4px solid #fff;background:#ffffff55;display:none;align-items:center;justify-content:center;pointer-events:none}
+#jg{left:14px;bottom:calc(var(--ck) + 6px);width:120px;height:120px;border-radius:50%;border:4px solid #fff;background:#ffffff55;display:none;align-items:center;justify-content:center;pointer-events:none}
 #jg i{width:52px;height:52px;border-radius:50%;background:#25c7c0;box-shadow:0 4px 0 #14958f}
-@media (pointer:fine){#kh{display:flex}}
+@media (pointer:fine){#kh{display:flex}#kh>div{display:flex;align-items:center;gap:4px;white-space:nowrap}}
 @media (pointer:coarse){#jg{display:flex}}
 #hud.out #jg,#hud.out #jz,#hud.out #bb{display:none!important}
 .gb{--c:#25c7c0;--d:#14958f;--p:360deg;position:absolute;border:0;padding:0;border-radius:50%;font:inherit;color:#4a2f20;background:#fffaf0;box-shadow:0 6px 0 var(--d);pointer-events:auto;touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;transition:transform .08s,box-shadow .08s}
@@ -74,7 +74,7 @@ input:focus{border-color:#25c7c0}
 .gb>*{position:relative;z-index:1}.gb .gi{display:flex;align-items:center;justify-content:center;width:40%;height:40%}.gb .gi svg{display:block;width:100%;height:100%}.gb .gl{display:none;font-size:24px;font-weight:800}
 .gb:active{transform:translateY(4px);box-shadow:0 2px 0 var(--d)}
 .gb.cd{--d:#a89468}.gb.cd::after{background:radial-gradient(circle at 30% 24%,#ffffffa0 0 9%,transparent 10%),#efe3c6}.gb.cd .gi{display:none}.gb.cd .gl{display:block;color:#a89468}#db.cd{--d:#a89468}
-#bb{right:124px;bottom:calc(var(--cb) + 30px);width:76px;height:76px}#db{--c:#ff9a5c;--d:#d9733a;right:14px;bottom:calc(var(--cb) + 6px);width:104px;height:104px}
+#bb{right:124px;bottom:calc(var(--ck) + 30px);width:76px;height:76px}#db{--c:#ff9a5c;--d:#d9733a;right:14px;bottom:calc(var(--ck) + 6px);width:104px;height:104px}
 #db.ch{--c:#ff7eb6;--d:#d44f8a;animation:hop 1.1s ease-in-out infinite}#hud.out #db{width:112px;height:112px}
 @keyframes hop{50%{transform:translateY(-5px)}}
 .ic{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.25em}
@@ -87,10 +87,10 @@ input:focus{border-color:#25c7c0}
 .em .b::after{content:"";position:absolute;left:50%;bottom:-10px;width:11px;height:11px;background:#fffaf0;border:3px solid #5a3d2b;border-top:0;border-left:0;transform:translateX(-50%) rotate(45deg)}
 .em img{display:block;width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px}.em.out .b{animation:ebye .25s ease-in both}
 @keyframes epop{from{transform:scale(.4) rotate(-6deg);opacity:0}}@keyframes ebye{to{transform:translateY(-14px) scale(.8);opacity:0}}
-#eb{right:38px;bottom:calc(var(--cb) + 124px);width:52px;height:52px;border-radius:50%;border:3px solid #5a3d2b;background:#ff7aa8;font-size:25px;line-height:1;cursor:pointer;pointer-events:auto;box-shadow:0 4px 0 #0003;padding:0;z-index:4}
-#eb.cd{filter:grayscale(1);opacity:.55;pointer-events:none}
-#ep{display:none;right:10px;bottom:calc(var(--cb) + 184px);grid-template-columns:repeat(4,52px);gap:6px;background:#fffaf0;border:3px solid #5a3d2b;border-radius:20px;padding:8px;pointer-events:auto;z-index:4;box-shadow:0 6px 0 #0003}
-#ep.open{display:grid}#ep button{border:3px solid #5a3d2b;border-radius:14px;background:#fff;padding:3px 0 1px;cursor:pointer;font:800 10px "Baloo 2",sans-serif;color:#5a3d2b}#ep img{display:block;width:34px;height:34px;margin:0 auto}
+#eb{--c:#ff7eb6;--d:#d44f8a;right:35px;bottom:calc(var(--ck) + 140px);width:62px;height:62px;z-index:4}#eb .kb{display:none}#eb.off{opacity:.3;filter:grayscale(1);pointer-events:none}
+#ep{display:none;right:106px;bottom:calc(var(--ck) + 146px);width:min(330px,calc(100vw - 118px));gap:2px;background:#fffaf0f2;border:3px solid #5a3d2b;border-radius:18px;padding:5px;pointer-events:auto;z-index:4;box-shadow:0 5px 0 #0003,0 12px 24px #0002}
+@media (pointer:fine){#eb{right:16px;left:auto;bottom:20px;width:58px;height:58px}#eb .kb{display:block;position:absolute;right:-8px;bottom:-4px;z-index:2;background:#fffaf0;color:#5a3d2b;border:2px solid #5a3d2b;border-radius:9px;font:800 10px/1 'Baloo 2',sans-serif;padding:2px 4px}#ep{left:auto;right:88px;bottom:22px;width:max-content;padding:6px;gap:5px}}
+#ep.open{display:flex;animation:epop .18s ease-out both}#ep button{flex:1;min-width:0;height:44px;border:2px solid #5a3d2b;border-radius:10px;background:#fff;padding:0;cursor:pointer;transition:transform .12s cubic-bezier(.2,0,0,1),background-color .12s;font:800 0/1.1 'Baloo 2',sans-serif;color:#5a3d2b;touch-action:manipulation}#ep button:active{background:#f3e3bd;transform:scale(.96)}#ep.open button{animation:etile .22s cubic-bezier(.2,0,0,1) backwards}#ep.open button:nth-child(2){animation-delay:.03s}#ep.open button:nth-child(3){animation-delay:.06s}#ep.open button:nth-child(4){animation-delay:.09s}#ep.open button:nth-child(5){animation-delay:.12s}#ep.open button:nth-child(6){animation-delay:.15s}#ep.open button:nth-child(7){animation-delay:.18s}@keyframes etile{from{opacity:0;transform:translateY(6px) scale(.96)}}#ep img,.em img{outline:1px solid rgba(0,0,0,.1);outline-offset:-1px}#ep button:focus-visible{outline:3px solid #ff7eb6;outline-offset:1px}#ep img{display:block;width:min(28px,82%);aspect-ratio:1;margin:0 auto;object-fit:contain}@media (pointer:fine){#ep button{width:56px;height:auto;flex:none;font-size:10px;padding:4px 0 2px;border-radius:9px}#ep img{width:34px;margin:0 auto 1px}}
 
 @media (pointer:fine){#bb{display:none!important}}canvas{transition:filter .4s}
 #jz{left:0;bottom:0;width:50%;height:62%;pointer-events:auto;touch-action:none}
@@ -113,8 +113,8 @@ input:focus{border-color:#25c7c0}
 .sp.tk{filter:grayscale(1);opacity:.45;cursor:not-allowed}.sp small{position:absolute;bottom:1px;left:0;right:0;font-size:11px;color:#4a2f20}
 @media (max-aspect-ratio:108/100){#top{left:10px;transform:none;max-width:calc(100vw - 74px)}#sc{flex-direction:row;flex-wrap:nowrap;top:62px;left:10px;right:10px;max-width:none;gap:8px}#sc div:not(.me) .nm{display:none}}
 @media (max-height:500px){#sc div:not(.me) .nm{display:none}#sc{gap:3px}}
-:root{--cb:16px}
-@media (pointer:coarse) and (max-aspect-ratio:108/100){:root{--cb:76px}}
+:root{--cb:16px;--ck:16px}
+@media (pointer:coarse) and (max-aspect-ratio:108/100){:root{--cb:76px;--ck:calc(14px + env(safe-area-inset-bottom,0px))}}
 #home,#friends,#lobby{padding-top:calc(14px + var(--st,0px));padding-bottom:calc(14px + var(--cb));padding-left:calc(14px + max(0px,calc(-1*var(--sh,0px))));padding-right:calc(14px + max(0px,var(--sh,0px)))}
 .rdy{display:inline-flex;align-items:center;gap:2px;margin-left:5px;padding:0 8px;border-radius:999px;background:#fffaf0;color:#0e8a85;font-size:13px;line-height:20px;vertical-align:1px}.rdy.no{color:#a89468}
 .dfh{font-size:14px;color:#8a6a4a;margin:12px 0 2px}
@@ -174,8 +174,8 @@ input:focus{border-color:#25c7c0}
   <div id="cnt" hidden><div class="in"><b id="cnn"></b></div><span class="ch" id="cch"></span></div>
   <div id="coach"><span class="c1">Drag to move</span><span class="c2">Block hits</span><span class="c3">Ram them!</span></div>
   <div id="out" hidden><span class="o1"></span><span class="o2"></span></div>
-  <div id="kh"><span class="k">W</span><span class="k">A</span><span class="k">S</span><span class="k">D</span>&nbsp;or arrows = move &nbsp;·&nbsp;<span class="k">SPACE</span> = dash / cheer &nbsp;·&nbsp;<span class="k">E</span> = parry &nbsp;·&nbsp;<span class="k">1-7</span> = emote</div><div id="jg"><i></i></div><div id="jz"></div><div id="jb"><div id="jk"></div></div>
-  <div id="emL"></div><button id="eb" aria-label="Emote">😀</button><div id="ep"></div>
+  <div id="kh"><div><span class="k">W</span><span class="k">A</span><span class="k">S</span><span class="k">D</span> or arrows = move</div><div><span class="k">SPACE</span> dash / cheer</div><div><span class="k">E</span> parry</div></div><div id="jg"><i></i></div><div id="jz"></div><div id="jb"><div id="jk"></div></div>
+  <div id="emL"></div><button id="eb" class="gb" aria-label="Emote"><span class="gi" data-i="emote"></span><b class="kb">1-7</b></button><div id="ep"></div>
   <button id="db" class="gb" aria-label="Dash / Cheer"><span class="gi"></span><b class="gl"></b></button><button id="bb" class="gb" aria-label="Parry"><span class="gi"></span><b class="gl"></b></button>
 </div>
 
@@ -186,7 +186,7 @@ input:focus{border-color:#25c7c0}
   <p><i data-i="soap"></i> <b>Slide. Bonk. Don't fall.</b> Shove rival soaps out of the arena: a sink, a toilet or a bathtub. You're out when the center of your body crosses the edge.</p>
   <p><i data-i="keyboard"></i> <b>Laptop:</b> WASD / arrow keys to move, Space to dash, E to parry.<br><i data-i="phone"></i> <b>Phone:</b> joystick on the left, big DASH and PARRY buttons on the right. Dash recharges in 3 seconds.</p>
   <p><i data-i="shield"></i> <b>Parry:</b> tap it right before a soap rams you (it works for a split second). Their push bounces back at them and they get dizzy. If you miss it recharges in 4 seconds, if you land it it is back in 2.</p>
-  <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 18 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
+  <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 26 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
   <p><i data-i="clock"></i> The arena starts shrinking after 15 seconds. Every round begins with a 3-second countdown. In the sink, the toilet and the bathtub, watch the faucet: it is alive. It slithers out of a hole in the rim, picks a victim and glares at them while a white stripe on the water warns where the jet will shove you. It keeps spitting every few seconds for the whole round, even while the arena shrinks.</p>
   <p><i data-i="trophy"></i> <b>Scoring:</b> win the round (last soap standing) = <b>3 points</b>. Every <b>kill</b> = <b>+1 point</b>: knock a rival out and you get it if you were the last one to bump them (within 3 seconds, parry rebounds count too). Falling on your own or from the faucet alone gives nobody a kill. If the 45 seconds run out with several survivors = <b>1 point</b> each. Everyone falls at once = no win points, but kills still count. Eliminated? You join the cheering crowd: press CHEER (Space) to cheer the rest on, then you're back next round.</p>
   <p>After 3 rounds the highest score wins. A tie means a shared victory.</p>
@@ -207,6 +207,7 @@ input:focus{border-color:#25c7c0}
 const $=s=>document.querySelector(s);
 const IC={
 back:'<path d="M15 5l-7 7 7 7"/>',
+emote:'<path d="M6 4.5h12a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5h-5.5L8 20v-4.5H6A2.5 2.5 0 0 1 3.5 13V7A2.5 2.5 0 0 1 6 4.5z"/><path d="M9.2 9.4h.01M14.8 9.4h.01M9 12.4c.9 1.1 1.8 1.5 3 1.5s2.1-.4 3-1.5"/>',
 exit:'<path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/>',
 check:'<path d="M5 12.5l4.5 4.5L19 7.5" stroke-width="3"/>',
 bot:'<rect x="4" y="8.5" width="16" height="11" rx="3.5"/><path d="M12 8.5V5M9.5 13h.01M14.5 13h.01M9.5 16.5h5"/><circle cx="12" cy="4" r="1.2" fill="currentColor"/>',
@@ -337,7 +338,78 @@ const SP=[
  g.fillStyle='#ff7a7a88';for(const q of[-1,1]){g.beginPath();g.arc(q*10,-2.5,3,0,7);g.fill()}
  g.beginPath();g.moveTo(-19,-4);g.lineTo(-19,-11);g.bezierCurveTo(-20.5,-35,20.5,-35,19,-11);g.lineTo(19,-4);g.quadraticCurveTo(15.5,-3,12.5,-5);g.lineTo(12.5,-12);g.lineTo(9,-15.2);g.lineTo(3,-14.4);g.lineTo(-3,-15.2);g.lineTo(-9,-14.4);g.lineTo(-12.5,-15.5);g.lineTo(-12.5,-5);g.quadraticCurveTo(-15.5,-3,-19,-4);g.closePath();g.fillStyle='#2a2230';g.fill();g.lineWidth=2;g.strokeStyle='#14101a';g.lineJoin='round';g.stroke();
  Ln(g,[[-11,-25],[-3,-28]],'#ffffff55',2.4);
- for(let a=0;a<5;a++){const t=a*Math.PI*2/5-Math.PI/2;g.beginPath();g.arc(13+Math.cos(t)*2.9,-24+Math.sin(t)*2.9,2.1,0,7);g.fillStyle='#ffd54a';g.fill();g.lineWidth=1.2;g.strokeStyle='#5a3d2b';g.stroke()}C(g,13,-24,1.5,'#ff8a3d','#5a3d2b',1)}}];
+ for(let a=0;a<5;a++){const t=a*Math.PI*2/5-Math.PI/2;g.beginPath();g.arc(13+Math.cos(t)*2.9,-24+Math.sin(t)*2.9,2.1,0,7);g.fillStyle='#ffd54a';g.fill();g.lineWidth=1.2;g.strokeStyle='#5a3d2b';g.stroke()}C(g,13,-24,1.5,'#ff8a3d','#5a3d2b',1)}},
+// ---- anime-inspired trio (18-20): punny original soap-bar homages, drawn in the same hand-drawn style. Captain Scrub = a cleaning-obsessed scout captain (green cloak, wings crest, twin blades); Limitless Lather = a cocky teacher with a blindfold, white spikes and a purple orb; Checkerlather = a kind demon-hunter kid (checkered haori, scar, hanafuda earrings, black blade) ----
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7),g=>{g.moveTo(-15,6);g.lineTo(-27,27);g.lineTo(-13,25);g.closePath()},g=>{g.moveTo(15,6);g.lineTo(27,27);g.lineTo(13,25);g.closePath()}],e:[[-6,-8],[6,-8]],er:3.4,m:[0,-1.5,2.4],t:37,h:[-10,-18],x:g=>{
+ for(const s of[-1,1]){Ln(g,[[s*24,23],[s*22,15]],'#5a3d2b',5.5);Ln(g,[[s*22,15],[s*29,-3]],'#5a3d2b',5);Ln(g,[[s*22,15],[s*29,-3]],'#e3ebf3',2.6);Ln(g,[[s*24,23],[s*22,15]],'#8a6a4a',2.6)}
+ C(g,0,-10,14.2,'#ffd9bd',null);
+ Ln(g,[[-9,5],[-13,22]],'#3f6a3a',2);Ln(g,[[9,5],[13,22]],'#3f6a3a',2);
+ g.beginPath();g.moveTo(-10,4);g.lineTo(10,4);g.lineTo(0,14);g.closePath();g.fillStyle='#fffaf0';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();
+ g.lineWidth=1.3;g.fillStyle='#2c4f8a';g.beginPath();g.moveTo(-1,20);g.quadraticCurveTo(-8,13,-12,17);g.quadraticCurveTo(-8,19,-9,23);g.quadraticCurveTo(-5,21,-1,23);g.closePath();g.fill();g.stroke();
+ g.fillStyle='#fffaf0';g.beginPath();g.moveTo(1,20);g.quadraticCurveTo(8,13,12,17);g.quadraticCurveTo(8,19,9,23);g.quadraticCurveTo(5,21,1,23);g.closePath();g.fill();g.stroke();
+ g.beginPath();g.moveTo(-14.5,-9);g.bezierCurveTo(-18,-31,18,-31,14.5,-9);g.lineTo(12,-15);g.quadraticCurveTo(6,-18,1,-14.5);g.quadraticCurveTo(-4,-18,-12,-14.5);g.closePath();g.fillStyle='#1f1a22';g.fill();g.lineWidth=2;g.strokeStyle='#14101a';g.stroke();
+ Ln(g,[[-9,-14.8],[-3,-11.8]],'#14101a',2);Ln(g,[[9,-14.8],[3,-11.8]],'#14101a',2);Ln(g,[[-10,-25],[-3,-27.5]],'#ffffff44',2.2)}},
+{k:.9,p:[g=>rp(g,[[-19,3],[19,3],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7),g=>{g.moveTo(-13,-19);g.lineTo(-17,-34);g.lineTo(-6,-25);g.closePath()},g=>{g.moveTo(-5,-23);g.lineTo(-3,-38);g.lineTo(4,-24);g.closePath()},g=>{g.moveTo(4,-24);g.lineTo(12,-37);g.lineTo(13,-20);g.closePath()},g=>{g.moveTo(12,-19);g.lineTo(21,-29);g.lineTo(16,-12);g.closePath()}],e:[],er:4,m:[0,1.5,3.2],o:[0,2.5,.55],t:41,h:[-10,-20],x:g=>{
+ g.save();g.beginPath();rp(g,[[-19,3],[19,3],[19,24],[-19,24]],9);g.clip();g.fillStyle='#2b3350';g.fillRect(-25,3,50,26);g.restore();
+ g.beginPath();g.ellipse(0,-5,12,11,0,0,7);g.fillStyle='#ffe3cf';g.fill();
+ Bx(g,-14,0,9,11,2.5,'#2b3350','#14182a',1.6);Bx(g,5,0,9,11,2.5,'#2b3350','#14182a',1.6);
+ for(const y of[10,15,20])C(g,0,y,1.3,'#ffd54a','#5a3d2b',1);
+ g.beginPath();g.moveTo(-15,-12);g.lineTo(-14,-21);g.lineTo(-9,-15);g.lineTo(-4,-23);g.lineTo(1,-15);g.lineTo(7,-22);g.lineTo(11,-14);g.lineTo(15,-20);g.lineTo(15,-12);g.closePath();g.fillStyle='#e8f0ff';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();
+ Bx(g,-14,-12,28,8,3.5,'#1b1b24','#0e0e14',1.6);Ln(g,[[-10,-10.5],[-3,-10.5]],'#ffffff30',1.6);
+ C(g,29,-8,9,null,'#b79cff66',1.2);C(g,29,-8,6.4,'#7a4dff','#3b1f8f',1.8);C(g,27,-10,2.2,'#e9deff',null)}},
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:4.2,pc:'#8a2b2b',m:[0,-1,3.8],o:[0,0,.6],t:36,h:[-10,-18],x:g=>{
+ Ln(g,[[21,26],[31,-16]],'#5a3d2b',6.5);Ln(g,[[21,26],[31,-16]],'#2a2a33',3.6);Ln(g,[[21,26],[23.5,15.5]],'#8a6a4a',3.6);C(g,23.5,15.5,3.2,'#d4a63a','#5a3d2b',1.3);
+ g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#1b2420';for(let i=-4;i<4;i++)for(let j=0;j<4;j++)if((i+j)&1)g.fillRect(i*6.5,4+j*6.5,6.5,6.5);g.restore();
+ g.beginPath();g.moveTo(-9,4);g.lineTo(9,4);g.lineTo(0,13.5);g.closePath();g.fillStyle='#fffaf0';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();
+ C(g,0,-10,14.2,'#ffd9bd',null);
+ for(const s of[-1,1]){Bx(g,s*15.5-2.5,-3,5,7.5,1.2,'#fffaf0','#5a3d2b',1.1);C(g,s*15.5,.7,1.3,'#e6423a',null)}
+ g.beginPath();g.moveTo(-14.5,-9);g.bezierCurveTo(-18,-31,18,-31,14.5,-9);g.lineTo(12,-16);g.lineTo(8,-12);g.lineTo(3,-17);g.lineTo(-2,-12.5);g.lineTo(-7,-17);g.lineTo(-11,-13);g.closePath();g.fillStyle='#3d1f24';g.fill();g.lineWidth=2;g.strokeStyle='#1d0f12';g.stroke();
+ Ln(g,[[-9.5,-24],[-3,-27]],'#a63a3a88',2.2);Ln(g,[[-8.5,-14.5],[-6.5,-10]],'#c43b3b',2.2);
+ g.fillStyle='#ff7a7a77';for(const q of[-1,1]){g.beginPath();g.arc(q*9.5,-2.5,2.8,0,7);g.fill()}}},
+// ---- second anime trio (21-23): Scarlather = a quiet scout with a red scarf; Itadorinse = a cheerful pink-haired brawler in a hooded uniform; Bambubble = a little demon girl with a bamboo muzzle and ombre hair ----
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:3.6,m:[0,-1.5,2.2],t:37,h:[-10,-18],x:g=>{
+ Ln(g,[[-9,6],[-13,22]],'#8a6f4a',2);Ln(g,[[9,6],[13,22]],'#8a6f4a',2);
+ C(g,0,-10,14.2,'#ffd9bd',null);
+ Bx(g,9,8,8,16,3,'#d6362f','#5a3d2b',1.6);Ln(g,[[11,14],[15,14]],'#8f1f1a',1.4);Ln(g,[[11,19],[15,19]],'#8f1f1a',1.4);
+ Bx(g,-17,2,34,9,4.5,'#d6362f','#5a3d2b',1.8);Ln(g,[[-12,5],[10,5]],'#ff8a7a88',1.6);Ln(g,[[-8,9],[6,9]],'#8f1f1a88',1.4);
+ g.beginPath();g.moveTo(-16,-3);g.lineTo(-16,-11);g.bezierCurveTo(-18,-33,18,-33,16,-11);g.lineTo(16,-3);g.quadraticCurveTo(12,-2,10,-5);g.lineTo(10,-12);g.quadraticCurveTo(4,-12,-2,-16);g.quadraticCurveTo(-8,-12,-10,-13);g.lineTo(-10,-5);g.quadraticCurveTo(-13,-2,-16,-3);g.closePath();g.fillStyle='#1f1a22';g.fill();g.lineWidth=2;g.strokeStyle='#14101a';g.lineJoin='round';g.stroke();
+ Ln(g,[[-11,-25],[-3,-28]],'#ffffff55',2.4)}},
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:4,pc:'#8a5a2b',m:[0,-1,5],o:[0,0,.7],t:39,h:[-10,-18],x:g=>{
+ g.beginPath();g.ellipse(0,5,15,6,0,0,7);g.fillStyle='#c43b3b';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.stroke();
+ g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#e9eaf2';g.fillRect(-25,21,50,10);g.restore();
+ Ln(g,[[-9,8],[-12,22]],'#1b2038',1.8);Ln(g,[[9,8],[12,22]],'#1b2038',1.8);for(const y of[13,18])C(g,0,y,1.3,'#ffd54a','#5a3d2b',1);
+ C(g,0,-10,14.2,'#ffd9bd',null);
+ g.beginPath();g.moveTo(-15,-9);g.lineTo(-17,-22);g.lineTo(-11,-18);g.lineTo(-9,-30);g.lineTo(-4,-22);g.lineTo(0,-33);g.lineTo(4,-22);g.lineTo(9,-30);g.lineTo(11,-18);g.lineTo(17,-22);g.lineTo(15,-9);g.lineTo(12,-14);g.lineTo(7,-12);g.lineTo(2,-16);g.lineTo(-3,-12);g.lineTo(-8,-15);g.lineTo(-12,-12);g.closePath();g.fillStyle='#e58a8a';g.fill();g.lineWidth=2;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();
+ Ln(g,[[-6,-24],[-2,-28]],'#ffffff66',2.2);Ln(g,[[-10,-14.5],[-3,-12.5]],'#5a3d2b',1.8);Ln(g,[[10,-14.5],[3,-12.5]],'#5a3d2b',1.8);
+ g.fillStyle='#ff7a7a77';for(const q of[-1,1]){g.beginPath();g.arc(q*9.5,-2.5,2.8,0,7);g.fill()}}},
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6.2,-8],[6.2,-8]],er:4.4,pc:'#e0608a',m:0,t:37,h:[-10,-18],x:g=>{
+ g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#d9739a88';for(let i=-4;i<4;i++)for(let j=0;j<3;j++){const a=i*9+(j%2?4.5:0),b=7+j*6;g.beginPath();g.moveTo(a,b-2.6);g.lineTo(a+2.6,b);g.lineTo(a,b+2.6);g.lineTo(a-2.6,b);g.closePath();g.fill()}
+ g.fillStyle='#e6733a';g.fillRect(-25,17,50,6);Ln(g,[[-25,17],[25,17]],'#5a3d2b',1.4);g.restore();
+ g.beginPath();g.moveTo(-9,4);g.lineTo(9,4);g.lineTo(0,12.5);g.closePath();g.fillStyle='#fffaf0';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();
+ g.beginPath();g.moveTo(-17,-6);g.lineTo(-20,15);g.quadraticCurveTo(-15,19,-11,14);g.lineTo(-11,-4);g.closePath();g.fillStyle='#1f1a22';g.fill();g.lineWidth=1.8;g.strokeStyle='#14101a';g.stroke();
+ g.beginPath();g.moveTo(17,-6);g.lineTo(20,15);g.quadraticCurveTo(15,19,11,14);g.lineTo(11,-4);g.closePath();g.fill();g.stroke();
+ for(const s of[-1,1]){g.beginPath();g.moveTo(s*20,15);g.quadraticCurveTo(s*15,19,s*11,14);g.lineTo(s*12.2,10.5);g.lineTo(s*19.2,10.5);g.closePath();g.fillStyle='#f08a3a';g.fill()}
+ C(g,0,-10,14.2,'#ffd9bd',null);
+ g.beginPath();g.moveTo(-14.5,-8);g.bezierCurveTo(-18,-32,18,-32,14.5,-8);g.lineTo(12,-15);g.quadraticCurveTo(6,-18,1,-14);g.quadraticCurveTo(-4,-18,-12,-14.5);g.closePath();g.fillStyle='#1f1a22';g.fill();g.lineWidth=2;g.strokeStyle='#14101a';g.stroke();
+ Ln(g,[[-11,-25],[-3,-28]],'#ffffff44',2.4);
+ g.beginPath();g.moveTo(6,-24);g.lineTo(8.5,-31);g.lineTo(11.5,-23);g.closePath();g.fillStyle='#f4a6b8';g.fill();g.lineWidth=1.4;g.strokeStyle='#5a3d2b';g.stroke();
+ Ln(g,[[-8,0],[-14.5,-3.5]],'#f08aa8',1.8);Ln(g,[[8,0],[14.5,-3.5]],'#f08aa8',1.8);
+ Bx(g,-8.5,-2.4,17,5.4,2.7,'#7cc46a','#3f7a3a',1.6);Ln(g,[[-3,-2],[-3,2.6]],'#3f7a3a',1.3);Ln(g,[[3,-2],[3,2.6]],'#3f7a3a',1.3);Ln(g,[[-7,-.6],[-4.5,-.6]],'#ffffff88',1.2);
+ g.fillStyle='#ff7a7a77';for(const q of[-1,1]){g.beginPath();g.arc(q*10,-3,2.7,0,7);g.fill()}}},
+// ---- JJK duo (24-25): Tojilather = a lean, scarred mercenary with a dark staff-blade; Mahorasuds = a pale divine general with a golden wheel halo, pointed ears and a jagged sword ----
+{k:.95,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7)],e:[[-6,-8],[6,-8]],er:3.3,pc:'#2f5a4a',m:[0,-1.5,3],t:37,h:[-10,-18],x:g=>{
+ Ln(g,[[22,27],[29,-14]],'#5a3d2b',6.5);Ln(g,[[22,27],[29,-14]],'#2a2a33',3.6);Ln(g,[[29,-14],[32,-27]],'#5a3d2b',6);Ln(g,[[29,-14],[32,-27]],'#cfd8e3',3);Ln(g,[[22.5,24],[23.6,17]],'#8f1f1a',3.8);
+ g.beginPath();g.moveTo(-9,4);g.lineTo(9,4);g.lineTo(0,17);g.closePath();g.fillStyle='#ffd9bd';g.fill();g.lineWidth=1.8;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();Ln(g,[[-4,10],[0,12],[4,10]],'#5a3d2b66',1.4);
+ C(g,0,-10,14.2,'#ffd9bd',null);
+ g.beginPath();g.moveTo(-14.5,-9);g.bezierCurveTo(-18,-31,18,-31,14.5,-9);g.lineTo(12,-15);g.lineTo(8,-12);g.lineTo(4,-17);g.lineTo(-1,-13);g.lineTo(-5,-18);g.lineTo(-9,-13);g.lineTo(-12,-15);g.closePath();g.fillStyle='#1b1a20';g.fill();g.lineWidth=2;g.strokeStyle='#0e0d12';g.stroke();
+ Ln(g,[[-10,-12.5],[-3,-11]],'#0e0d12',2.2);Ln(g,[[10,-12.5],[3,-11]],'#0e0d12',2.2);Ln(g,[[-10,-25],[-3,-28]],'#ffffff33',2.2);
+ Ln(g,[[5.5,-1.8],[8.8,1.4]],'#c4605a',1.9)}},
+{k:.84,p:[g=>rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9),g=>g.arc(0,-10,15,0,7),g=>{g.moveTo(-13,-14);g.lineTo(-24,-23);g.lineTo(-15,-4);g.closePath()},g=>{g.moveTo(13,-14);g.lineTo(24,-23);g.lineTo(15,-4);g.closePath()}],e:[[-6,-8],[6,-8]],er:3.5,pc:'#7a7a88',m:[0,-1,3.4],t:49,h:[-10,-18],x:g=>{
+ g.beginPath();g.moveTo(24,26);g.lineTo(24,-8);g.lineTo(27,-10);g.lineTo(26,-16);g.lineTo(30,-18);g.lineTo(29,-24);g.lineTo(34,-35);g.lineTo(35,-22);g.lineTo(32,-18);g.lineTo(35,-12);g.lineTo(31,-8);g.lineTo(34,-2);g.lineTo(30,2);g.lineTo(32,26);g.closePath();g.fillStyle='#d9d2bd';g.fill();g.lineWidth=2;g.strokeStyle='#5a3d2b';g.lineJoin='round';g.stroke();Ln(g,[[27.5,22],[27.5,-4]],'#ffffff77',1.6);
+ g.save();g.beginPath();rp(g,[[-19,4],[19,4],[19,24],[-19,24]],9);g.clip();g.fillStyle='#5b8f94';g.fillRect(-25,16,50,10);g.fillStyle='#3f6f75';for(let i=-4;i<4;i++){g.beginPath();g.moveTo(i*5.2,16);g.lineTo(i*5.2+2.6,24);g.lineTo(i*5.2+5.2,16);g.closePath();g.fill()}Ln(g,[[-25,16],[25,16]],'#5a3d2b',1.6);g.restore();
+ Ln(g,[[-5,8],[0,10.5],[5,8]],'#5a3d2b66',1.5);Ln(g,[[0,10.5],[0,15]],'#5a3d2b55',1.4);
+ Ln(g,[[-9.5,-3],[-9.5,2.5]],'#7a3d6a99',1.6);Ln(g,[[9.5,-3],[9.5,2.5]],'#7a3d6a99',1.6);Ln(g,[[0,-24],[0,-17]],'#5a3d2b88',1.6);Ln(g,[[-5,-23],[-4,-18]],'#5a3d2b66',1.3);Ln(g,[[5,-23],[4,-18]],'#5a3d2b66',1.3);
+ g.save();g.translate(0,-33);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#5a3d2b',5)}C(g,0,0,7.5,null,'#5a3d2b',5);for(let a=0;a<8;a++){const t=a*Math.PI/4;Ln(g,[[Math.cos(t)*7.5,Math.sin(t)*7.5],[Math.cos(t)*11.5,Math.sin(t)*11.5]],'#e8c04a',3)}C(g,0,0,7.5,null,'#e8c04a',3);C(g,0,0,2.4,'#e8c04a','#5a3d2b',1.4);g.restore()}}];
 // lightsaber / foam blade: hilt a->b, blade b->c (outlined like everything else)
 function sab(g,a,b,c,bl){Ln(g,[a,b],'#5a3d2b',9.5);Ln(g,[b,c],'#5a3d2b',10);Ln(g,[a,b],'#aab4be',6);Ln(g,[b,c],bl,6.5);Ln(g,[b,c],'#fff',2.6);Ln(g,[a,b],'#4a525c',2)}
 // sleepy eyelids for soaps with lid:1 (drawn over the eyes in the soap's own colour)
@@ -415,9 +487,10 @@ function cSoap(c,si,col,now,k){const u=c.u,D=SP[si],j=Math.abs(Math.sin(now/95+c
  mouth(x,D,1,k>.1?2:0);
  x.restore()}
 function npc(c,now,L){cSoap(c,c.si,c.col,now,L>.12?Math.min(1,L+.1):0)}
-function vipS(c,p,now,L){const hot=(cj[p.id]||0)>now;cSoap(c,p.ci,COL[p.ci],now,hot?1:L*.5)}
-function vipL(c,p){const u=c.u;x.save();x.font=`800 ${Math.max(10,u*.75)}px "Baloo 2",sans-serif`;x.textAlign='center';x.lineJoin='round';x.lineWidth=4;x.strokeStyle='#fffaf0';const nm=p.name+(me&&p.id===me.id?' (you)':'');x.strokeText(nm,c.x,c.y-u*2.5);x.fillStyle='#5a3d2b';x.fillText(nm,c.x,c.y-u*2.5);x.restore()}
-function drawCrowd(now,dt,f){cheerL=Math.max(0,cheerL-dt*.55);const L=cheerL,vip=[],used={};
+function vipS(c,p,now,L){{const m=x.getTransform(),q=m.transformPoint(new DOMPoint(c.x,c.y)),k=m.a/dpr,u=c.u*k;EPOS[p.id]=[q.x/dpr,q.y/dpr,1,performance.now(),u*1.25+8,Math.min(.75,Math.max(.62,u/26))]}const hot=(cj[p.id]||0)>now;cSoap(c,p.ci,COL[p.ci],now,hot?1:L*.5)}
+const VL=[]; // name labels already drawn this frame, so neighbouring fans never print their names on top of each other
+function vipL(c,p){if(ELIVE[p.id])return;const u=c.u,fs=Math.max(10,u*.75);x.save();x.font=`800 ${fs}px "Baloo 2",sans-serif`;x.textAlign='center';x.lineJoin='round';x.lineWidth=4;x.strokeStyle='#fffaf0';const nm=p.name+(me&&p.id===me.id?' (you)':''),w=x.measureText(nm).width+6;let yy=c.y-u*2.5;for(let t=0;t<3&&VL.some(r=>Math.abs(r.x-c.x)<(r.w+w)/2&&Math.abs(r.y-yy)<fs);t++)yy-=fs*1.05;VL.push({x:c.x,y:yy,w});x.strokeText(nm,c.x,yy);x.fillStyle='#5a3d2b';x.fillText(nm,c.x,yy);x.restore()}
+function drawCrowd(now,dt,f){VL.length=0;cheerL=Math.max(0,cheerL-dt*.55);const L=cheerL,vip=[],used={};
  if(room&&room.st!=='lobby')for(const p of room.players){const e=f&&f.pl[p.id];if(p.wait||(p.in&&e&&!e.alive&&f.st!=='count'))vip.push(p)}
  vip.forEach(p=>{if(!vo.length)return;let j=p.ci%vo.length,n=0;while(used[vo[j]]&&n++<vo.length)j=(j+1)%vo.length;used[vo[j]]=p});
  seats={};for(const i in used)seats[used[i].id]=+i;
@@ -432,8 +505,11 @@ document.querySelectorAll('[data-i]').forEach(e=>e.innerHTML=ico(e.dataset.i,+e.
 const COL=['#ff9ec7','#8fd3ff','#ffd36e','#b4ec86','#c4a3ff','#ffae85','#78e0cc','#f3a0f3',
  '#d8b98b','#4a4858','#e8b58a','#e6edf4', // galaxy crew
  '#f4e04d','#ff7a9c','#7bbfcf','#ff6a55', // reef crew
- '#e84a5f','#8ad7a4'], // storybook pair
-SN=['Hole','Fish','Duck','Frog','Star','Cat','Whale','Heart','Lather Knight','Lord Lather','Skylather','Bleep-Bar','Squarepore','Star Buddy','Grumpus','Boss Crab','Bubblefin','Bobbie'],NS=18;
+ '#e84a5f','#8ad7a4', // storybook pair
+ '#78a35f','#e8f0ff','#2f7d57', // anime-inspired trio
+ '#d8c3a0','#3a3f5c','#f2a6c0', // second anime trio
+ '#34413b','#e2ded6'], // jjk duo
+SN=['Hole','Fish','Duck','Frog','Star','Cat','Whale','Heart','Lather Knight','Lord Lather','Skylather','Bleep-Bar','Squarepore','Star Buddy','Grumpus','Boss Crab','Bubblefin','Bobbie','Captain Scrub','Limitless Lather','Checkerlather','Scarlather','Itadorinse','Bambubble','Tojilather','Mahorasuds'],NS=26;
 const R0=300,CDMAX=3,PCDMAX=4,TOUCH=matchMedia('(pointer:coarse)').matches,CTL=TOUCH?'Drag to move · DASH to ram · PARRY to block':'WASD move · Space dash · E parry';
 let parryUntil={},goUntil=0,lastSt='',sayT=0,myCi=0,pickMode='';const MKb=[];
 const Q=new URLSearchParams(location.search),DBG={l:0,g:0};let scr='home',dW=[],minD=0,jit=0,dly=100,rtt=80,curIn={x:0,y:0},lastFa=null,pendDash=null,pme=null,lastMine=null,music=!Q.has('nomusic'),mg,nextT=0,step=0,intense=false,faPh=0,dizzy={},rings=[],pops=[],outState='',ws,me=null,room=null,pending=null,snaps=[],lastRound=-1,sess=null,sound=true,shakeOn=true,ac,shake=0,hitUntil={},parts=[],S=1,lastT=0;
@@ -631,11 +707,14 @@ ui();
 
 // ---------- Input ----------
 const EMN=['Muach','Shhh','Stare','MDR','AAAA','Bleh','Haha'],EMF=['muach','shh','stare','mdr','aaaa','bleh','haha'],EPOS={},ELIVE={};let emoAt=0;
-EMF.forEach((f,i)=>{new Image().src='emotes/'+f+'.webp';const b=document.createElement('button');b.innerHTML='<img alt="" src="emotes/'+f+'.webp">'+EMN[i];b.title=(i+1)+'';b.onclick=()=>{$('#ep').classList.remove('open');pressEmo(i)};$('#ep').appendChild(b)});
-$('#eb').onclick=()=>$('#ep').classList.toggle('open');
-function pressEmo(i){const t=performance.now();if(t<emoAt)return;emoAt=t+2000;send({t:'emo',i});const b=$('#eb');b.classList.add('cd');setTimeout(()=>b.classList.remove('cd'),2000)}
+const tap=(el,fn)=>{el.addEventListener('pointerdown',e=>{e.preventDefault();fn()});el.addEventListener('click',e=>{if(e.detail===0)fn()})};
+EMF.forEach((f,i)=>{new Image().src='emotes/'+f+'.webp';const b=document.createElement('button');b.innerHTML='<img alt="" src="emotes/'+f+'.webp">'+EMN[i];b.title=EMN[i];b.setAttribute('aria-label',EMN[i]);tap(b,()=>{emoTog(false);pressEmo(i)});$('#ep').appendChild(b)});
+const emoTog=o=>{const e=$('#ep'),v=o??!e.classList.contains('open');e.classList.toggle('open',v);$('#eb').setAttribute('aria-expanded',v)};
+$('#eb').setAttribute('aria-expanded','false');tap($('#eb'),()=>emoTog());
+addEventListener('pointerdown',e=>{if(!e.target.closest('#ep,#eb'))emoTog(false)});addEventListener('keydown',e=>{if(e.key==='Escape')emoTog(false)});
+function pressEmo(i){const t=performance.now();if(t<emoAt)return;emoAt=t+2000;send({t:'emo',i});const b=$('#eb');b.classList.add('off');setTimeout(()=>b.classList.remove('off'),2000)}
 function showEmo(id,i){if(!(i>=0&&i<EMF.length))return;const o=ELIVE[id];if(o){o.el.remove();clearTimeout(o.t)}const el=document.createElement('div');el.className='em';el.innerHTML='<div class="b"><img alt="" src="emotes/'+EMF[i]+'.webp"></div>';$('#emL').appendChild(el);const t=setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),250);delete ELIVE[id]},2200);ELIVE[id]={el,t}}
-function posEmo(now){for(const id in ELIVE){const p=EPOS[id],el=ELIVE[id].el,ok=p&&now-p[3]<400;el.style.left=(ok?p[0]:innerWidth/2)+'px';el.style.top=(ok?p[1]-30*p[2]:150)+'px';el.style.setProperty('--s',ok?Math.min(1.4,Math.max(.7,p[2])):1)}}
+function posEmo(now){for(const id in ELIVE){const p=EPOS[id],el=ELIVE[id].el,ok=p&&now-p[3]<400;el.style.left=(ok?p[0]:innerWidth/2)+'px';el.style.top=(ok?p[1]-(p[4]??30*p[2]):150)+'px';el.style.setProperty('--s',ok?(p[5]??Math.min(1.4,Math.max(.7,p[2]))):1)}}
 function pressDash(){send({t:outState?'cheer':'dash'});const ns=snaps[snaps.length-1];if(!outState&&lastMine&&lastMine.alive&&lastMine.cd<=.05&&ns&&ns.s.st==='play')pendDash={t:Date.now(),fa:lastFa==null?lastMine.fa:lastFa}}
 function pressParry(){if(outState){send({t:'cheer'});return}send({t:'parry'});if(me&&lastMine&&lastMine.alive&&lastMine.pcd<=.05&&!lastMine.par)parryUntil[me.id]=performance.now()+300}
 const keys={};let inp={x:0,y:0},sentX=9,sentY=9,sentAt=0;
