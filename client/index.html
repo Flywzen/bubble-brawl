@@ -100,7 +100,15 @@ input:focus{border-color:#25c7c0}
 #ov{background:#0000;align-items:flex-start;pointer-events:none;padding-top:max(56px,calc(var(--st,0px) + 4px))}
 #ov .card{pointer-events:auto;max-width:380px;margin:0 auto}
 .row{display:flex;justify-content:space-between;gap:10px;padding:3px 8px;border-radius:12px;margin:3px 0;font-size:18px}
-#help .card{max-width:440px;text-align:left}#help h2{margin:0 0 6px;color:#19b3ae;text-align:center}
+#help .card{max-width:400px}#help h2{margin:2px 0 4px;color:#19b3ae}.tskip{position:absolute;right:16px;top:14px;background:none;border:0;font:inherit;font-size:15px;font-weight:800;color:#b3936a;cursor:pointer;padding:4px}
+.tut-s{min-height:318px;display:flex;flex-direction:column;align-items:center;gap:8px;touch-action:pan-y}.tut-s p{margin:2px 0;font-weight:600;font-size:15px;color:#6a4a32;line-height:1.35}.tut-s .ic{color:#19b3ae;vertical-align:-3px}.tut-n{font-size:12px;font-weight:800;color:#b3936a;letter-spacing:.08em}
+.tdots{display:flex;gap:6px;justify-content:center;margin:8px 0 2px}.tdots i{width:9px;height:9px;border-radius:5px;background:#e3d2ad;transition:width .2s}.tdots i.on{background:#25c7c0;width:22px}
+.tar{position:relative;width:250px;height:140px;flex:none}.tar .w{position:absolute;inset:8px 30px;border-radius:50%;background:radial-gradient(#e6fdff,#8fe3ee);box-shadow:0 0 0 7px #fff,0 0 0 10px #c9d6de}.tar img{position:absolute;width:54px;top:44px}.tar .me{left:62px;animation:tme 2.8s infinite}.tar .rv{left:128px;animation:trv 2.8s infinite}.tar .bo{position:absolute;right:0;top:16px;font-weight:800;font-size:20px;color:#ff6f9f;opacity:0;animation:tbo 2.8s infinite}
+@keyframes tme{0%,15%{transform:none}33%{transform:translateX(16px)}55%,100%{transform:translateX(4px)}}@keyframes trv{0%,30%{transform:none;opacity:1}60%{transform:translateX(90px) rotate(25deg);opacity:1}75%,100%{transform:translateX(108px) rotate(40deg);opacity:0}}@keyframes tbo{0%,55%{opacity:0;transform:scale(.5)}65%{opacity:1;transform:scale(1.15)}88%{opacity:1;transform:none}100%{opacity:0}}
+.tk{display:inline-flex;min-width:30px;height:30px;padding:0 7px;align-items:center;justify-content:center;background:#fff;border:2px solid #e8d6ad;border-radius:9px;box-shadow:0 3px 0 #d6bd88;font-size:14px;font-weight:800;color:#5a3d2b;vertical-align:middle;margin-left:4px}.twasd{display:grid;grid-template-columns:repeat(3,40px);gap:6px;justify-content:center;margin:14px 0}.twasd .tk{width:40px;height:40px;margin:0;font-size:17px}
+.tjs{position:relative;width:110px;height:110px;border-radius:50%;border:3px dashed #d6bd88;background:#0000000a;margin:6px 0;flex:none}.tjs i{position:absolute;left:30px;top:30px;width:44px;height:44px;border-radius:50%;background:#fffaf0;box-shadow:0 4px 0 #d6bd88;animation:tjs 2.4s ease-in-out infinite}@keyframes tjs{0%,100%{transform:none}25%{transform:translate(26px,-10px)}50%{transform:translate(-8px,24px)}75%{transform:translate(-24px,-14px)}}
+.trow{display:flex;align-items:center;gap:12px;text-align:left;width:100%;background:#fff3d9;border-radius:18px;padding:8px 10px}.trow b{display:block;font-size:16px;color:#5a3d2b}.trow span{font-size:13px;font-weight:600;color:#7a5a3a;line-height:1.25}.tb{--c:#25c7c0;--d:#14958f;flex:none;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle,#fffaf0 0 60%,var(--c) 62%);box-shadow:0 4px 0 var(--d);display:flex;align-items:center;justify-content:center;color:#4a2f20}.tb svg{width:24px;height:24px}
+.tsc{display:flex;gap:6px;justify-content:center;margin:4px 0}.tsc div{background:#fff3d9;border-radius:14px;padding:6px 8px;font-weight:700;font-size:12px;color:#7a5a3a;min-width:84px}.tsc b{display:block;font-size:22px;color:#ff9a5c}
 #help p{margin:6px 0;font-weight:600;font-size:15px}
 .nrow{display:flex;gap:8px;align-items:center;margin:5px 0}.nrow input{margin:0;flex:1;min-width:0}
 .av{position:relative;flex:none;width:54px;height:54px;border-radius:18px;border:3px solid #fff;box-shadow:0 3px 0 #0002;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -181,20 +189,7 @@ input:focus{border-color:#25c7c0}
 
 <div id="ov" class="scr" hidden><div class="card" id="ovc"></div></div>
 
-<div id="help" class="scr" hidden style="background:#0005;z-index:5"><div class="card">
-  <h2>How to Play</h2>
-  <p><i data-i="soap"></i> <b>Slide. Bonk. Don't fall.</b> Shove rival soaps out of the arena: a sink, a toilet or a bathtub. You're out when the center of your body crosses the edge.</p>
-  <p><i data-i="keyboard"></i> <b>Laptop:</b> WASD / arrow keys to move, Space to dash, E to parry.<br><i data-i="phone"></i> <b>Phone:</b> joystick on the left, big DASH and PARRY buttons on the right. Dash recharges in 3 seconds.</p>
-  <p><i data-i="shield"></i> <b>Parry:</b> tap it right before a soap rams you (it works for a split second). Their push bounces back at them and they get dizzy. If you miss it recharges in 4 seconds, if you land it it is back in 2.</p>
-  <p><i data-i="soap"></i> <b>Your soap:</b> tap the soap next to your name (or Change soap in the lobby) to pick a look. 28 to choose from, including a hooded space knight, a masked dark lord, a young blade-wielding hero, a little blue-and-white droid and a crew from the reef. Just for looks, every soap plays the same.</p>
-  <p><i data-i="clock"></i> The arena starts shrinking after 15 seconds. Every round begins with a 3-second countdown. In the sink, the toilet and the bathtub, watch the faucet: it is alive. It slithers out of a hole in the rim, picks a victim and glares at them while a white stripe on the water warns where the jet will shove you. It keeps spitting every few seconds for the whole round, even while the arena shrinks.</p>
-  <p><i data-i="trophy"></i> <b>Scoring:</b> win the round (last soap standing) = <b>3 points</b>. Every <b>kill</b> = <b>+1 point</b>: knock a rival out and you get it if you were the last one to bump them (within 3 seconds, parry rebounds count too). Falling on your own or from the faucet alone gives nobody a kill. If the 45 seconds run out with several survivors = <b>1 point</b> each. Everyone falls at once = no win points, but kills still count. Eliminated? You join the cheering crowd: press CHEER (Space) to cheer the rest on, then you're back next round.</p>
-  <p>After 3 rounds the highest score wins. A tie means a shared victory.</p>
-  <p><i data-i="check"></i> <b>Ready:</b> in a friends room everyone except the host taps <b>I'm ready</b> in the lobby. The host can start once all of them are ready (bots are always ready). Tap it again to take it back. Everyone has to get ready again after a match.</p>
-  <p><i data-i="bot"></i> <b>Bots:</b> <b>Quick Play</b> starts straight away against 3 bots. In <b>Play with Friends</b> the host can add bots to empty seats (up to 8 players in total). Pick <b>Easy</b>, <b>Normal</b> or <b>Hard</b> for the bots (on the home screen, in the lobby, or after a match). Bots follow the same rules and scoring as everyone else, and a friend joining a full lobby takes a bot's seat.</p>
-  <p><i data-i="back"></i> Use <b>Back</b> (or the exit button during a match) to leave a room at any time.</p>
-  <button class="btn" onclick="$('#help').hidden=true">Got it!</button>
-</div></div>
+<div id="help" class="scr" hidden style="background:#0005;z-index:5"><div class="card"><button id="tSkip" class="tskip">Skip</button><div id="tBody"></div><div class="tdots" id="tDots"></div><div class="brow"><button class="btn g" id="tPrev">Back</button><button class="btn" id="tNext">Next</button></div></div></div>
 
 <div id="pick" class="scr" hidden style="background:#0005;z-index:6"><div class="card">
   <h2>Choose your soap</h2><div class="small">Each soap has its own unique skill (can be toggled in the lobby).</div>
@@ -745,15 +740,29 @@ function hud(s){intense=s.st==='play'&&(s.R<299||s.tm<12);
   if(ost==='w'){put('o0',o.children[0],ico('hourglass',20)+' Next match');put('o1',o.children[1],'Match in progress · cheer them on','textContent')}
   $('#hud').classList.toggle('nosk',!rsk());$('#db').classList.remove('off');$('#bb').classList.toggle('off',!!ost);$('#sb').classList.toggle('off',!!ost);cv.style.filter=ost?'saturate(.7)':'';
 }
-function showHelp(){$('#help').hidden=false}
+// ---- tutorial: 4 short picture slides. Shown once before the first match (Quick Play / Create / Join), and from "How to play" any time ----
+let tutI=0,tutCb=null;
+function tutSlides(){const m2=room&&me&&room.players.find(p=>p.id===me.id),ci=m2?m2.ci:myCi,I=SKN[ci]||SKN[0],K=s=>`<span class="tk">${s}</span>`,H=(n,t)=>`<div class="tut-n">STEP ${n} OF 4</div><h2>${t}</h2>`;
+ return[
+  H(1,'Push rivals off!')+`<div class="tar"><div class="w"></div><img class="me" alt="" src="${mkb(ci)}"><img class="rv" alt="" src="${mkb((ci+1)%NS)}"><div class="bo">OUT!</div></div><p>Bump the other soaps <b>out of the arena</b>.</p><p>Slide past the edge and <b>you're out</b>. The <b>last soap standing</b> wins the round.</p>`,
+  H(2,'Move around')+(TOUCH?'<div class="tjs"><i></i></div><p>Put your thumb anywhere on the <b>left half</b> of the screen and drag to steer.</p>':`<div class="twasd"><span></span>${K('W')}<span></span>${K('A')}${K('S')}${K('D')}</div><p>Steer with <b>W A S D</b> or the <b>arrow keys</b>.</p>`)+'<p>Soap is slippery: you keep sliding, so <b>brake early</b> near the edge!</p>',
+  H(3,'Your buttons')+`<div class="trow"><div class="tb" style="--c:#ff9a5c;--d:#d9733a">${GI.dash}</div><div><b>Dash${TOUCH?'':K('Space')}</b><span>Burst forward and ram a rival hard. Ready again after 3 s.</span></div></div><div class="trow"><div class="tb">${GI.parry}</div><div><b>Parry${TOUCH?'':K('E')}</b><span>Tap it right before someone hits you: they bounce back and get dizzy.</span></div></div><div class="trow"><div class="tb" style="--c:#9b6bff;--d:#6e41d4">${GI.skill}</div><div><b>Skill${TOUCH?'':K('Q')}</b><span>Your soap's special move. ${esc(SN[ci])}: <i style="color:#7a4dff;font-style:normal;font-weight:800">${I[0]}</i>, ${I[1].charAt(0).toLowerCase()+I[1].slice(1)}.</span></div></div>`,
+  H(4,'Watch out &amp; score')+`<p>${ico('clock')} After 15 s the arena <b>shrinks</b>.</p><p>${ico('drop')} A <b>white stripe</b> on the water = the faucet is about to spray there. Get out of it!</p><div class="tsc"><div><b>+3</b>Win the round</div><div><b>+1</b>Each knock-out</div><div><b>+1</b>Survive the timer</div></div><p>3 rounds, highest total wins. Out early? Press <b>Cheer</b>, you're back next round.</p>`]}
+function tutR(){const S=tutSlides();tutI=Math.max(0,Math.min(S.length-1,tutI));$('#tBody').innerHTML=`<div class="tut-s">${S[tutI]}</div>`;$('#tDots').innerHTML=S.map((_,i)=>`<i class="${i===tutI?'on':''}"></i>`).join('');$('#tPrev').style.visibility=tutI?'':'hidden';$('#tSkip').style.visibility=tutI<S.length-1?'':'hidden';$('#tNext').textContent=tutI<S.length-1?'Next':(tutCb?"Let's play!":'Got it!')}
+function showHelp(cb){tutCb=typeof cb==='function'?cb:null;tutI=0;tutR();$('#help').hidden=false}
+function tutEnd(){$('#help').hidden=true;try{localStorage.bbTut='1'}catch{}const c=tutCb;tutCb=null;if(c)c()}
+$('#tPrev').onclick=()=>{tutI--;tutR()};$('#tNext').onclick=()=>{if(tutI>=3)tutEnd();else{tutI++;tutR()}};$('#tSkip').onclick=tutEnd;
+{let sx=null;const c=$('#help .card');c.addEventListener('pointerdown',e=>{sx=e.clientX});c.addEventListener('pointerup',e=>{if(sx==null)return;const d=e.clientX-sx;sx=null;if(Math.abs(d)>50&&!e.target.closest('button')){if(d<0&&tutI<3){tutI++;tutR()}else if(d>0&&tutI){tutI--;tutR()}}})}
+const tutSeen=()=>{try{return!!localStorage.bbTut}catch{return true}};
+const gate=fn=>()=>{au();if(tutSeen()||!nm())return fn();showHelp(fn)}; // first time ever: tutorial first, then the room is made/joined
 const nm=()=>($('#name').value||$('#name2').value).trim();
 function leave(to){send({t:'leave'});clearSess();snaps=[];lastRound=-1;outState='';scr=to||'home';ui()}
 function needName(){const n=nm();if(!n){E('Enter your name first');return null}E('');return n}
-$('#bQuick').onclick=()=>{au();const n=needName();if(!n)return;sess={name:n};if(!ws||ws.readyState!==1)E('Connecting to server… (can take ~1 min if it was asleep)');act({t:'create',name:n,quick:1,bots:3,ci:myCi,df:diff,sk:skOn})};
+$('#bQuick').onclick=gate(()=>{au();const n=needName();if(!n)return;sess={name:n};if(!ws||ws.readyState!==1)E('Connecting to server… (can take ~1 min if it was asleep)');act({t:'create',name:n,quick:1,bots:3,ci:myCi,df:diff,sk:skOn})});
 $('#bFriends').onclick=()=>{au();E('');scr='friends';ui()};
 $('#bBackHome').onclick=()=>{E('');scr='home';ui()};
-$('#bCreate').onclick=()=>{au();const n=needName();if(!n)return;sess={name:n};act({t:'create',name:n,ci:myCi,df:diff,sk:skOn})};
-$('#bJoin').onclick=()=>{au();const n=needName();if(!n)return;const c=$('#code').value.trim();if(c.length<4)return E('Enter the 4-letter code');sess={name:n};act({t:'join',code:c,name:n,ci:myCi})};
+$('#bCreate').onclick=gate(()=>{au();const n=needName();if(!n)return;sess={name:n};act({t:'create',name:n,ci:myCi,df:diff,sk:skOn})});
+$('#bJoin').onclick=gate(()=>{au();const n=needName();if(!n)return;const c=$('#code').value.trim();if(c.length<4)return E('Enter the 4-letter code');sess={name:n};act({t:'join',code:c,name:n,ci:myCi})});
 $('#bLeave').onclick=()=>leave('friends');
 $('#bExit').onclick=()=>{$('#sheet').hidden=true;if(confirm('Leave this match and go back to the menu?'))leave('home')};
 $('#bAddBot').onclick=()=>send({t:'addbot'});
@@ -802,7 +811,7 @@ function pressDash(){send({t:outState?'cheer':'dash'});const ns=snaps[snaps.leng
 function pressParry(){if(outState){send({t:'cheer'});return}send({t:'parry'});if(me&&lastMine&&lastMine.alive&&lastMine.pcd<=.05&&!lastMine.par)parryUntil[me.id]=performance.now()+300}
 function pressSkill(){if(outState){send({t:'cheer'});return}if(!rsk())return;send({t:'skill'})}
 const keys={};let inp={x:0,y:0},sentX=9,sentY=9,sentAt=0;
-addEventListener('keydown',e=>{au();if(e.key==='Escape'&&!$('#help').hidden){$('#help').hidden=true;return}if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();
+addEventListener('keydown',e=>{au();if(!$('#help').hidden){if(e.key==='Escape')tutEnd();else if(e.key==='ArrowRight')$('#tNext').click();else if(e.key==='ArrowLeft'&&tutI)$('#tPrev').click();return}if(e.target.tagName==='INPUT')return;const k=e.key.toLowerCase();
   if(' '===e.key){e.preventDefault();if(!e.repeat)pressDash()}
   else if((k==='e'||k==='shift')&&!e.repeat)pressParry();
   else if((k==='q'||k==='r')&&!e.repeat)pressSkill();

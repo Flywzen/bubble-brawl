@@ -4,6 +4,7 @@ Online multiplayer party game for 2–8 players. Slide your soap bar around a si
 
 ## Features
 
+- **Picture tutorial**: 4 short slides (goal, moving, Dash / Parry / Skill, scoring) open automatically before a player's first match, and from "How to play" any time.
 - **Emotes**: press 1-7 (or the 😀 button on phones) to pop a meme sticker over your soap.
 
 - **3 arenas** — Sink (circle), Toilet (oval), Bathtub (rounded rectangle) — shuffled each round
